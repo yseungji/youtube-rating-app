@@ -1,0 +1,42 @@
+# Android Studio / local machine
+.idea/
+*.iml
+**/local.properties
+.DS_Store
+Thumbs.db
+
+# Gradle / generated build output
+.gradle/
+.kotlin/
+**/build/
+**/.cxx/
+**/.externalNativeBuild/
+captures/
+
+# App signing credentials
+*.jks
+*.keystore
+**/keystore.properties
+**/signing.properties
+
+# Firebase client config: obtain from the team project (see docs)
+**/google-services.json
+
+# Server credentials and environment-specific secrets
+secrets/
+.env
+.env.*
+!.env.example
+**/*-firebase-adminsdk-*.json
+**/service-account*.json
+**/serviceAccount*.json
+
+# Firebase / Node generated files
+.firebase/
+firebase-debug*.log
+firestore-debug.log
+ui-debug.log
+**/node_modules/
+
+# Keep source-controlled: gradle.properties (without secrets), Gradle Wrapper,
+# firebase.json, .firebaserc, firestore.rules, firestore.indexes.json, storage.rules.

@@ -1,0 +1,25 @@
+name: 기능 작업
+description: 구현할 기능과 완료 조건을 정합니다.
+title: "[기능] "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: 구현할 내용
+      description: 어떤 화면에서 어떤 동작을 만들지 적어주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 완료 조건
+      placeholder: |
+        - [ ] 사용자가 버튼을 누르면 ...
+        - [ ] 오류가 발생하면 ...
+    validations:
+      required: true
+  - type: textarea
+    id: coordination
+    attributes:
+      label: 협의할 내용
+      description: 함께 수정할 파일이나 다른 작업과의 의존성을 적어주세요.

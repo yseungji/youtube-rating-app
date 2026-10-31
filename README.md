@@ -55,7 +55,7 @@ https://github.com/yseungji/youtube-rating-app.git
 |---|---|
 | 승지 | [@yseungji](https://github.com/yseungji) |
 | 도엽 | [@Yeopdo](https://github.com/Yeopdo) |
-| 추가 팀원 | 아이디 확인 후 초대 |
+| 주원 | [@juwonhs0913](https://github.com/juwonhs0913) |
 
 ## 저장소 안내
 

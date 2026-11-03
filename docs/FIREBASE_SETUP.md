@@ -1,10 +1,12 @@
 # 팀 공용 Firebase 설정
 
-이 문서는 향후 연결 절차입니다. 저장소 생성만으로 Firebase 프로젝트나 서버가 구성되는 것은 아닙니다.
+기존에 구축한 Firestore를 Android 앱에서 사용하도록 Gradle 연결 설정과 `CloudFirestoreActivity.addData()` 저장 테스트 코드를 추가했습니다. 아래 절차는 팀원이 같은 환경을 준비하는 방법입니다.
+
+서비스 설계는 [Firestore 데이터 구조](FIRESTORE_SCHEMA.md)를 따릅니다. 데이터 구조 설계와 실제 보안 규칙·집계 구현은 구분합니다.
 
 ## 클라이언트 설정
 
-1. 팀 공용 개발용 Firebase 프로젝트를 정합니다.
+1. 기존에 구축한 팀 공용 개발용 Firebase 프로젝트에 접근합니다.
 2. Android 앱의 applicationId와 같은 패키지명으로 앱을 등록합니다.
 3. 콘솔에서 `google-services.json`을 다운로드해 `app/google-services.json`에 둡니다.
 4. 실제 프로젝트에 맞는 Google services 플러그인과 Firebase SDK 의존성을 추가합니다.
@@ -13,6 +15,18 @@
 이 저장소는 기본적으로 `google-services.json`을 Git에서 제외합니다. 팀원은 공용 Firebase 프로젝트의 같은 앱 설정을 받아 로컬에 둡니다.
 
 `google-services.json`은 프로젝트·앱 식별 설정이며 서비스 계정의 비밀 개인키와는 다릅니다. 이 파일을 제외하는 것은 팀 설정을 배치하는 정책입니다. 클라이언트 설정을 숨기는 것만으로 Firestore 데이터가 보호되지는 않습니다.
+
+## 현재 설정과 저장 테스트
+
+- Google services 플러그인 4.5.0, Firebase BoM 35.1.0, Firestore·Analytics SDK를 사용합니다.
+- Android application 플러그인은 기존 alias를 사용합니다. 같은 플러그인을 id 방식으로 중복 선언하지 않습니다.
+- 현재 Firestore SDK에는 버전 카탈로그와 BoM 기반 선언이 함께 있으므로 이후 버전 관리 방식을 통일합니다.
+- `CloudFirestoreActivity` 실행 시 `ratings/testRating`에 예시 데이터를 저장합니다.
+- Logcat 필터 `package:mine tag:CJW`로 결과를 확인하고 Firebase 콘솔에서도 해당 문서를 확인합니다.
+- 현재 예시는 4.5점이며 재실행하면 같은 문서를 덮어쓰는 연결 테스트입니다. 서비스의 1~5점 정수 평가와 구분합니다.
+- `Default FirebaseApp is not initialized` 오류는 설정 파일 위치·패키지명과 Google services 플러그인 적용 여부를 확인합니다.
+
+이번 문서 수정에서는 저장 테스트를 다시 실행하지 않았습니다.
 
 ## 서버 자격증명과 규칙
 

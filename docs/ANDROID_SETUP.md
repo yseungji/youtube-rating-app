@@ -1,6 +1,8 @@
-# 첫 Android 프로젝트 등록
+# Android 프로젝트 등록 안내
 
-현재 저장소에는 Android 앱 프로젝트가 없습니다. 첫 프로젝트를 등록할 때 다음을 맞춥니다.
+현재 상태와 실제 개발 환경은 [README](../README.md), Firestore 테스트와 서비스 구조의 차이는 [Firestore 데이터 구조](FIRESTORE_SCHEMA.md)를 참고합니다. 아래는 프로젝트 최초 등록 시 사용한 참고 절차입니다.
+
+Android 프로젝트는 등록되어 있습니다. 현재는 Java·XML Views, applicationId `com.example.viewit`, minSdk 24, compileSdk·targetSdk 37을 사용합니다. 아래는 최초 등록 시 사용한 절차입니다.
 
 1. Android Studio에서 `Empty Views Activity`와 Java를 선택합니다.
 2. 팀이 정한 앱 이름과 applicationId를 사용합니다. Firebase에 등록할 패키지명도 실제 applicationId와 일치시킵니다.
@@ -13,6 +15,18 @@
 
 ## 자동 빌드
 
-실제 프로젝트의 Gradle Wrapper와 호환 JDK를 확인한 뒤 GitHub Actions를 추가합니다. 첫 단계는 debug 빌드·lint·로컬 단위 테스트 정도로 잡습니다. 아직 실행할 Gradle 프로젝트가 없으므로 현재는 빌드가 성공한 것처럼 표시하는 CI를 넣지 않습니다.
+현재 Gradle Wrapper는 9.5.0, AGP는 9.3.3이며 Java 소스·타깃 호환성은 11입니다. Gradle 실행용 JDK는 이와 별도로 호환 환경을 선택합니다. 팀 실행 환경을 확인한 뒤 GitHub Actions를 추가합니다. 이번 문서 수정에서는 빌드를 다시 실행하지 않았습니다.
+
+## 실행과 연결 테스트
+
+팀 공용 `app/google-services.json`을 준비하고 SDK·Gradle JDK 확인 후 Sync합니다. API 24 이상 기기에서 실행합니다.
+
+```powershell
+.\gradlew.bat :app:assembleDebug
+```
+
+Firestore 테스트는 실행 Activity를 `CloudFirestoreActivity`로 지정합니다. 화면 생성 시 `addData()`가 `ratings/testRating`을 덮어쓰며, Logcat 필터 `package:mine tag:CJW`로 성공·실패를 확인합니다. 현재 예시는 4.5점으로 서비스 설계의 1~5점 정수와 다릅니다.
+
+현재 Manifest에는 두 Activity 모두 MAIN/LAUNCHER가 등록되어 있습니다. 2.2에서 앱 시작 화면을 하나로 정리합니다.
 
 공식 참고: https://developer.android.com/build

@@ -43,7 +43,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
-
+    implementation("com.google.firebase:firebase-auth")
 
     implementation("com.google.firebase:firebase-firestore")
 }

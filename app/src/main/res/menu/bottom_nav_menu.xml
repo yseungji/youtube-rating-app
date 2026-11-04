@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 하단 5탭 순서: 피드 → 탐색 → 카테고리 → 평가하기 → 프로필 -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_feed"
+        android:icon="@drawable/ic_tab_feed"
+        android:title="@string/tab_feed" />
+    <item
+        android:id="@+id/nav_search"
+        android:icon="@drawable/ic_tab_search"
+        android:title="@string/tab_search" />
+    <item
+        android:id="@+id/nav_category"
+        android:icon="@drawable/ic_tab_category"
+        android:title="@string/tab_category" />
+    <item
+        android:id="@+id/nav_rate"
+        android:icon="@drawable/ic_tab_rate"
+        android:title="@string/tab_rate" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_tab_profile"
+        android:title="@string/tab_profile" />
+</menu>

@@ -25,9 +25,11 @@ Android 프로젝트는 등록되어 있습니다. 현재는 Java·XML Views, ap
 .\gradlew.bat :app:assembleDebug
 ```
 
-Firestore 테스트는 실행 Activity를 `CloudFirestoreActivity`로 지정합니다. 화면 생성 시 `addData()`가 `ratings/testRating`을 덮어쓰며, Logcat 필터 `package:mine tag:CJW`로 성공·실패를 확인합니다. 현재 예시는 4.5점으로 서비스 설계의 1~5점 정수와 다릅니다.
+앱 시작 화면은 하단 5탭이 있는 `MainActivity` 하나입니다. (2.2에서 정리)
 
-현재 Manifest에는 두 Activity 모두 MAIN/LAUNCHER가 등록되어 있습니다. 2.2에서 앱 시작 화면을 하나로 정리합니다.
+Firebase 테스트 화면(로그인·Firestore 저장)은 `DevMenuActivity` 메뉴에서 엽니다. 디버그 빌드를 설치하면 `src/debug/AndroidManifest.xml`에 의해 **"Viewit 테스트"** 앱 아이콘이 따로 생기며, 출시용(release) 빌드에는 이 아이콘이 없습니다. Android Studio에서 바로 열려면 실행 구성의 Launch를 `Specified Activity` → `DevMenuActivity`로 지정해도 됩니다.
+
+Firestore 테스트는 테스트 메뉴의 `Cloud Firestore` 버튼으로 `CloudFirestoreActivity`를 엽니다. 화면 생성 시 `addData()`가 `ratings/testRating`을 덮어쓰며, Logcat 필터 `package:mine tag:CJW`로 성공·실패를 확인합니다. 현재 예시는 4.5점으로 서비스 설계의 1~5점 정수와 다릅니다.
 
 ## 개인 설정 값 (local.properties)
 

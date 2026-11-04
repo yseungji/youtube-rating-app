@@ -1,0 +1,4 @@
+<resources>
+    <!-- 디버그 빌드에서만 보이는 테스트 메뉴 아이콘 이름 -->
+    <string name="dev_menu_name">Viewit 테스트</string>
+</resources>

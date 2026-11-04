@@ -9,7 +9,8 @@ Android 앱 프로젝트가 추가되어 있으며, 기존에 구축한 Firestor
 - Java + XML Views, 단일 `app` 모듈
 - Firebase 연결 설정 및 `CloudFirestoreActivity.addData()` 저장 테스트 코드
 - [Firestore 데이터 구조](docs/FIRESTORE_SCHEMA.md) 설계
-- 다음 작업: 2.1 공통 환경 마무리 → 2.2 하단 5탭·공통 데이터 클래스 → 2.3 공통 UI 컴포넌트
+- 하단 5탭 뼈대: `MainActivity` + 탭별 빈 화면(`ui/feed`, `ui/search`, `ui/category`, `ui/rate`, `ui/profile`)
+- 다음 작업: 2.2 공통 데이터 클래스 → 2.3 공통 UI 컴포넌트
 
 데이터 구조 문서는 설계 기준입니다. 로그인, 서비스용 평가 저장·조회, 보안 규칙, 집계, 5탭 UI가 모두 구현된 상태는 아닙니다.
 
@@ -48,7 +49,7 @@ Java 소스 호환성과 Gradle을 실행하는 JDK 버전은 구분합니다. A
 3. [Firebase 설정 안내](docs/FIREBASE_SETUP.md)에 따라 `app/google-services.json`을 준비합니다.
 4. Gradle Sync를 실행하고 Android SDK와 Gradle JDK 설정을 확인합니다.
 5. YouTube API를 쓰는 기능을 실행하려면 `local.properties`에 `YOUTUBE_API_KEY`를 추가합니다. ([개인 설정 값](docs/ANDROID_SETUP.md#개인-설정-값-localproperties))
-6. `app` 실행 구성을 사용합니다. Firestore 연결 테스트 시 실행 Activity를 `CloudFirestoreActivity`로 지정합니다.
+6. `app` 실행 구성을 사용하면 하단 5탭 화면이 열립니다. Firebase 테스트 화면은 디버그 빌드에 함께 설치되는 "Viewit 테스트" 아이콘으로 엽니다. ([Android 설정](docs/ANDROID_SETUP.md#실행과-연결-테스트))
 7. [공동 작업 규칙](CONTRIBUTING.md)에 따라 변경 사항을 공유합니다. 커밋 메시지 앞에는 `[학번 이름]`을 붙입니다.
 
 ```text

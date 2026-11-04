@@ -32,11 +32,13 @@ git switch -c feature/feed
 git status
 git diff
 git add app/src/main/java/패키지/수정한파일.java
-git commit -m "feat: 평가 저장 기능 추가"
+git commit -m "[20260000 홍길동] feat: 평가 저장 기능 추가 (5.2)"
 git push -u origin feature/feed
 ```
 
 파일 경로와 브랜치명은 자신의 작업에 맞게 바꿉니다. Android Studio의 Commit·Push 화면을 사용해도 됩니다.
+
+커밋 메시지는 `[학번 이름] 종류: 내용 (작업 번호)` 형식으로 씁니다. 학번·이름 표기는 교수님 요청이고, 작업 번호는 역할분담·작업분해표의 중분류 번호입니다. 종류는 `feat`(기능), `fix`(오류), `docs`(문서), `chore`(설정) 중에서 고릅니다.
 
 1. GitHub에서 작업 브랜치를 선택하고 `Compare & pull request`를 누릅니다.
 2. base는 `main`으로 두고 PR 양식의 변경 내용·실행 확인을 적습니다.

@@ -47,8 +47,9 @@ Java 소스 호환성과 Gradle을 실행하는 JDK 버전은 구분합니다. A
 2. Android Studio에서 저장소 루트를 엽니다.
 3. [Firebase 설정 안내](docs/FIREBASE_SETUP.md)에 따라 `app/google-services.json`을 준비합니다.
 4. Gradle Sync를 실행하고 Android SDK와 Gradle JDK 설정을 확인합니다.
-5. `app` 실행 구성을 사용합니다. Firestore 연결 테스트 시 실행 Activity를 `CloudFirestoreActivity`로 지정합니다.
-6. [공동 작업 규칙](CONTRIBUTING.md)에 따라 변경 사항을 공유합니다.
+5. YouTube API를 쓰는 기능을 실행하려면 `local.properties`에 `YOUTUBE_API_KEY`를 추가합니다. ([개인 설정 값](docs/ANDROID_SETUP.md#개인-설정-값-localproperties))
+6. `app` 실행 구성을 사용합니다. Firestore 연결 테스트 시 실행 Activity를 `CloudFirestoreActivity`로 지정합니다.
+7. [공동 작업 규칙](CONTRIBUTING.md)에 따라 변경 사항을 공유합니다. 커밋 메시지 앞에는 `[학번 이름]`을 붙입니다.
 
 ```text
 https://github.com/yseungji/youtube-rating-app.git

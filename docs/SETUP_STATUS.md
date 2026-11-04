@@ -29,18 +29,24 @@
 ## 다음 작업
 
 - [ ] Yeopdo의 공동 작업 초대 수락 확인
-- [ ] juwonhs0913의 공동 작업 초대 수락 확인
+- [x] juwonhs0913의 공동 작업 초대 수락 확인 (2026-11-04 저장소 복제)
 - [x] Android 프로젝트 등록과 저장 테스트 코드 작성
 - [x] 기존 Firebase 연결을 위한 Gradle 설정
 - [x] 1.3 Firestore 데이터 구조 문서화
-- [ ] 2.1 팀원별 설정 배치·Sync·저장 테스트 확인, SDK 선언 방식·키 관리 정리
+- [ ] 2.1 공통 개발 환경
+  - [x] Firebase SDK 선언을 버전 카탈로그 + BoM 하나로 통일 (Google services 플러그인도 alias로 이동)
+  - [x] API 키 관리: `local.properties`의 `YOUTUBE_API_KEY` → `BuildConfig.YOUTUBE_API_KEY` ([안내](ANDROID_SETUP.md#개인-설정-값-localproperties))
+  - [x] 커밋 메시지 규칙 `[학번 이름]` 추가 ([CONTRIBUTING](../CONTRIBUTING.md))
+  - [x] 주원: 설정 파일 배치·빌드·에뮬레이터 저장 테스트 성공 (2026-11-04)
+  - [ ] 승지·도엽: 각자 PC에서 Sync·빌드·저장 테스트 확인
+  - [ ] 작업분해표 항목을 Issue로 등록하고 담당자 지정
 - [ ] 2.2 하단 5탭 뼈대·공통 데이터 클래스·앱 시작 화면 통일
 - [ ] 2.3 영상 카드·별점·카테고리 칩 등 공통 컴포넌트
 - [ ] 보안 규칙·필요한 인덱스·공개 평가 집계 구현 및 검증
 - [ ] 차단 적용 범위 합의와 기능 구현
 - [ ] 실제 프로젝트 설정에 맞는 자동 빌드 추가
 
-이번 작업은 문서 정리이며 빌드·기기 실행·Firestore 저장을 재검증한 결과는 포함하지 않습니다.
+2.1 작업(2026-11-04)에서 `:app:assembleDebug` 빌드와 에뮬레이터(Medium Phone)에서 `CloudFirestoreActivity` 실행 시 Logcat `평가 저장 성공`을 확인했습니다. 다른 팀원 환경은 아직 확인하지 않았습니다.
 
 공식 참고:
 

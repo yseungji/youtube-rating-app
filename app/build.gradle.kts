@@ -1,8 +1,8 @@
 import java.util.Properties
 
-plugins {
+plugins{
     alias(libs.plugins.android.application)
-    alias(libs.plugins.google.services)
+    id("com.google.gms.google-services")
 }
 
 // 개인 PC에만 두는 값(API 키 등)은 Git에 올리지 않는 local.properties에서 읽는다
@@ -54,9 +54,8 @@ android {
 }
 
 dependencies {
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.firestore)
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+    implementation("com.google.firebase:firebase-analytics")
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
@@ -64,4 +63,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
+    implementation("com.google.firebase:firebase-auth")
+
+    implementation("com.google.firebase:firebase-firestore")
 }

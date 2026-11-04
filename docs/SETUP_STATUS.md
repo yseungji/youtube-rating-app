@@ -34,7 +34,7 @@
 - [x] 기존 Firebase 연결을 위한 Gradle 설정
 - [x] 1.3 Firestore 데이터 구조 문서화
 - [ ] 2.1 공통 개발 환경
-  - [x] Firebase SDK 선언을 버전 카탈로그 + BoM 하나로 통일 (Google services 플러그인도 alias로 이동)
+  - [x] Firebase SDK 선언을 BoM + 문자열 방식 하나로 통일 (중복 Firestore 카탈로그 선언 제거)
   - [x] API 키 관리: `local.properties`의 `YOUTUBE_API_KEY` → `BuildConfig.YOUTUBE_API_KEY` ([안내](ANDROID_SETUP.md#개인-설정-값-localproperties))
   - [x] 커밋 메시지 규칙 `[학번 이름]` 추가 ([CONTRIBUTING](../CONTRIBUTING.md))
   - [x] 주원: 설정 파일 배치·빌드·에뮬레이터 저장 테스트 성공 (2026-11-04)

@@ -19,8 +19,8 @@
 ## 현재 설정과 저장 테스트
 
 - Google services 플러그인 4.5.0, Firebase BoM 35.1.0, Firestore·Analytics SDK를 사용합니다.
-- 플러그인과 라이브러리는 모두 버전 카탈로그(`gradle/libs.versions.toml`)의 alias로 선언합니다. 같은 플러그인을 id 방식으로 중복 선언하지 않습니다.
-- Firebase 라이브러리 버전은 BoM 하나로 관리합니다. 새 Firebase SDK를 추가할 때는 카탈로그에 버전 없이 등록하고 `firebaseBom` 버전만 올립니다. (2.1에서 통일, BoM 35.1.0 기준 Firestore 27.1.0)
+- Android application 플러그인은 기존 alias를 사용합니다. 같은 플러그인을 id 방식으로 중복 선언하지 않습니다.
+- Firebase는 공식 문서 방식대로 `app/build.gradle.kts`에 BoM과 버전 없는 문자열로 선언합니다. 예: `implementation("com.google.firebase:firebase-auth")`. 버전은 BoM(`firebase-bom:35.1.0`) 한 곳에서만 정하고, 버전 카탈로그에는 Firebase 항목을 두지 않습니다. (2.1에서 카탈로그·문자열로 중복돼 있던 Firestore 선언을 정리, BoM 35.1.0 기준 Firestore 27.1.0)
 - `CloudFirestoreActivity` 실행 시 `ratings/testRating`에 예시 데이터를 저장합니다.
 - Logcat 필터 `package:mine tag:CJW`로 결과를 확인하고 Firebase 콘솔에서도 해당 문서를 확인합니다.
 - 현재 예시는 4.5점이며 재실행하면 같은 문서를 덮어쓰는 연결 테스트입니다. 서비스의 1~5점 정수 평가와 구분합니다.

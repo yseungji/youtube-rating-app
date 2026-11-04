@@ -10,7 +10,8 @@ Android 앱 프로젝트가 추가되어 있으며, 기존에 구축한 Firestor
 - Firebase 연결 설정 및 `CloudFirestoreActivity.addData()` 저장 테스트 코드
 - [Firestore 데이터 구조](docs/FIRESTORE_SCHEMA.md) 설계
 - 하단 5탭 뼈대: `MainActivity` + 탭별 빈 화면(`ui/feed`, `ui/search`, `ui/category`, `ui/rate`, `ui/profile`)
-- 다음 작업: 2.2 공통 데이터 클래스 → 2.3 공통 UI 컴포넌트
+- 공통 데이터 클래스: `data/model` (`User`, `Video`, `Rating`, `Category`, `Follow`, 컬렉션 이름 `FirestorePaths`)
+- 다음 작업: 2.3 공통 UI 컴포넌트
 
 데이터 구조 문서는 설계 기준입니다. 로그인, 서비스용 평가 저장·조회, 보안 규칙, 집계, 5탭 UI가 모두 구현된 상태는 아닙니다.
 

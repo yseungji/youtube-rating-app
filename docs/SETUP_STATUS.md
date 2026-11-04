@@ -40,11 +40,12 @@
   - [x] 주원: 설정 파일 배치·빌드·에뮬레이터 저장 테스트 성공 (2026-11-04)
   - [ ] 승지·도엽: 각자 PC에서 Sync·빌드·저장 테스트 확인
   - [ ] 작업분해표 항목을 Issue로 등록하고 담당자 지정
-- [ ] 2.2 하단 5탭 뼈대·공통 데이터 클래스·앱 시작 화면 통일
+- [x] 2.2 하단 5탭 뼈대·공통 데이터 클래스·앱 시작 화면 통일
   - [x] 탭 이름·아이콘, 하단 탭 메뉴·선택 색상, 탭별 빈 화면 레이아웃 (#2, #3)
-  - [x] `MainActivity` 하단 5탭 + 탭별 Fragment 5개 (탭 화면을 다시 만들지 않고 숨기기·보이기로 전환)
-  - [x] 앱 시작 화면을 `MainActivity` 하나로 정리, 기존 테스트 메뉴는 `DevMenuActivity`로 이름 변경(디버그 빌드에서만 "Viewit 테스트" 아이콘)
-  - [ ] 공통 데이터 클래스 (User, Video, Rating, Category, Follow)
+  - [x] `MainActivity` 하단 5탭 + 탭별 Fragment 5개 (탭 화면을 다시 만들지 않고 숨기기·보이기로 전환) (#4)
+  - [x] 앱 시작 화면을 `MainActivity` 하나로 정리, 기존 테스트 메뉴는 `DevMenuActivity`로 이름 변경(디버그 빌드에서만 "Viewit 테스트" 아이콘) (#4)
+  - [x] 공통 데이터 클래스 `data/model`: `User`, `Video`, `Rating`, `Category`, `Follow` + 컬렉션 이름 상수 `FirestorePaths`
+    - Firestore 필드 이름이 스키마와 같은지 단위 테스트 `DataModelMappingTest`로 확인
 - [ ] 2.3 영상 카드·별점·카테고리 칩 등 공통 컴포넌트
 - [ ] 보안 규칙·필요한 인덱스·공개 평가 집계 구현 및 검증
 - [ ] 차단 적용 범위 합의와 기능 구현

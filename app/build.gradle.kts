@@ -1,6 +1,16 @@
+import java.util.Properties
+
 plugins{
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+}
+
+// 개인 PC에만 두는 값(API 키 등)은 Git에 올리지 않는 local.properties에서 읽는다
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    }
 }
 
 android {
@@ -17,6 +27,17 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // 코드에서는 BuildConfig.YOUTUBE_API_KEY로 사용. 값이 없으면 빈 문자열
+        buildConfigField(
+            "String",
+            "YOUTUBE_API_KEY",
+            "\"${localProperties.getProperty("YOUTUBE_API_KEY", "")}\""
+        )
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -38,7 +59,6 @@ dependencies {
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
-    implementation(libs.firebase.firestore)
     implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)

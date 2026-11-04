@@ -29,4 +29,18 @@ Firestore 테스트는 실행 Activity를 `CloudFirestoreActivity`로 지정합�
 
 현재 Manifest에는 두 Activity 모두 MAIN/LAUNCHER가 등록되어 있습니다. 2.2에서 앱 시작 화면을 하나로 정리합니다.
 
+## 개인 설정 값 (local.properties)
+
+API 키처럼 저장소에 올리면 안 되는 값은 프로젝트 루트의 `local.properties`에 둡니다. 이 파일은 `.gitignore`로 제외되어 있고, Android Studio가 `sdk.dir`을 자동으로 적는 파일입니다. 아래 줄을 각자 추가합니다.
+
+```properties
+YOUTUBE_API_KEY=발급받은_키
+```
+
+- 빌드 시 `app/build.gradle.kts`가 이 값을 읽어 `BuildConfig.YOUTUBE_API_KEY`로 만듭니다. 코드에서는 이 상수만 사용하고 키를 소스에 직접 적지 않습니다.
+- 값이 없어도 빌드는 되며 빈 문자열이 들어갑니다. YouTube API를 호출하는 기능을 실행할 때만 필요합니다.
+- 값을 바꾼 뒤에는 Gradle Sync 또는 다시 빌드해야 반영됩니다.
+- 팀 공용 키는 메신저 등 저장소 밖에서 전달하고, Google Cloud 콘솔에서 사용 API를 YouTube Data API로 제한하고 Android 앱(패키지명·SHA-1) 제한을 겁니다.
+- 앱에 들어간 키는 APK에서 꺼낼 수 있으므로 개발·시연용으로만 씁니다. 공개 전에는 Cloud Functions를 거쳐 호출하는 방식(4.1)으로 옮깁니다.
+
 공식 참고: https://developer.android.com/build

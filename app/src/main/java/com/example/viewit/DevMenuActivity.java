@@ -10,32 +10,37 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.viewit.databinding.ActivityDevMenuBinding;
+
 public class DevMenuActivity extends AppCompatActivity {
+
+    private ActivityDevMenuBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_dev_menu);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        binding = ActivityDevMenuBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        findViewById(R.id.password_authentication_button).setOnClickListener(new View.OnClickListener() {
+        binding.passwordAuthenticationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(DevMenuActivity.this, PWAuthActivity.class));
             }
         });
-        findViewById(R.id.google_button).setOnClickListener(new View.OnClickListener() {
+        binding.googleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(DevMenuActivity.this, GoogleSignInActivity.class));
             }
         });
-        findViewById(R.id.cloud_firestore_button).setOnClickListener(new View.OnClickListener() {
+        binding.cloudFirestoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(DevMenuActivity.this, CloudFirestoreActivity.class));

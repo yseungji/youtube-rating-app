@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.viewit.databinding.ActivityPwauthBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -25,12 +24,16 @@ public class PWAuthActivity extends AppCompatActivity {
 
     private final String TAG = "CJW";
     private FirebaseAuth mAuth;
+    private ActivityPwauthBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         WindowCompat.enableEdgeToEdge(getWindow());
-        setContentView(R.layout.activity_pwauth);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+
+        binding = ActivityPwauthBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -38,26 +41,21 @@ public class PWAuthActivity extends AppCompatActivity {
 
         initFirebaseAuth();
 
-        EditText emailEditText = findViewById(R.id.email);
-        EditText passwordEditText = findViewById(R.id.password);
-
-        Button signUpButton = findViewById(R.id.sign_up);
-        signUpButton.setOnClickListener(new View.OnClickListener() {
+        binding.signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
+                String email = binding.email.getText().toString();
+                String password = binding.password.getText().toString();
 
                 signUp(email, password);
             }
         });
 
-        Button signInButton = findViewById(R.id.sign_in);
-        signInButton.setOnClickListener(new View.OnClickListener() {
+        binding.signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
+                String email = binding.email.getText().toString();
+                String password = binding.password.getText().toString();
 
                 signIn(email, password);
             }

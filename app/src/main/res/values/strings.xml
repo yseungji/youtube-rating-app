@@ -7,6 +7,7 @@
     <string name="tab_category">카테고리</string>
     <string name="tab_rate">평가하기</string>
     <string name="tab_profile">프로필</string>
+    <string name="google_sign_in">Google 계정으로 시작하기</string>
 
     <!-- 공통 컴포넌트 -->
     <string name="search_hint">영상 또는 사용자 검색</string>

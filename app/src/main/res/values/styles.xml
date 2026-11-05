@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공통 위젯 스타일 (Figma UI4/Button, UI4/Chip). 레이아웃에서 style="@style/..."로 쓴다. -->
+<resources>
+    <!-- 검정 버튼 (평가하기·평가 저장 등 주요 행동). 높이 48, 모서리 12 -->
+    <style name="Widget.Viewit.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="backgroundTint">@color/button_primary_bg</item>
+        <item name="android:textColor">@color/button_primary_text</item>
+        <item name="cornerRadius">@dimen/radius_m</item>
+        <item name="android:textAppearance">@style/TextAppearance.Viewit.Button</item>
+    </style>
+
+    <!-- 흰 테두리 버튼 (보관함에 담기 등 보조 행동). 높이 48, 모서리 12 -->
+    <style name="Widget.Viewit.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="backgroundTint">@color/bg_surface</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="strokeColor">@color/border_default</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">@dimen/radius_m</item>
+        <item name="android:textAppearance">@style/TextAppearance.Viewit.Button</item>
+    </style>
+
+    <!-- 선택 칩 (카테고리·정렬). 기본은 회색 바탕, 선택하면 검정 바탕 흰 글자. 높이 36, 양끝 둥글게 -->
+    <style name="Widget.Viewit.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_bg</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipMinHeight">@dimen/chip_height</item>
+        <item name="chipStartPadding">@dimen/space_s</item>
+        <item name="chipEndPadding">@dimen/space_s</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
+        <item name="android:textAppearance">@style/TextAppearance.Viewit.Chip</item>
+        <item name="ensureMinTouchTargetSize">false</item>
+    </style>
+</resources>

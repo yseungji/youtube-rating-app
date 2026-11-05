@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공통 검색창 (Figma UI4/SearchField). 다른 화면에서 <include layout="@layout/view_search_field" />로 넣고
+     입력값은 R.id.search_input으로 읽는다. 안내 문구를 바꾸려면 setHint()를 쓴다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/search_field_height"
+    android:background="@drawable/bg_search_field"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/space_m">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_tab_search"
+        android:tint="@color/text_secondary" />
+
+    <EditText
+        android:id="@+id/search_input"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/space_s"
+        android:layout_weight="1"
+        android:autofillHints=""
+        android:background="@null"
+        android:hint="@string/search_hint"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Viewit.Body"
+        android:textColorHint="@color/text_secondary" />
+</LinearLayout>

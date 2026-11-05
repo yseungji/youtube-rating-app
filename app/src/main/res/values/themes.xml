@@ -1,8 +1,39 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Viewit" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <!-- 앱 테마: Figma 모노톤 · 코랄. Material3 기본 보라색이 섞이지 않도록 색을 모두 지정한다.
+         Figma에 다크 화면이 없어서 다크 모드에서도 같은 밝은 테마를 쓴다. -->
+    <style name="Base.Theme.Viewit" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/action_primary</item>
+        <item name="colorOnPrimary">@color/bg_surface</item>
+        <item name="colorPrimaryContainer">@color/action_soft</item>
+        <item name="colorOnPrimaryContainer">@color/text_primary</item>
+        <item name="colorSecondary">@color/text_secondary</item>
+        <item name="colorOnSecondary">@color/bg_surface</item>
+        <item name="colorSecondaryContainer">@color/action_soft</item>
+        <item name="colorOnSecondaryContainer">@color/text_primary</item>
+        <item name="colorTertiary">@color/positive</item>
+        <item name="colorOnTertiary">@color/bg_surface</item>
+        <item name="colorError">@color/negative</item>
+        <item name="colorOnError">@color/bg_surface</item>
+
+        <item name="android:colorBackground">@color/bg_surface</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorSurfaceContainerLowest">@color/bg_surface</item>
+        <item name="colorSurfaceContainerLow">@color/bg_surface</item>
+        <item name="colorSurfaceContainer">@color/bg_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/bg_surface</item>
+        <item name="colorSurfaceContainerHighest">@color/action_soft</item>
+        <item name="colorOutline">@color/border_default</item>
+        <item name="colorOutlineVariant">@color/border_default</item>
+
+        <item name="android:windowBackground">@color/bg_surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+
+        <!-- 따로 지정하지 않은 버튼은 검정 Primary 버튼 모양 -->
+        <item name="materialButtonStyle">@style/Widget.Viewit.Button.Primary</item>
     </style>
 
     <style name="Theme.Viewit" parent="Base.Theme.Viewit" />

@@ -11,7 +11,8 @@ Android 앱 프로젝트가 추가되어 있으며, 기존에 구축한 Firestor
 - [Firestore 데이터 구조](docs/FIRESTORE_SCHEMA.md) 설계
 - 하단 5탭 뼈대: `MainActivity` + 탭별 빈 화면(`ui/feed`, `ui/search`, `ui/category`, `ui/rate`, `ui/profile`)
 - 공통 데이터 클래스: `data/model` (`User`, `Video`, `Rating`, `Category`, `Follow`, 컬렉션 이름 `FirestorePaths`)
-- 다음 작업: 2.3 공통 UI 컴포넌트
+- 공통 디자인: 색·글자·간격 토큰과 버튼·칩·검색창 스타일 ([사용법](docs/UI_COMPONENTS.md))
+- 다음 작업: 2.3 공통 컴포넌트 B~D (영상·리뷰·평가 입력)
 
 데이터 구조 문서는 설계 기준입니다. 로그인, 서비스용 평가 저장·조회, 보안 규칙, 집계, 5탭 UI가 모두 구현된 상태는 아닙니다.
 
@@ -74,5 +75,6 @@ https://github.com/yseungji/youtube-rating-app.git
 - [Android 설정](docs/ANDROID_SETUP.md): 환경과 실행 방법
 - [Firebase 설정](docs/FIREBASE_SETUP.md): 클라이언트 연결과 저장 테스트
 - [Firestore 데이터 구조](docs/FIRESTORE_SCHEMA.md): 컬렉션·문서·필드와 동작 기준
+- [공통 디자인과 컴포넌트](docs/UI_COMPONENTS.md): 색·글자·간격 이름과 공통 위젯 사용법
 - [설정 상태와 다음 작업](docs/SETUP_STATUS.md): 완료한 작업과 남은 작업
 - [공동 작업 규칙](CONTRIBUTING.md): 커밋·push·PR 흐름

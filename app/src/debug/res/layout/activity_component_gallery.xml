@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공통 컴포넌트 확인 화면 (디버그 빌드 전용). 새 컴포넌트를 만들면 여기에도 하나씩 추가한다. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 화면을 열 때 검색창이 포커스를 가져가 키보드가 뜨지 않도록 바깥 레이아웃이 먼저 포커스를 받는다 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gallery_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Display" />
+
+        <!-- 글자 단계 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:text="@string/gallery_section_text"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/gallery_display"
+            android:textAppearance="@style/TextAppearance.Viewit.Display" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/gallery_heading"
+            android:textAppearance="@style/TextAppearance.Viewit.Heading" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/gallery_body"
+            android:textAppearance="@style/TextAppearance.Viewit.Body" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gallery_body_strong"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Strong" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gallery_body_secondary"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gallery_caption"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/gallery_rating"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Strong"
+            android:textColor="@color/positive" />
+
+        <!-- 버튼 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:text="@string/gallery_section_button"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+
+        <Button
+            style="@style/Widget.Viewit.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/gallery_button_primary" />
+
+        <Button
+            style="@style/Widget.Viewit.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/gallery_button_secondary" />
+
+        <Button
+            style="@style/Widget.Viewit.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:enabled="false"
+            android:text="@string/gallery_button_disabled" />
+
+        <!-- 칩 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:text="@string/gallery_section_chip"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            app:checkedChip="@id/chip_all"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_all"
+                style="@style/Widget.Viewit.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gallery_chip_all" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Viewit.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gallery_chip_education" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Viewit.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gallery_chip_music" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Viewit.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gallery_chip_game" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            app:checkedChip="@id/chip_popular"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_popular"
+                style="@style/Widget.Viewit.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gallery_chip_popular" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Viewit.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gallery_chip_rating" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- 검색창 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:text="@string/gallery_section_search"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+
+        <include
+            layout="@layout/view_search_field"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/search_field_height"
+            android:layout_marginTop="@dimen/space_s" />
+    </LinearLayout>
+</ScrollView>

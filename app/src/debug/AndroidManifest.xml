@@ -15,6 +15,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 공통 컴포넌트 확인 화면 (아이콘 없음). Android Studio 실행 구성에서 Specified Activity로 연다 -->
+        <activity
+            android:name=".debug.ComponentGalleryActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

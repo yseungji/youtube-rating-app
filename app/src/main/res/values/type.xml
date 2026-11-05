@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 글자 단계 (Figma UI4/Display·Heading·Body·Caption). 글꼴은 안드로이드 기본 한글 글꼴(Noto Sans CJK)을 쓴다. -->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- 화면 큰 제목: 28 / 줄 높이 36, 굵게 -->
+    <style name="TextAppearance.Viewit.Display" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textSize">28sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">36sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- 섹션 제목: 20 / 28, 굵게 -->
+    <style name="TextAppearance.Viewit.Heading" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">20sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- 본문: 14 / 22 -->
+    <style name="TextAppearance.Viewit.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">22sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- 본문 강조: 14, 굵게 (영상 제목·이름) -->
+    <style name="TextAppearance.Viewit.Body.Strong">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 보조 설명: 14, 회색 -->
+    <style name="TextAppearance.Viewit.Body.Secondary">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <!-- 작은 설명: 11 / 16, 회색 -->
+    <style name="TextAppearance.Viewit.Caption" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <!-- 버튼 글자: 15, 굵게 -->
+    <style name="TextAppearance.Viewit.Button" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 칩 글자: 13 -->
+    <style name="TextAppearance.Viewit.Chip" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">13sp</item>
+    </style>
+</resources>

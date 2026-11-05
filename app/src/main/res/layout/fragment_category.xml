@@ -9,18 +9,16 @@
     <TextView
         android:id="@+id/category_title"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/app_bar_height"
         android:gravity="center_vertical"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="@dimen/screen_padding"
         android:text="@string/tab_category"
-        android:textColor="@color/tab_selected"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Viewit.Display" />
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?attr/colorOutlineVariant" />
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
 
     <!-- 담당자가 화면 내용을 넣을 영역 -->
     <FrameLayout

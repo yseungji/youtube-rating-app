@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 검정 버튼 글자: 누를 수 없을 때는 보조 텍스트색 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/text_secondary" android:state_enabled="false" />
+    <item android:color="@color/bg_surface" />
+</selector>

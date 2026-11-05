@@ -46,7 +46,12 @@
   - [x] 앱 시작 화면을 `MainActivity` 하나로 정리, 기존 테스트 메뉴는 `DevMenuActivity`로 이름 변경(디버그 빌드에서만 "Viewit 테스트" 아이콘) (#4)
   - [x] 공통 데이터 클래스 `data/model`: `User`, `Video`, `Rating`, `Category`, `Follow` + 컬렉션 이름 상수 `FirestorePaths`
     - Firestore 필드 이름이 스키마와 같은지 단위 테스트 `DataModelMappingTest`로 확인
-- [ ] 2.3 영상 카드·별점·카테고리 칩 등 공통 컴포넌트
+- [ ] 2.3 영상 카드·별점·카테고리 칩 등 공통 컴포넌트 ([사용법](UI_COMPONENTS.md))
+  - [x] A. 디자인 토큰(색 13개·글자 단계·간격·모서리)과 테마(흰 배경 모노톤, 다크 모드도 같은 밝은 테마)
+  - [x] A. 기본 위젯: 검정·테두리 버튼, 선택 칩, 검색창 + 디버그 전용 컴포넌트 확인 화면
+  - [ ] B. 영상: Thumbnail, VideoRow, CategoryCard, RatingTile, 별점 표시
+  - [ ] C. 사람·리뷰: Author, ReviewActions, ReviewQuote, ReviewDetail, UserResult, FollowRow, LibraryRow, SearchHistoryRow
+  - [ ] D. 평가 입력: RatingPanel, VisibilityToggle, RatingStatistics
 - [ ] 보안 규칙·필요한 인덱스·공개 평가 집계 구현 및 검증
 - [ ] 차단 적용 범위 합의와 기능 구현
 - [ ] 실제 프로젝트 설정에 맞는 자동 빌드 추가

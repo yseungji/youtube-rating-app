@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Figma "00 · 디자인 시스템 | 모노톤 · 코랄" 색 변수. 흰 배경·검정 글자·얇은 구분선에, 별점과 반응에만 코랄을 쓴다. -->
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="bg_canvas">#FFFAFAFA</color>          <!-- 캔버스 -->
+    <color name="bg_surface">#FFFFFFFF</color>         <!-- 표면 (화면·카드 배경) -->
+    <color name="text_primary">#FF121212</color>       <!-- 주 텍스트 -->
+    <color name="text_secondary">#FF737373</color>     <!-- 보조 텍스트 -->
+    <color name="border_default">#FFDBDBDB</color>     <!-- 구분선·테두리 -->
+    <color name="action_primary">#FF111111</color>     <!-- 주요 행동 (검정 버튼·선택 칩) -->
+    <color name="action_soft">#FFF5F5F5</color>        <!-- 선택 배경 (기본 칩·아바타) -->
+    <color name="positive">#FFFF4F3D</color>           <!-- 긍정 반응 (별점·좋아요, 코랄) -->
+    <color name="positive_soft">#FFF4F4F4</color>      <!-- 긍정 배경 -->
+    <color name="negative">#FFFF3040</color>           <!-- 부정 반응 (오류·탈퇴) -->
+    <color name="attention">#FFF0EDE8</color>          <!-- 따뜻한 강조 -->
+    <color name="accent_deep">#FF141414</color>        <!-- 딥 네이비 -->
 
-    <!-- 하단 탭: 선택된 탭은 주 텍스트색, 나머지는 보조 텍스트색 (Figma 하단 탭 기준) -->
-    <color name="tab_selected">#FF141414</color>
-    <color name="tab_unselected">#FF8A8A8A</color>
+    <!-- 하단 탭: 선택된 탭은 주 텍스트색, 나머지는 보조 텍스트색 -->
+    <color name="tab_selected">@color/text_primary</color>
+    <color name="tab_unselected">@color/text_secondary</color>
 </resources>

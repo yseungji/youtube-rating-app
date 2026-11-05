@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma 디자인 시스템 규칙: 8pt 기반 간격, 10~12px 모서리, 버튼 높이 48px -->
+<resources>
+    <!-- 간격 -->
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_s">8dp</dimen>
+    <dimen name="space_m">12dp</dimen>
+    <dimen name="space_l">16dp</dimen>
+    <dimen name="space_xl">24dp</dimen>
+    <dimen name="space_xxl">32dp</dimen>
+    <dimen name="screen_padding">16dp</dimen>   <!-- 화면 좌우 여백 -->
+
+    <!-- 모서리 -->
+    <dimen name="radius_s">10dp</dimen>         <!-- 썸네일 -->
+    <dimen name="radius_m">12dp</dimen>         <!-- 버튼·입력창·카드 -->
+
+    <!-- 크기 -->
+    <dimen name="app_bar_height">64dp</dimen>
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="search_field_height">48dp</dimen>
+    <dimen name="chip_height">36dp</dimen>
+    <dimen name="divider">1dp</dimen>
+</resources>

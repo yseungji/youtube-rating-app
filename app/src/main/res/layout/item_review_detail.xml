@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 영상 상세의 평가 한 개 (Figma UI4/ReviewDetail): 작성자 + 별점 + 한줄평 + 반응 버튼.
+     작성자는 binding.reviewAuthor, 반응 버튼은 binding.reviewActions로 접근한다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/screen_padding"
+    android:paddingVertical="@dimen/space_l">
+
+    <include
+        android:id="@+id/review_author"
+        layout="@layout/view_author" />
+
+    <TextView
+        android:id="@+id/review_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
+        android:textAppearance="@style/TextAppearance.Viewit.Rating"
+        tools:text="★★★☆☆ 3점" />
+
+    <TextView
+        android:id="@+id/review_comment"
+        android:lineBreakWordStyle="phrase"
+        tools:targetApi="33"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
+        android:textAppearance="@style/TextAppearance.Viewit.Body"
+        tools:text="설명은 좋은데 반죽 과정은 조금 길게 느껴졌어요." />
+
+    <include
+        android:id="@+id/review_actions"
+        layout="@layout/view_review_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s" />
+</LinearLayout>

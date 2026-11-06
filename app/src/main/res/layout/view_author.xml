@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 작성자 (Figma UI4/Author). 이니셜 아바타 + 이름 + "@아이디 · 5분 전".
+     R.id.author_meta에는 getString(R.string.author_meta, 아이디, TimeAgoFormat.format(...))을 넣는다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/author_avatar"
+        style="@style/Widget.Viewit.Avatar"
+        tools:text="승" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/author_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Name"
+            tools:text="승지" />
+
+        <TextView
+            android:id="@+id/author_meta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption"
+            android:textSize="12sp"
+            tools:text="\@seungji · 방금 전" />
+    </LinearLayout>
+</LinearLayout>

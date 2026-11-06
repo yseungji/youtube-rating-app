@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공개 범위 토글 바탕 (회색, 양끝 둥글게) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/action_soft" />
+    <corners android:radius="999dp" />
+</shape>

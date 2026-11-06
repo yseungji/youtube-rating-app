@@ -183,5 +183,144 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/search_field_height"
             android:layout_marginTop="@dimen/space_s" />
+
+        <!-- B. 영상 -->
+        <TextView
+            style="@style/GallerySection"
+            android:text="@string/gallery_section_video" />
+
+        <include
+            android:id="@+id/gallery_thumbnail"
+            layout="@layout/view_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s" />
+
+        <include
+            android:id="@+id/gallery_video_row"
+            layout="@layout/item_video_row" />
+
+        <include
+            android:id="@+id/gallery_category_video"
+            layout="@layout/item_category_video" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <include
+                android:id="@+id/gallery_tile_1"
+                layout="@layout/item_rating_tile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:layout_weight="1" />
+
+            <include
+                android:id="@+id/gallery_tile_2"
+                layout="@layout/item_rating_tile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:layout_weight="1" />
+
+            <include
+                android:id="@+id/gallery_tile_3"
+                layout="@layout/item_rating_tile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- C. 사람·리뷰 -->
+        <TextView
+            style="@style/GallerySection"
+            android:text="@string/gallery_section_people" />
+
+        <include
+            android:id="@+id/gallery_author"
+            layout="@layout/view_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s" />
+
+        <include
+            android:id="@+id/gallery_review_actions"
+            layout="@layout/view_review_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s" />
+
+        <include
+            android:id="@+id/gallery_review_quote"
+            layout="@layout/view_review_quote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s" />
+
+        <include
+            android:id="@+id/gallery_review_detail"
+            layout="@layout/item_review_detail" />
+
+        <include
+            android:id="@+id/gallery_user_result"
+            layout="@layout/item_user_result" />
+
+        <include
+            android:id="@+id/gallery_follow_row"
+            layout="@layout/item_follow_row" />
+
+        <include
+            android:id="@+id/gallery_library_row"
+            layout="@layout/item_library_row" />
+
+        <include
+            android:id="@+id/gallery_search_history"
+            layout="@layout/item_search_history" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s">
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Viewit.Chip.Topic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gallery_chip_music" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Viewit.Chip.Topic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/gallery_topic_animal" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- D. 평가 입력 -->
+        <TextView
+            style="@style/GallerySection"
+            android:text="@string/gallery_section_rating" />
+
+        <com.example.viewit.ui.common.RatingPanelView
+            android:id="@+id/gallery_rating_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s" />
+
+        <com.example.viewit.ui.common.RatingPanelView
+            android:id="@+id/gallery_rating_panel_saved"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl" />
+
+        <com.example.viewit.ui.common.RatingStatisticsView
+            android:id="@+id/gallery_rating_stats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl" />
     </LinearLayout>
 </ScrollView>

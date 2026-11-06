@@ -11,8 +11,8 @@ Android 앱 프로젝트가 추가되어 있으며, 기존에 구축한 Firestor
 - [Firestore 데이터 구조](docs/FIRESTORE_SCHEMA.md) 설계
 - 하단 5탭 뼈대: `MainActivity` + 탭별 빈 화면(`ui/feed`, `ui/search`, `ui/category`, `ui/rate`, `ui/profile`)
 - 공통 데이터 클래스: `data/model` (`User`, `Video`, `Rating`, `Category`, `Follow`, 컬렉션 이름 `FirestorePaths`)
-- 공통 디자인: 색·글자·간격 토큰과 버튼·칩·검색창 스타일 ([사용법](docs/UI_COMPONENTS.md))
-- 다음 작업: 2.3 공통 컴포넌트 B~D (영상·리뷰·평가 입력)
+- 공통 디자인과 컴포넌트: 색·글자·간격, 버튼·칩·검색창, 영상·리뷰·평가 입력 컴포넌트 ([사용법](docs/UI_COMPONENTS.md))
+- 다음 작업: 공통 기반(2.1~2.3) 완료 → 각자 담당 기능 (3.x 계정, 4.x 영상, 5.x 평가·피드, 6.x 프로필)
 
 데이터 구조 문서는 설계 기준입니다. 로그인, 서비스용 평가 저장·조회, 보안 규칙, 집계, 5탭 UI가 모두 구현된 상태는 아닙니다.
 
@@ -52,7 +52,7 @@ Java 소스 호환성과 Gradle을 실행하는 JDK 버전은 구분합니다. A
 4. Gradle Sync를 실행하고 Android SDK와 Gradle JDK 설정을 확인합니다.
 5. YouTube API를 쓰는 기능을 실행하려면 `local.properties`에 `YOUTUBE_API_KEY`를 추가합니다. ([개인 설정 값](docs/ANDROID_SETUP.md#개인-설정-값-localproperties))
 6. `app` 실행 구성을 사용하면 하단 5탭 화면이 열립니다. Firebase 테스트 화면은 디버그 빌드에 함께 설치되는 "Viewit 테스트" 아이콘으로 엽니다. ([Android 설정](docs/ANDROID_SETUP.md#실행과-연결-테스트))
-7. [공동 작업 규칙](CONTRIBUTING.md)에 따라 변경 사항을 공유합니다. 커밋 메시지 앞에는 `[학번 이름]`을 붙입니다.
+7. [공동 작업 규칙](CONTRIBUTING.md)에 따라 변경 사항을 공유합니다. 커밋 메시지 앞에는 `주차_[학번 이름]`을 붙입니다. (예: `10_[20260000 홍길동] feat: ...`)
 
 ```text
 https://github.com/yseungji/youtube-rating-app.git

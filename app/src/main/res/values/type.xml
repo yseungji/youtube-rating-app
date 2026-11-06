@@ -53,4 +53,44 @@
     <style name="TextAppearance.Viewit.Chip" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:textSize">13sp</item>
     </style>
+
+    <!-- 카드 안 제목: 17, 굵게 ("이 영상, 어땠나요?", "전체 평가") -->
+    <style name="TextAppearance.Viewit.Section" parent="TextAppearance.Viewit.Heading">
+        <item name="android:textSize">17sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">24sp</item>
+    </style>
+
+    <!-- 목록 영상 제목: 15, 중간 굵기 (UI4/VideoRow·CategoryCard) -->
+    <style name="TextAppearance.Viewit.Title" parent="TextAppearance.Viewit.Body">
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <!-- 사용자 이름: 15, 굵게 (UI4/Author) -->
+    <style name="TextAppearance.Viewit.Name" parent="TextAppearance.Viewit.Body">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 목록 보조 설명: 13, 회색 (채널명·평가 수) -->
+    <style name="TextAppearance.Viewit.Meta" parent="TextAppearance.Viewit.Body.Secondary">
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!-- 작은 굵은 라벨: 13, 굵게 ("평가하기 →", "승지의 한줄평") -->
+    <style name="TextAppearance.Viewit.Label" parent="TextAppearance.Viewit.Body">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 별점 글자: 13, 굵게, 코랄 ("★★★★☆ 4점") -->
+    <style name="TextAppearance.Viewit.Rating" parent="TextAppearance.Viewit.Label">
+        <item name="android:textColor">@color/positive</item>
+    </style>
+
+    <!-- 평균 별점 큰 숫자: 40, 굵게 (UI4/RatingStatistics) -->
+    <style name="TextAppearance.Viewit.Score" parent="TextAppearance.Viewit.Display">
+        <item name="android:textSize">40sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">48sp</item>
+    </style>
 </resources>

@@ -24,4 +24,20 @@
     <string name="gallery_chip_game">게임</string>
     <string name="gallery_chip_popular">인기순</string>
     <string name="gallery_chip_rating">평점순</string>
+    <string name="gallery_section_video">B. 영상</string>
+    <string name="gallery_section_people">C. 사람·리뷰</string>
+    <string name="gallery_section_rating">D. 평가 입력</string>
+    <string name="gallery_topic_animal">동물</string>
+
+    <!-- 확인 화면 예시 데이터 (시연용) -->
+    <string name="sample_video_title">집에서 만드는 나폴리 피자, 오븐 없이 프라이팬으로 끝내기</string>
+    <string name="sample_channel">요리하는 사람들</string>
+    <string name="sample_duration_text">12분 30초</string>
+    <string name="sample_user_seungji">승지</string>
+    <string name="sample_user_juwon">주원</string>
+    <string name="sample_user_minseo">민서</string>
+    <string name="sample_comment_4">설명이 깔끔해서 처음 해보는 사람도 따라 하기 쉬워요.</string>
+    <string name="sample_comment_3">설명은 좋은데 반죽 과정은 조금 길게 느껴졌어요.</string>
+    <string name="sample_library">나중에 볼 동영상</string>
+    <string name="sample_search">방 정리</string>
 </resources>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- RatingStatisticsView 내부 화면 (Figma UI4/RatingStatistics). 직접 include하지 말고
+     <com.example.viewit.ui.common.RatingStatisticsView />로 사용한다. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/rating_stats_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+        <TextView
+            android:id="@+id/stats_count_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption"
+            android:textSize="12sp"
+            tools:text="평가 3개" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_l"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="104dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/stats_average"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Viewit.Score"
+                tools:text="4.0" />
+
+            <TextView
+                android:id="@+id/stats_stars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Viewit.Rating"
+                android:textSize="12sp"
+                tools:text="★★★★☆" />
+
+            <TextView
+                android:id="@+id/stats_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Viewit.Caption"
+                android:textSize="12sp"
+                tools:text="평가 3개" />
+        </LinearLayout>
+
+        <!-- 5점부터 1점까지 막대. RatingStatisticsView가 순서대로 값을 넣는다 -->
+        <LinearLayout
+            android:id="@+id/stats_bars"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_l"
+        android:text="@string/rating_stats_footer"
+        android:textAppearance="@style/TextAppearance.Viewit.Caption"
+        android:textSize="12sp" />
+</merge>

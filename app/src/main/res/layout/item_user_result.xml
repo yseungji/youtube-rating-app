@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 사용자 검색 결과 (Figma UI4/UserResult): 테두리 카드 + 아바타 + 이름 + "@아이디 · 공개 평가 n개" + 팔로우 버튼.
+     이미 팔로우 중이면 버튼 글자를 R.string.following으로 바꾼다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_card_outline"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/space_l">
+
+    <TextView
+        android:id="@+id/user_result_avatar"
+        style="@style/Widget.Viewit.Avatar"
+        tools:text="승" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/user_result_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Name"
+            tools:text="승지" />
+
+        <TextView
+            android:id="@+id/user_result_meta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Meta"
+            tools:text="\@seungji · 공개 평가 1개" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/user_result_follow"
+        style="@style/Widget.Viewit.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_s"
+        android:text="@string/follow" />
+</LinearLayout>

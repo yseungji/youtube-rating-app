@@ -12,7 +12,11 @@
     <color name="positive_soft">#FFF4F4F4</color>      <!-- 긍정 배경 -->
     <color name="negative">#FFFF3040</color>           <!-- 부정 반응 (오류·탈퇴) -->
     <color name="attention">#FFF0EDE8</color>          <!-- 따뜻한 강조 -->
-    <color name="accent_deep">#FF141414</color>        <!-- 딥 네이비 -->
+    <color name="accent_deep">#FF141414</color>        <!-- 딥 네이비 (썸네일 배지 바탕) -->
+
+    <!-- viewit 브랜드 주황: 온보딩에서만 사용 (Figma UI4/TopicChip) -->
+    <color name="brand_orange">#FFFF7A1A</color>
+    <color name="brand_orange_soft">#FFFFE7D1</color>
 
     <!-- 하단 탭: 선택된 탭은 주 텍스트색, 나머지는 보조 텍스트색 -->
     <color name="tab_selected">@color/text_primary</color>

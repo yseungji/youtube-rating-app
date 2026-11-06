@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 카테고리 목록의 영상 한 줄 (Figma UI4/CategoryCard). 평균 별점은 R.id.category_video_rating에
+     getString(R.string.video_average, RatingFormat.averageText(평균, 평가 수))로 넣는다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:orientation="horizontal"
+    android:paddingVertical="@dimen/space_m">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/category_video_thumbnail"
+        android:layout_width="112dp"
+        android:layout_height="63dp"
+        android:contentDescription="@string/thumbnail_description"
+        android:scaleType="centerCrop"
+        android:src="@color/action_soft"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Viewit.Thumbnail.Small" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/category_video_title"
+            android:lineBreakWordStyle="phrase"
+            tools:targetApi="33"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Viewit.Title"
+            tools:text="집에서 만드는 나폴리 피자, 오븐 없이 프라이팬으로 끝내기" />
+
+        <TextView
+            android:id="@+id/category_video_rating"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textAppearance="@style/TextAppearance.Viewit.Meta"
+            tools:text="★ 평균 4.0" />
+    </LinearLayout>
+</LinearLayout>

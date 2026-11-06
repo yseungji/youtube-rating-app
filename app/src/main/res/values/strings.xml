@@ -8,6 +8,8 @@
     <string name="tab_rate">평가하기</string>
     <string name="tab_profile">프로필</string>
     <string name="google_sign_in">Google 계정으로 시작하기</string>
+    <string name="google_sign_in_canceled">로그인을 취소했어요</string>
+    <string name="google_sign_in_failed">로그인에 실패했어요. 다시 시도해 주세요</string>
 
     <!-- 공통 컴포넌트 -->
     <string name="search_hint">영상 또는 사용자 검색</string>

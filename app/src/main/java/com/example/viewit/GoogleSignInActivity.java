@@ -23,10 +23,12 @@ import java.util.concurrent.Executors;
 import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.credentials.Credential;
 import androidx.credentials.CredentialManagerCallback;
 import androidx.credentials.GetCredentialResponse;
+import androidx.credentials.exceptions.GetCredentialCancellationException;
 import androidx.credentials.exceptions.GetCredentialException;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
@@ -90,6 +92,12 @@ public class GoogleSignInActivity extends AppCompatActivity {
                 @Override
                 public void onError(GetCredentialException e) {
                     Log.e(TAG, "Couldn't retrieve user's credentials: " + e.getLocalizedMessage());
+                    if(e instanceof GetCredentialCancellationException){
+                        Toast.makeText(GoogleSignInActivity.this, R.string.google_sign_in_canceled, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(GoogleSignInActivity.this, R.string.google_sign_in_failed, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         );
@@ -110,6 +118,7 @@ public class GoogleSignInActivity extends AppCompatActivity {
             firebaseAuthWithGoogle(googleIdTokenCredential.getIdToken());
         } else {
             Log.w(TAG, "Credential is not of type Google ID!");
+            Toast.makeText(GoogleSignInActivity.this, R.string.google_sign_in_failed, Toast.LENGTH_SHORT).show();
         }
     }
     // [END handle_sign_in]
@@ -126,6 +135,7 @@ public class GoogleSignInActivity extends AppCompatActivity {
                 } else {
                     // If sign in fails, display a message to the user
                     Log.w(TAG, "signInWithCredential:failure", task.getException());
+                    Toast.makeText(GoogleSignInActivity.this, R.string.google_sign_in_failed, Toast.LENGTH_SHORT).show();
                     updateUI(null);
                 }
             });
@@ -141,4 +151,3 @@ public class GoogleSignInActivity extends AppCompatActivity {
         }
     }
 }
-

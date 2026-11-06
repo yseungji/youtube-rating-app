@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 평가하기 탭 화면 뼈대. 내용: 평가할 영상 고르기 (5.1 유승지) -->
+<!-- 평가하기 탭. 제목·필터 아래 목록은 RecyclerView로 표시한다. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -20,10 +20,106 @@
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />
 
-    <!-- 담당자가 화면 내용을 넣을 영역 -->
     <FrameLayout
         android:id="@+id/rate_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:background="@color/bg_surface">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding">
+
+                <TextView
+                    android:id="@+id/rate_intro"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="@string/rate_intro"
+                    android:textAppearance="@style/TextAppearance.Viewit.Heading" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/rate_filter_viewport_height"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:scrollbars="none">
+
+                    <com.google.android.material.chip.ChipGroup
+                        xmlns:app="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/rate_filters"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:checkedChip="@id/rate_filter_watched"
+                        app:chipSpacingHorizontal="@dimen/space_s"
+                        app:selectionRequired="true"
+                        app:singleLine="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/rate_filter_watched"
+                            style="@style/Widget.Viewit.Rate.Chip"
+                            android:layout_width="@dimen/rate_filter_wide_width"
+                            android:layout_height="@dimen/chip_height"
+                            android:text="@string/rate_filter_watched" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/rate_filter_liked"
+                            style="@style/Widget.Viewit.Rate.Chip"
+                            android:layout_width="@dimen/rate_filter_narrow_width"
+                            android:layout_height="@dimen/chip_height"
+                            android:text="@string/rate_filter_liked" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/rate_filter_subscribed"
+                            style="@style/Widget.Viewit.Rate.Chip"
+                            android:layout_width="@dimen/rate_filter_wide_width"
+                            android:layout_height="@dimen/chip_height"
+                            android:text="@string/rate_filter_subscribed" />
+                    </com.google.android.material.chip.ChipGroup>
+                </HorizontalScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/rate_section_min_height"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/rate_section_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:includeFontPadding="false"
+                        android:text="@string/rate_recent_videos"
+                        android:textAppearance="@style/TextAppearance.Viewit.Rate.Subheading" />
+
+                    <TextView
+                        android:id="@+id/rate_sort_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:includeFontPadding="false"
+                        android:text="@string/rate_sort_recent"
+                        android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+                </LinearLayout>
+
+                <!-- DevRateActivity와 같은 목록 영역.
+                     RateFragment에서 LayoutManager와 Adapter를 연결한다.
+                     tools 속성은 편집기 미리보기 전용이며 실행 데이터가 아니다. -->
+                <androidx.recyclerview.widget.RecyclerView
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:id="@+id/rate_video_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:layout_weight="1"
+                    tools:itemCount="1"
+                    tools:listitem="@layout/item_rate_component" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Figma 95:1599 · 평가하기 화면 -->
+    <string name="rate_intro">본 영상에\n나만의 평가를 남겨보세요</string>
+    <string name="rate_filter_watched">앱에서 본</string>
+    <string name="rate_filter_liked">좋아요</string>
+    <string name="rate_filter_subscribed">구독 채널</string>
+    <string name="rate_recent_videos">최근 본 영상</string>
+    <string name="rate_sort_recent">최근 시청순</string>
+    <string name="rate_video_action">평가하기 →</string>
+
+    <!-- 화면 표시 검증용 예시. 서버 데이터 연결 시 영상 정보로 교체한다. -->
+    <string name="rate_sample_video_title">집에서 만드는 나폴리 피자, 오븐 없이 프라이팬으로 끝내기</string>
+    <string name="rate_sample_video_metadata">요리하는 사람들 · 오늘 시청</string>
+
+    <dimen name="rate_filter_wide_width">88dp</dimen>
+    <dimen name="rate_filter_narrow_width">64dp</dimen>
+    <dimen name="rate_filter_viewport_height">38dp</dimen>
+    <dimen name="rate_section_min_height">28dp</dimen>
+    <dimen name="rate_thumbnail_width">104dp</dimen>
+    <dimen name="rate_thumbnail_height">68dp</dimen>
+    <dimen name="rate_metadata_gap">2dp</dimen>
+
+    <style name="TextAppearance.Viewit.Rate.Subheading" parent="TextAppearance.Viewit.Heading">
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">24sp</item>
+    </style>
+    <style name="TextAppearance.Viewit.Rate.VideoTitle" parent="TextAppearance.Viewit.Body">
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="TextAppearance.Viewit.Rate.Label" parent="TextAppearance.Viewit.Body">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight" tools:targetApi="28">18sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="Widget.Viewit.Rate.Chip" parent="Widget.Viewit.Chip">
+        <item name="android:textAppearance">@style/TextAppearance.Viewit.Rate.Label</item>
+    </style>
+    <style name="ShapeAppearance.Viewit.Rate.Thumbnail" parent="ShapeAppearance.Material3.Corner.Small">
+        <item name="cornerSize">@dimen/radius_s</item>
+    </style>
+</resources>

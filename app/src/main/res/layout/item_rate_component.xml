@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 영상 한 건의 배치. 제목·메타데이터·썸네일은 Adapter에서 채운다.
+     tools 속성은 편집기에서 예시 모양을 보여주기 위한 값이다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rate_video_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/space_s">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/rate_video_thumbnail"
+        android:layout_width="@dimen/rate_thumbnail_width"
+        android:layout_height="@dimen/rate_thumbnail_height"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/rate_sample_pizza"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Viewit.Rate.Thumbnail" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/rate_video_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            tools:text="@string/rate_sample_video_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Rate.VideoTitle" />
+
+        <TextView
+            android:id="@+id/rate_video_metadata"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/rate_metadata_gap"
+            android:includeFontPadding="false"
+            tools:text="@string/rate_sample_video_metadata"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+
+        <TextView
+            android:id="@+id/rate_video_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/rate_metadata_gap"
+            android:includeFontPadding="false"
+            android:text="@string/rate_video_action"
+            android:textAppearance="@style/TextAppearance.Viewit.Rate.Label" />
+    </LinearLayout>
+</LinearLayout>

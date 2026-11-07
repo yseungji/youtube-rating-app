@@ -11,16 +11,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Viewit">
-        <!-- 앱 시작 화면: 하단 5탭 -->
+
+        <!-- 로그인 후 메인 화면: 하단 5탭 -->
         <activity
             android:name=".MainActivity"
-            android:exported="true"
+            android:exported="false"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <!-- 개발용 Firebase 테스트 메뉴. 디버그 빌드에서만 src/debug/AndroidManifest.xml로 아이콘이 생긴다 -->
@@ -36,12 +32,23 @@
             android:name=".PWAuthActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <!-- 앱 시작 화면: 로그인 -->
         <activity
             android:name=".GoogleSignInActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SignOutActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".SignOutActivity"
+            android:name=".ProfileSetupActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

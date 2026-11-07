@@ -1,5 +1,6 @@
 package com.example.viewit;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -17,13 +18,23 @@ import com.example.viewit.ui.feed.FeedFragment;
 import com.example.viewit.ui.profile.ProfileFragment;
 import com.example.viewit.ui.rate.RateFragment;
 import com.example.viewit.ui.search.SearchFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-// 앱 첫 화면. 하단 5탭으로 피드·탐색·카테고리·평가하기·프로필 화면을 전환한다.
+//로그인 후 메인 화면. 하단 5탭으로 피드·탐색·카테고리·평가하기·프로필 화면을 전환한다.
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null) {
+            openAndClear(GoogleSignInActivity.class);
+            return;
+        }
+
         EdgeToEdge.enable(this);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -84,5 +95,12 @@ public class MainActivity extends AppCompatActivity {
             return new ProfileFragment();
         }
         return new FeedFragment();
+    }
+
+    private void openAndClear(Class<?> target) {
+        Intent intent = new Intent(this, target);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

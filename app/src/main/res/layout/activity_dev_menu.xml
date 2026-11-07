@@ -1,6 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/main" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:padding="16dp">
     <Button android:id="@+id/password_authentication_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Authenticate with Firebase using Password-Based Accounts"/>
     <Button android:id="@+id/google_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Authenticate with Google"/>
-    <Button android:id="@+id/storage_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cloud Storage for Firebase"/>
+    <Button android:id="@+id/sign_out_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dev_sign_out"/>
     <Button android:id="@+id/cloud_firestore_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cloud Firestore"/>
 </LinearLayout>

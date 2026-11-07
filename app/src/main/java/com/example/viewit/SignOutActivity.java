@@ -45,5 +45,8 @@ public class SignOutActivity extends AppCompatActivity {
 
     private void signout() {
         FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this, DevMenuActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

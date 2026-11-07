@@ -73,4 +73,7 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // 썸네일 이미지 불러오기·캐시 (4.1)
+    implementation("com.github.bumptech.glide:glide:5.0.9")
 }

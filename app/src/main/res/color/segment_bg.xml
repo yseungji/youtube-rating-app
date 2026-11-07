@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공개 범위 토글 칸 바탕: 선택하면 검정, 아니면 투명 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/action_primary" android:state_checked="true" />
+    <item android:color="@android:color/transparent" />
+</selector>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 프로필 평가 격자 한 칸 (Figma UI4/RatingTile). 정사각형 썸네일 + 왼쪽 아래 "★4" 배지 -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/rating_tile_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/thumbnail_description"
+        android:scaleType="centerCrop"
+        android:src="@color/action_soft"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/rating_tile_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:background="@drawable/bg_badge_dark"
+        android:drawablePadding="2dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="2dp"
+        android:textAppearance="@style/TextAppearance.Viewit.Label"
+        android:textColor="@color/bg_surface"
+        android:textSize="12sp"
+        app:drawableStartCompat="@drawable/ic_star_badge"
+        app:layout_constraintBottom_toBottomOf="@id/rating_tile_image"
+        app:layout_constraintStart_toStartOf="@id/rating_tile_image"
+        tools:text="4" />
+</androidx.constraintlayout.widget.ConstraintLayout>

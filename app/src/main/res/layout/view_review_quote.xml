@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 한줄평 인용 (Figma UI4/ReviewQuote): "승지의 한줄평" + 코랄 별점 + 한줄평.
+     별점은 RatingFormat.stars(점수) + " " + getString(R.string.rating_score, 점수)로 넣는다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/review_quote_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Viewit.Label"
+        tools:text="승지의 한줄평" />
+
+    <TextView
+        android:id="@+id/review_quote_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:textAppearance="@style/TextAppearance.Viewit.Rating"
+        tools:text="★★★★☆ 4점" />
+
+    <TextView
+        android:id="@+id/review_quote_comment"
+        android:lineBreakWordStyle="phrase"
+        tools:targetApi="33"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:textAppearance="@style/TextAppearance.Viewit.Body"
+        tools:text="설명이 깔끔해서 처음 해보는 사람도 따라 하기 쉬워요." />
+</LinearLayout>

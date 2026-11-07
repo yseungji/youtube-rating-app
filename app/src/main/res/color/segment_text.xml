@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공개 범위 토글 칸 글자: 선택하면 흰색, 아니면 회색 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/bg_surface" android:state_checked="true" />
+    <item android:color="@color/text_secondary" />
+</selector>

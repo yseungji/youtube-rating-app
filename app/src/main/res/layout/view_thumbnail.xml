@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 영상 썸네일 (Figma UI4/Thumbnail). 16:9 비율, 모서리 10, 오른쪽 아래 재생 시간 배지.
+     이미지는 R.id.thumbnail_image에 넣고, 재생 시간은 DurationFormat.format(초)로 R.id.thumbnail_duration에 넣는다. -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/thumbnail_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/thumbnail_description"
+        android:scaleType="centerCrop"
+        android:src="@color/action_soft"
+        app:layout_constraintDimensionRatio="H,16:9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Viewit.Thumbnail" />
+
+    <TextView
+        android:id="@+id/thumbnail_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/space_s"
+        android:background="@drawable/bg_badge_dark"
+        android:paddingHorizontal="@dimen/space_s"
+        android:paddingVertical="2dp"
+        android:textAppearance="@style/TextAppearance.Viewit.Caption"
+        android:textColor="@color/bg_surface"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/thumbnail_image"
+        app:layout_constraintEnd_toEndOf="@id/thumbnail_image"
+        tools:text="12:30" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 팔로워·팔로잉 목록 한 줄 (Figma UI4/FollowRow): 아바타 + 이름 + "@아이디 · 평가 n개" + 새 평가 표시 + 팔로잉 버튼 + 더보기.
+     새 평가가 없으면 R.id.follow_row_new를 GONE으로 둔다. 팔로우 전이면 버튼을 Widget.Viewit.Button.Small 모양으로 바꾼다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingVertical="@dimen/space_m">
+
+    <TextView
+        android:id="@+id/follow_row_avatar"
+        style="@style/Widget.Viewit.Avatar"
+        tools:text="민" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/follow_row_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Name"
+            tools:text="민서" />
+
+        <TextView
+            android:id="@+id/follow_row_meta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption"
+            android:textSize="12sp"
+            tools:text="\@minseo · 평가 12개" />
+
+        <LinearLayout
+            android:id="@+id/follow_row_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/follow_row_new_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Viewit.Caption"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp"
+                tools:text="새 평가 1개" />
+
+            <View
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_marginStart="@dimen/space_xs"
+                android:background="@drawable/bg_dot_new" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/follow_row_button"
+        style="@style/Widget.Viewit.Button.Small.Tonal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_s"
+        android:text="@string/following" />
+
+    <Button
+        android:id="@+id/follow_row_more"
+        style="@style/Widget.Viewit.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/more_menu"
+        app:icon="@drawable/ic_more_vert"
+        app:iconTint="@color/text_primary" />
+</LinearLayout>

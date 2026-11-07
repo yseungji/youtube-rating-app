@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Firestore의 Rating 한 건을 표시하는 행 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/space_l">
+    <TextView
+        android:id="@+id/rating_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Viewit.Body.Strong"
+        tools:text="영상 ID: video001" />
+    <TextView
+        android:id="@+id/rating_metadata"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:textAppearance="@style/TextAppearance.Viewit.Caption"
+        tools:text="★ 4점 · 작성자 uidA" />
+    <TextView
+        android:id="@+id/rating_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
+        android:textAppearance="@style/TextAppearance.Viewit.Body"
+        tools:text="설명이 이해하기 쉬워요." />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:layout_marginTop="@dimen/space_l"
+        android:background="@color/border_default" />
+</LinearLayout>

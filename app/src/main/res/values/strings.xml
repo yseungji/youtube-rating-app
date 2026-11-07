@@ -11,6 +11,12 @@
     <string name="google_sign_in_canceled">로그인을 취소했어요</string>
     <string name="google_sign_in_failed">로그인에 실패했어요. 다시 시도해 주세요</string>
 
+    <!-- 임시 컴포넌트 -->
+    <string name="profile_setup_placeholder">프로필 설정 (3.2에서 구현)</string>
+    <string name="dev_sign_out">로그아웃 (테스트용)</string>
+    <string name="not_log_in_status">로그인 상태가 아니예요</string>
+    <string name="profile_setup_temp_next">다음 (임시, 3.2에서 프로필 저장으로 변경)</string>
+
     <!-- 공통 컴포넌트 -->
     <string name="search_hint">영상 또는 사용자 검색</string>
 

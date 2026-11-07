@@ -18,6 +18,8 @@ import com.example.viewit.databinding.ActivityGoogleSignInBinding;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.concurrent.Executors;
+
 import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
 
 import android.util.Log;
@@ -44,13 +46,8 @@ public class GoogleSignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAuth = FirebaseAuth.getInstance();
-        // 로그인 상태가 유지되어 있으면 로그인 화면을 거치지 않는다.
-        if (mAuth.getCurrentUser() != null) {
-            openMain();
-            return;
-        }
         credentialManager = CredentialManager.create(this);
+        mAuth = FirebaseAuth.getInstance();
         WindowCompat.enableEdgeToEdge(getWindow());
         binding = ActivityGoogleSignInBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -146,16 +143,11 @@ public class GoogleSignInActivity extends AppCompatActivity {
     // [END auth_with_google]
 
     private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            openMain();
-        }
-    }
+        if(user != null) { //로그인 된 상태라면
+            Intent intent =new Intent(getApplicationContext(), SignOutActivity.class);
+            intent.putExtra("USER_PROFILE", "email: " + user.getEmail() + "\n" + "uid: " + user.getUid());
 
-    private void openMain() {
-        Intent intent = new Intent(this, MainActivity.class);
-        // 로그인·테스트 화면을 백스택에서 제거하고 메인을 새 시작점으로 만든다.
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+            startActivity(intent);
+        }
     }
 }

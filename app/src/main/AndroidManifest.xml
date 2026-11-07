@@ -11,23 +11,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Viewit">
-
-        <!-- 로그인 후 표시하는 하단 5탭 -->
+        <!-- 앱 시작 화면: 하단 5탭 -->
         <activity
             android:name=".MainActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- 앱 첫 화면: 로그인 등을 선택하는 버튼 4개 메뉴 -->
-        <activity
-            android:name=".DevMenuActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 개발용 Firebase 테스트 메뉴. 디버그 빌드에서만 src/debug/AndroidManifest.xml로 아이콘이 생긴다 -->
+        <activity
+            android:name=".DevMenuActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".CloudFirestoreActivity"
             android:exported="false"

@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 디버그 전용 테스트 Activity의 실행 설정 -->
+<!-- 디버그 빌드에만 합쳐지는 설정: Firebase 테스트 메뉴를 별도 앱 아이콘으로 연다 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <application>
-        <!-- Android Studio의 Specified Activity 실행을 디버그 빌드에서만 허용 -->
         <activity
-            android:name=".CloudFirestoreActivity"
+            android:name=".DevMenuActivity"
             android:exported="true"
-            tools:replace="android:exported" />
+            android:label="@string/dev_menu_name"
+            tools:replace="android:exported">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <!-- 공통 컴포넌트 확인 화면 (아이콘 없음). Android Studio 실행 구성에서 Specified Activity로 연다 -->
         <activity

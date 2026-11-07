@@ -142,7 +142,8 @@
 - 평가 탭에 Java FirebaseUI 페이징 목록·ViewHolder 연결, 페이지 크기 10·미리 가져오기 5로 설정.
 - 로딩·빈 목록·오류·재시도 UI 및 평가 행 레이아웃 구현, 안내 문구 정리.
 - `default_web_client_id` 누락으로 중단됐던 디버그 빌드는 설정 파일 갱신 후 통과. `CloudFirestoreActivity` 실행 및 Logcat의 `평가 저장 성공` 확인. 서비스용 Rating 저장·조회와 페이징 동작 검증은 별도 대기.
-- 버튼 4개가 있는 `DevMenuActivity`를 앱 첫 화면으로 지정. 이메일·Google 로그인 성공→메인, 미로그인 메인 진입·로그아웃→첫 메뉴 복귀 및 백스택 정리 연결.
-- 디버그 빌드·설치 성공, 첫 메뉴의 버튼 4개 표시와 기존 로그인 유지 상태에서 Google 버튼 선택→메인 이동 확인. 신규 Google 인증·이메일 로그인·로그아웃 동작은 별도 검증 대기.
-- 디버그 Manifest에서만 `CloudFirestoreActivity`의 exported를 허용해 Android Studio의 Specified Activity 실행 오류 해결.
+### 2026-11-08 · 유승지 (10주차)
+
+- PR #13은 Firestore 평가 페이징 작업으로 범위를 정리. 임시 로그인 진입 흐름과 디버그 Manifest 변경은 제외하고, 로그인은 PR #14 기준으로 통합하기로 함.
+- 로그인 관련 코드 원복·PR #14 병합·최신 main 반영 및 통합 빌드 검증은 대기.
 

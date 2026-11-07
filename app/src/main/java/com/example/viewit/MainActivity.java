@@ -1,6 +1,5 @@
 package com.example.viewit;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -13,23 +12,18 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.viewit.databinding.ActivityMainBinding;
-import com.google.firebase.auth.FirebaseAuth;
 import com.example.viewit.ui.category.CategoryFragment;
 import com.example.viewit.ui.feed.FeedFragment;
 import com.example.viewit.ui.profile.ProfileFragment;
 import com.example.viewit.ui.rate.RateFragment;
 import com.example.viewit.ui.search.SearchFragment;
 
-// 로그인 후 메인 화면. 하단 5탭으로 각 화면을 전환한다.
+// 앱 첫 화면. 하단 5탭으로 피드·탐색·카테고리·평가하기·프로필 화면을 전환한다.
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            openEntryMenu();
-            return;
-        }
         EdgeToEdge.enable(this);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -55,22 +49,6 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             showTab(R.id.nav_feed);
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // 다른 화면에서 로그아웃한 뒤 메인으로 돌아오는 경우도 확인한다.
-        if (!isFinishing() && FirebaseAuth.getInstance().getCurrentUser() == null) {
-            openEntryMenu();
-        }
-    }
-
-    private void openEntryMenu() {
-        Intent intent = new Intent(this, DevMenuActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
     }
 
     // 고른 탭의 화면만 보이고 나머지는 숨긴다. 숨긴 화면은 상태(스크롤 위치 등)가 유지된다.

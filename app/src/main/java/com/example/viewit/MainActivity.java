@@ -24,7 +24,6 @@ import com.google.firebase.auth.FirebaseUser;
 //로그인 후 메인 화면. 하단 5탭으로 피드·탐색·카테고리·평가하기·프로필 화면을 전환한다.
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

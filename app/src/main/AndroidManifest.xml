@@ -19,6 +19,18 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
 
+        <!-- 영상 상세의 평가 입력 화면 -->
+        <activity
+            android:name=".VideoDetailActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+
         <!-- 개발용 Firebase 테스트 메뉴. 디버그 빌드에서만 src/debug/AndroidManifest.xml로 아이콘이 생긴다 -->
         <activity
             android:name=".DevMenuActivity"

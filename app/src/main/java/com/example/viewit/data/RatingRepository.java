@@ -80,8 +80,8 @@ public class RatingRepository {
         // 전달받은 객체를 나중에 바꾸어도 저장 요청의 값이 바뀌지 않도록 복사한다.
         Rating value = new Rating();
         value.setUserId(user.getUid());
-        value.setVideoId(rating.getVideoId());
-        value.setCategoryId(rating.getCategoryId());
+        value.setVideoId(rating.getVideoId().trim());
+        value.setCategoryId(rating.getCategoryId().trim());
         value.setScore(rating.getScore());
         value.setComment(rating.getComment() == null ? "" : rating.getComment().trim());
         value.setVisibility(rating.getVisibility());

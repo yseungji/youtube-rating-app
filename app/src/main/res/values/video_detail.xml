@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="video_detail_title">영상 상세</string>
+    <string name="video_detail_loading">영상 정보를 불러오는 중…</string>
+    <string name="video_detail_load_error">영상 정보를 불러오지 못했어요. YouTube API 설정과 네트워크를 확인해 주세요.</string>
+    <string name="video_detail_api_key_missing">YouTube API 키가 설정되지 않았어요.</string>
+    <string name="video_detail_video_id">영상 ID: %1$s</string>
+    <string name="video_detail_category_id">카테고리 ID: %1$s</string>
+    <string name="video_detail_open_youtube">YouTube에서 보기</string>
+    <string name="video_detail_thumbnail">평가할 영상 썸네일</string>
+    <string name="video_detail_missing_ids">영상 정보가 없습니다. 평가할 영상을 선택해 주세요.</string>
+    <string name="video_detail_save_success">평가를 저장했어요.</string>
+    <string name="video_detail_save_error">평가를 저장하지 못했어요. 로그인 상태와 네트워크를 확인하고 다시 시도해 주세요.</string>
+</resources>

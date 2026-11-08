@@ -34,6 +34,7 @@
     <string name="rating_label_3">괜찮아요</string>
     <string name="rating_label_4">좋아요</string>
     <string name="rating_label_5">최고예요</string>
+    <string name="rating_average_description">평균 별점 %1$s점</string>
     <string name="rating_star_description">%1$d점</string>
 
     <!-- 사람·리뷰 (2.3-C) -->

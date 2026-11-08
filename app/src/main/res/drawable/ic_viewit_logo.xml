@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 시작 화면 로고: Figma "App icon / D 원본"과 같은 흰 둥근 사각형 바탕 + TV 그림.
+     ImageView 크기를 84dp로 두면 Figma 비율(모서리 58/256)과 맞는다. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bg_surface" />
+            <stroke
+                android:width="1dp"
+                android:color="#FFE3E3E3" />
+            <corners android:radius="19dp" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_viewit_tv" />
+</layer-list>

@@ -1,6 +1,7 @@
 package com.example.viewit.debug;
 
 import android.os.Bundle;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -16,6 +17,7 @@ import com.example.viewit.databinding.ItemRatingTileBinding;
 import com.example.viewit.databinding.ViewAuthorBinding;
 import com.example.viewit.ui.common.DurationFormat;
 import com.example.viewit.ui.common.RatingFormat;
+import com.example.viewit.ui.common.StarRatingView;
 import com.example.viewit.ui.common.TimeAgoFormat;
 
 import java.util.Date;
@@ -116,11 +118,27 @@ public class ComponentGalleryActivity extends AppCompatActivity {
         binding.galleryRatingPanelSaved.setRatingVisibility(Rating.VISIBILITY_PRIVATE);
         binding.galleryRatingPanelSaved.setSaved(true);
 
+        // 평균 3.6 → 별은 3.5개
         Map<String, Long> distribution = new HashMap<>();
-        distribution.put("s5", 1L);
-        distribution.put("s4", 1L);
-        distribution.put("s3", 1L);
-        binding.galleryRatingStats.setStats(4.0, 3, distribution);
+        distribution.put("s5", 3L);
+        distribution.put("s4", 3L);
+        distribution.put("s3", 2L);
+        distribution.put("s2", 1L);
+        distribution.put("s1", 1L);
+        binding.galleryRatingStats.setStats(3.6, 10, distribution);
+
+        // 평균 별점이 0.5 단위로 어떻게 보이는지
+        setHalfStars(binding.galleryHalfLabel1, binding.galleryHalfStars1, 0);
+        setHalfStars(binding.galleryHalfLabel2, binding.galleryHalfStars2, 2.3);
+        setHalfStars(binding.galleryHalfLabel3, binding.galleryHalfStars3, 3.6);
+        setHalfStars(binding.galleryHalfLabel4, binding.galleryHalfStars4, 4.25);
+        setHalfStars(binding.galleryHalfLabel5, binding.galleryHalfStars5, 5);
+    }
+
+    private void setHalfStars(TextView label, StarRatingView stars, double average) {
+        label.setText(getString(R.string.gallery_half_example, String.valueOf(average),
+                RatingFormat.halfText(RatingFormat.roundToHalf(average))));
+        stars.setRating(average);
     }
 
     private String ratingText(int score) {

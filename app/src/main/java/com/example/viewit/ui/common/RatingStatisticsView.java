@@ -47,7 +47,7 @@ public class RatingStatisticsView extends LinearLayout {
     public void setStats(double average, long count, @Nullable Map<String, Long> distribution) {
         Context context = getContext();
         binding.statsAverage.setText(RatingFormat.averageText(average, count));
-        binding.statsStars.setText(RatingFormat.stars(count > 0 ? average : 0));
+        binding.statsStars.setRating(count > 0 ? average : 0);
         String countText = context.getString(R.string.rating_stats_count, (int) count);
         binding.statsCount.setText(countText);
         binding.statsCountHeader.setText(countText);

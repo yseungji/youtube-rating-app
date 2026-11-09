@@ -27,18 +27,24 @@ import com.google.firebase.firestore.Query;
 // FirebaseUI가 공개 평가 Query를 페이지 단위로 읽고 Rating으로 변환한다.
 public class RateFragment extends Fragment {
     private static final String TAG = "RateFragment";
+    //fragmentrate.xml binding
     private FragmentRateBinding binding;
-    private FirestorePagingAdapter<Rating, RatingViewHolder> adapter;
+    private RatingAdapter adapter;
     private boolean loadFailed;
 
-    public RateFragment() {
-        super(R.layout.fragment_rate);
+    // ViewBinding으로 XML 화면을 만들고 Fragment에 반환한다.
+    @NonNull
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = FragmentRateBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding = FragmentRateBinding.bind(view);
 
         Query query = new RatingRepository().publicRatingsQuery();
         // 페이지 크기 10, 다음 페이지 미리 가져오기 5, 빈 자리 표시 안 함.
@@ -48,21 +54,9 @@ public class RateFragment extends Fragment {
                 .setQuery(query, config, Rating.class)
                 .build();
 
-        adapter = new FirestorePagingAdapter<Rating, RatingViewHolder>(options) {
-            @NonNull
-            @Override
-            public RatingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                ItemRatingBinding row = ItemRatingBinding.inflate(
-                        LayoutInflater.from(parent.getContext()), parent, false);
-                return new RatingViewHolder(row);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull RatingViewHolder holder,
-                                            int position, @NonNull Rating rating) {
-                holder.bind(rating);
-            }
-        };
+        //Firebase 조회 설정을 Adapter에 전달한다.
+        adapter = new RatingAdapter(options);
+        //매니저와 어뎁터 연결
         binding.rateVideoList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rateVideoList.setAdapter(adapter);
         // FirebaseUI 공식 Java 예제와 같은 람다 콜백. 반환값은 사용되지 않는다.
@@ -125,25 +119,53 @@ public class RateFragment extends Fragment {
         super.onDestroyView();
     }
 
+    //뷰홀더
     private static class RatingViewHolder extends RecyclerView.ViewHolder {
-        private final ItemRatingBinding row;
+        private final ItemRatingBinding itemRatingBinding;
 
-        RatingViewHolder(ItemRatingBinding row) {
-            super(row.getRoot());
-            this.row = row;
+        RatingViewHolder(ItemRatingBinding itemRatingBinding) {
+            super(itemRatingBinding.getRoot());
+            this.itemRatingBinding = itemRatingBinding;
         }
 
+        //bind 함수로 데이터 채우기
         void bind(Rating rating) {
             //영상 ID 표시
-            row.ratingVideo.setText(row.getRoot().getContext().getString(
+            itemRatingBinding.ratingVideo.setText(itemRatingBinding.getRoot().getContext().getString(
                     R.string.rate_video_id_label, rating.getVideoId()));
             //평점 및 작성자 정보 표시
-            row.ratingMetadata.setText(row.getRoot().getContext().getString(
+            itemRatingBinding.ratingMetadata.setText(itemRatingBinding.getRoot().getContext().getString(
                     R.string.rate_rating_metadata, rating.getScore(), rating.getUserId()));
             //한줄평 및 예외 처리
             String comment = rating.getComment();
-            row.ratingComment.setText(comment == null || comment.trim().isEmpty()
-                    ? row.getRoot().getContext().getString(R.string.rate_no_comment) : comment);
+            itemRatingBinding.ratingComment.setText(comment == null || comment.trim().isEmpty()
+                    ? itemRatingBinding.getRoot().getContext().getString(R.string.rate_no_comment) : comment);
         }
+    }
+
+    //생성자·행 생성·데이터 연결을 한곳에 모은다.
+    private static class RatingAdapter extends FirestorePagingAdapter<Rating, RatingViewHolder> {
+
+        public RatingAdapter(@NonNull FirestorePagingOptions<Rating> options) {
+            super(options);
+        }
+
+        // 한 행의 XML을 만들고 ViewHolder로 감싼다.
+        @NonNull
+        @Override
+        public RatingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            ItemRatingBinding itemRatingBinding = ItemRatingBinding.inflate(
+                    LayoutInflater.from(parent.getContext()), parent, false);
+            return new RatingViewHolder(itemRatingBinding);
+        }
+
+        // FirebaseUI가 list.get(position) 대신 Rating을 꺼내서 전달한다.
+        @Override
+        protected void onBindViewHolder(@NonNull RatingViewHolder holder,
+                                        int position, @NonNull Rating rating) {
+            holder.bind(rating);
+        }
+
+        // 목록 데이터와 getItemCount()는 FirebaseUI가 관리하므로 직접 작성하지 않는다.
     }
 }

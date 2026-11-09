@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공통 뒤로가기 버튼. 이동할 화면은 사용하는 Activity의 리스너에서 정한다. -->
+<ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/back_button"
+    android:layout_width="@dimen/button_height"
+    android:layout_height="@dimen/button_height"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:contentDescription="@string/navigate_back"
+    android:padding="@dimen/space_m"
+    android:src="?attr/homeAsUpIndicator"
+    app:tint="@color/text_primary" />

@@ -43,6 +43,7 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 
 | 컴포넌트 | 사용법 |
 |---|---|
+| 뒤로가기 버튼 | `<include android:id="@+id/video_back" layout="@layout/view_back_button" />`. 48dp 터치 영역. `binding.videoBack.getRoot().setOnClickListener(...)`로 화면별 이동 동작 연결. 공통 XML에는 이동 로직을 넣지 않음 |
 | 검정 버튼 (UI4/Button / Primary) | `style="@style/Widget.Viewit.Button.Primary"` (스타일을 안 적은 버튼도 기본으로 이 모양). 비활성 시 회색 |
 | 흰 테두리 버튼 (UI4/Button / Secondary) | `style="@style/Widget.Viewit.Button.Secondary"` |
 | 선택 칩 (UI4/Chip) | `ChipGroup` 안의 `Chip`에 `style="@style/Widget.Viewit.Chip"`. 선택하면 검정 |

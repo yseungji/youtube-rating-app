@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="video_detail_title">영상 상세</string>
+    <string name="video_detail_back_to_feed">피드로 돌아가기</string>
     <string name="video_detail_loading">영상 정보를 불러오는 중…</string>
     <string name="video_detail_load_error">영상 정보를 불러오지 못했어요. YouTube API 설정과 네트워크를 확인해 주세요.</string>
     <string name="video_detail_api_key_missing">YouTube API 키가 설정되지 않았어요.</string>

@@ -18,6 +18,7 @@
     <string name="profile_setup_temp_next">다음 (임시, 3.2에서 프로필 저장으로 변경)</string>
 
     <!-- 공통 컴포넌트 -->
+    <string name="navigate_back">뒤로가기</string>
     <string name="search_hint">영상 또는 사용자 검색</string>
 
     <!-- 영상 (2.3-B) -->

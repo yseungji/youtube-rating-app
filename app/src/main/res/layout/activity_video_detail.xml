@@ -11,14 +11,29 @@
     android:orientation="vertical"
     tools:context=".VideoDetailActivity">
 
-    <TextView
-        android:id="@+id/video_detail_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/app_bar_height"
         android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:text="@string/video_detail_title"
-        android:textAppearance="@style/TextAppearance.Viewit.Section" />
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_s">
+
+        <include
+            android:id="@+id/video_back"
+            layout="@layout/view_back_button"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height" />
+
+        <TextView
+            android:id="@+id/video_detail_title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="@dimen/space_s"
+            android:text="@string/video_detail_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Section" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

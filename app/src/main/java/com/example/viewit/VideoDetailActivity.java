@@ -40,6 +40,18 @@ public class VideoDetailActivity extends AppCompatActivity {
         binding = ActivityVideoDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        binding.videoBack.getRoot().setContentDescription(
+                getString(R.string.video_detail_back_to_feed));
+        binding.videoBack.getRoot().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(VideoDetailActivity.this, MainActivity.class);
+                // 기존 메인 위의 화면을 정리하고, 메인을 다시 열어 기본 피드 탭을 표시한다.
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (view, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

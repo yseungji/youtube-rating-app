@@ -5,7 +5,7 @@ import com.example.viewit.data.model.Rating;
 
 import java.util.Locale;
 
-// 별점을 화면 글자로 바꾸는 공통 함수. 예: stars(4) → "★★★★☆", averageText(4.0) → "4.0", roundToHalf(3.6) → 3.5
+// 별점을 화면 글자로 바꾸는 공통 함수. 예: stars(4) → "★★★★☆", averageText(4.0) → "4.0", roundToTenth(3.64) → 3.6
 public final class RatingFormat {
 
     private static final String FILLED = "★";
@@ -24,19 +24,11 @@ public final class RatingFormat {
         return builder.toString();
     }
 
-    // 평균 별점을 0.5 단위로 반올림해 0~5 사이로. 예: 3.6 → 3.5, 3.75 → 4.0, 4.2 → 4.0
+    // 평균 별점을 0.1 단위로 반올림해 0~5 사이로. 예: 3.64 → 3.6, 4.25 → 4.3
     // 별 모양으로 보여 줄 때는 StarRatingView.setRating(평균)을 쓴다
-    public static double roundToHalf(double average) {
-        double rounded = Math.round(average * 2) / 2.0;
+    public static double roundToTenth(double average) {
+        double rounded = Math.round(average * 10) / 10.0;
         return Math.max(0, Math.min(Rating.MAX_SCORE, rounded));
-    }
-
-    // 0.5 단위 점수 글자. 예: 3.5 → "3.5", 4.0 → "4"
-    public static String halfText(double halfScore) {
-        if (halfScore == Math.floor(halfScore)) {
-            return String.valueOf((long) halfScore);
-        }
-        return String.format(Locale.US, "%.1f", halfScore);
     }
 
     // 평균 별점 숫자. 평가가 없으면 "—"

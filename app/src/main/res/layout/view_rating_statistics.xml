@@ -48,7 +48,7 @@
                 android:textAppearance="@style/TextAppearance.Viewit.Score"
                 tools:text="4.0" />
 
-            <!-- 평균 별점, 0.5점 단위 -->
+            <!-- 평균 별점, 0.1점 단위로 별을 채움 -->
             <com.example.viewit.ui.common.StarRatingView
                 android:id="@+id/stats_stars"
                 android:layout_width="wrap_content"

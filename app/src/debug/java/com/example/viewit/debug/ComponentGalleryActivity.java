@@ -22,6 +22,7 @@ import com.example.viewit.ui.common.TimeAgoFormat;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 // 공통 컴포넌트를 한 화면에서 확인하는 디버그 전용 화면. 출시용 빌드에는 포함되지 않는다.
@@ -127,17 +128,17 @@ public class ComponentGalleryActivity extends AppCompatActivity {
         distribution.put("s1", 1L);
         binding.galleryRatingStats.setStats(3.6, 10, distribution);
 
-        // 평균 별점이 0.5 단위로 어떻게 보이는지
-        setHalfStars(binding.galleryHalfLabel1, binding.galleryHalfStars1, 0);
-        setHalfStars(binding.galleryHalfLabel2, binding.galleryHalfStars2, 2.3);
-        setHalfStars(binding.galleryHalfLabel3, binding.galleryHalfStars3, 3.6);
-        setHalfStars(binding.galleryHalfLabel4, binding.galleryHalfStars4, 4.25);
-        setHalfStars(binding.galleryHalfLabel5, binding.galleryHalfStars5, 5);
+        // 평균 별점이 0.1 단위로 별에 어떻게 채워지는지
+        setAverageStars(binding.galleryAvgLabel1, binding.galleryAvgStars1, 0);
+        setAverageStars(binding.galleryAvgLabel2, binding.galleryAvgStars2, 1.2);
+        setAverageStars(binding.galleryAvgLabel3, binding.galleryAvgStars3, 3.6);
+        setAverageStars(binding.galleryAvgLabel4, binding.galleryAvgStars4, 4.25);
+        setAverageStars(binding.galleryAvgLabel5, binding.galleryAvgStars5, 5);
     }
 
-    private void setHalfStars(TextView label, StarRatingView stars, double average) {
-        label.setText(getString(R.string.gallery_half_example, String.valueOf(average),
-                RatingFormat.halfText(RatingFormat.roundToHalf(average))));
+    private void setAverageStars(TextView label, StarRatingView stars, double average) {
+        label.setText(getString(R.string.gallery_avg_example, String.valueOf(average),
+                String.format(Locale.US, "%.1f", RatingFormat.roundToTenth(average))));
         stars.setRating(average);
     }
 

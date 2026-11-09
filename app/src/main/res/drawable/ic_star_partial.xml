@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 평균 별점 표시용 별 한 개: 회색 별 위에 코랄 별을 왼쪽부터 일부만 보이게 겹친다.
+     ImageView.setImageLevel(0~10000)으로 채우는 비율을 정한다. 예: 6000 → 왼쪽 60%만 코랄. StarRatingView에서 사용 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_star_empty" />
+    <item>
+        <clip
+            android:clipOrientation="horizontal"
+            android:drawable="@drawable/ic_star_filled"
+            android:gravity="start" />
+    </item>
+</layer-list>

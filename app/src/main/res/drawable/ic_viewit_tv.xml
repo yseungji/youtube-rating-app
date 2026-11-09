@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- viewit 앱 아이콘 그림(Figma "App icon / D 원본 · 안테나 TV"). 바탕 없이 TV만 그린다.
+     viewport는 Figma 원본과 같은 256 기준이라 좌표를 그대로 옮겼다.
+     시작 화면 로고(ic_viewit_logo)와 런처 아이콘(ic_launcher_foreground)이 함께 쓴다. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="84dp"
+    android:height="84dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+
+    <!-- 안테나 -->
+    <path
+        android:pathData="M116,100L100,71"
+        android:strokeWidth="7"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="100"
+                android:startY="71"
+                android:endX="124.532"
+                android:endY="84.5351">
+                <item android:offset="0" android:color="#FFFFAA45" />
+                <item android:offset="0.5" android:color="#FFFF7A1A" />
+                <item android:offset="1" android:color="#FFFF5418" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M140,100L156,71"
+        android:strokeWidth="7"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="140"
+                android:startY="71"
+                android:endX="164.532"
+                android:endY="84.5351">
+                <item android:offset="0" android:color="#FFFFAA45" />
+                <item android:offset="0.5" android:color="#FFFF7A1A" />
+                <item android:offset="1" android:color="#FFFF5418" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 안테나 끝 -->
+    <path
+        android:fillColor="#FFFF4F3D"
+        android:pathData="M100,78C104.418,78 108,74.4183 108,70C108,65.5817 104.418,62 100,62C95.5817,62 92,65.5817 92,70C92,74.4183 95.5817,78 100,78Z" />
+    <path
+        android:fillColor="#FFFF4F3D"
+        android:pathData="M156,78C160.418,78 164,74.4183 164,70C164,65.5817 160.418,62 156,62C151.582,62 148,65.5817 148,70C148,74.4183 151.582,78 156,78Z" />
+
+    <!-- 다리 -->
+    <path android:pathData="M100.5,165H98.5C96.0147,165 94,167.015 94,169.5V182.5C94,184.985 96.0147,187 98.5,187H100.5C102.985,187 105,184.985 105,182.5V169.5C105,167.015 102.985,165 100.5,165Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="94"
+                android:startY="165"
+                android:endX="111.6"
+                android:endY="173.8">
+                <item android:offset="0" android:color="#FFFFAA45" />
+                <item android:offset="0.5" android:color="#FFFF7A1A" />
+                <item android:offset="1" android:color="#FFFF5418" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M157.5,165H155.5C153.015,165 151,167.015 151,169.5V182.5C151,184.985 153.015,187 155.5,187H157.5C159.985,187 162,184.985 162,182.5V169.5C162,167.015 159.985,165 157.5,165Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="151"
+                android:startY="165"
+                android:endX="168.6"
+                android:endY="173.8">
+                <item android:offset="0" android:color="#FFFFAA45" />
+                <item android:offset="0.5" android:color="#FFFF7A1A" />
+                <item android:offset="1" android:color="#FFFF5418" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 몸체 -->
+    <path android:pathData="M168,98H88C76.9543,98 68,106.954 68,118V154C68,165.046 76.9543,174 88,174H168C179.046,174 188,165.046 188,154V118C188,106.954 179.046,98 168,98Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="68"
+                android:startY="98"
+                android:endX="136.707"
+                android:endY="206.485">
+                <item android:offset="0" android:color="#FFFFAA45" />
+                <item android:offset="0.5" android:color="#FFFF7A1A" />
+                <item android:offset="1" android:color="#FFFF5418" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 별 눈 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round"
+        android:pathData="M106,117L109.55,126.15L119.3,126.65L111.7,132.85L114.25,142.35L106,137L97.7502,142.35L100.3,132.85L92.7002,126.65L102.45,126.15L106,117Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round"
+        android:pathData="M150,117L153.55,126.15L163.3,126.65L155.7,132.85L158.25,142.35L150,137L141.75,142.35L144.3,132.85L136.7,126.65L146.45,126.15L150,117Z" />
+
+    <!-- 웃는 입 -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M116,150C124,156.667 132,156.667 140,150" />
+</vector>

@@ -35,6 +35,7 @@
     <string name="rating_label_3">괜찮아요</string>
     <string name="rating_label_4">좋아요</string>
     <string name="rating_label_5">최고예요</string>
+    <string name="rating_average_description">평균 별점 %1$s점</string>
     <string name="rating_star_description">%1$d점</string>
 
     <!-- 사람·리뷰 (2.3-C) -->
@@ -72,4 +73,10 @@
     <string name="rating_stats_title">전체 평가</string>
     <string name="rating_stats_count">평가 %1$d개</string>
     <string name="rating_stats_footer">영상에 남겨진 별점 분포를 확인해 보세요.</string>
+
+    <!-- 첫 화면 -->
+    <string name="wordmark_view">view</string>
+    <string name="wordmark_it">it</string>
+    <string name="sign_in_tagline">취향이 맞는 사람의 평가로\n다음에 볼 영상을 골라요</string>
+    <string name="sign_in_terms">계속하면 이용약관과 개인정보처리방침에 동의하게 됩니다.</string>
 </resources>

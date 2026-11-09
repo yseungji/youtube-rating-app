@@ -28,6 +28,7 @@
     <string name="gallery_section_people">C. 사람·리뷰</string>
     <string name="gallery_section_rating">D. 평가 입력</string>
     <string name="gallery_topic_animal">동물</string>
+    <string name="gallery_half_example">평균 %1$s → %2$s</string>
 
     <!-- 확인 화면 예시 데이터 (시연용) -->
     <string name="sample_video_title">집에서 만드는 나폴리 피자, 오븐 없이 프라이팬으로 끝내기</string>

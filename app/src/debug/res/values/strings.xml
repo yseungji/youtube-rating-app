@@ -40,4 +40,15 @@
     <string name="sample_comment_3">설명은 좋은데 반죽 과정은 조금 길게 느껴졌어요.</string>
     <string name="sample_library">나중에 볼 동영상</string>
     <string name="sample_search">방 정리</string>
+
+    <!-- YouTube 영상 정보 확인 화면 (4.1) -->
+    <string name="video_test_title">YouTube 영상 정보 불러오기</string>
+    <string name="video_test_hint">영상 ID를 쉼표로 구분해 넣으세요. 영상 주소 youtube.com/watch?v= 뒤의 11자리입니다.</string>
+    <string name="video_test_input_hint">예: jNQXAC9IVRw, 9bZkp7q19f0</string>
+    <string name="video_test_default_ids" translatable="false">jNQXAC9IVRw, 9bZkp7q19f0</string>
+    <string name="video_test_load">불러오기</string>
+    <string name="video_test_loading">불러오는 중…</string>
+    <string name="video_test_empty">영상 ID를 하나 이상 넣어 주세요.</string>
+    <string name="video_test_result">요청 %1$d개 중 %2$d개를 받았어요.</string>
+    <string name="video_test_error">%1$s (%2$s)</string>
 </resources>

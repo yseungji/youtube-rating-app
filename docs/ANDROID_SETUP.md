@@ -42,7 +42,24 @@ YOUTUBE_API_KEY=발급받은_키
 - 빌드 시 `app/build.gradle.kts`가 이 값을 읽어 `BuildConfig.YOUTUBE_API_KEY`로 만듭니다. 코드에서는 이 상수만 사용하고 키를 소스에 직접 적지 않습니다.
 - 값이 없어도 빌드는 되며 빈 문자열이 들어갑니다. YouTube API를 호출하는 기능을 실행할 때만 필요합니다.
 - 값을 바꾼 뒤에는 Gradle Sync 또는 다시 빌드해야 반영됩니다.
-- 팀 공용 키는 메신저 등 저장소 밖에서 전달하고, Google Cloud 콘솔에서 사용 API를 YouTube Data API로 제한하고 Android 앱(패키지명·SHA-1) 제한을 겁니다.
+- 팀 공용 키는 메신저 등 저장소 밖에서 전달하고, Google Cloud 콘솔에서 **API 제한**을 YouTube Data API v3 하나로 겁니다. 앱이 YouTube 주소로 직접 요청하는 방식이라 **Android 앱(패키지명·SHA-1) 제한은 걸지 않습니다**(걸면 요청이 거부됨).
 - 앱에 들어간 키는 APK에서 꺼낼 수 있으므로 개발·시연용으로만 씁니다. 공개 전에는 Cloud Functions를 거쳐 호출하는 방식(4.1)으로 옮깁니다.
+
+## YouTube 영상 정보 확인 (4.1)
+
+`data/youtube/YouTubeApi`로 YouTube Data API `videos.list`를 호출해 제목·채널·썸네일·재생 시간 등을 `Video`로 받습니다. 요청 1번에 영상 50개까지, 사용량은 1유닛입니다(하루 기본 10,000유닛).
+
+```java
+YouTubeApi.getInstance().fetchVideo("jNQXAC9IVRw", new YouTubeApi.Callback<Video>() {
+    @Override public void onSuccess(Video video) { /* 화면에 채우기 */ }
+    @Override public void onError(YouTubeException e) { /* YouTubeErrorMessage.of(context, e) 안내 */ }
+});
+```
+
+- 여러 개는 `fetchVideos(List<String>, ...)`. 없는 영상·비공개 영상은 결과에서 빠집니다.
+- 결과는 메인 스레드에서 받으므로 바로 화면을 고쳐도 됩니다.
+- 실패 이유(`YouTubeException.Reason`): 키 없음, 키 거부(틀린 키·API 꺼짐), 사용량 초과, 영상 없음, 인터넷 연결, 기타
+- 디버그 빌드의 `debug/VideoInfoTestActivity`(아이콘 없음)에서 영상 ID를 넣고 바로 확인할 수 있습니다. 실행 구성의 Launch를 `Specified Activity` → `com.example.viewit.debug.VideoInfoTestActivity`로 지정합니다.
+- Firestore `videos`에 저장하고 30일마다 새로 받는 기능은 4.1의 다음 작업입니다.
 
 공식 참고: https://developer.android.com/build

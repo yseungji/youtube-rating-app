@@ -56,7 +56,7 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 
 | 컴포넌트 | 파일 | 채울 곳 |
 |---|---|---|
-| 썸네일 (UI4/Thumbnail) | `view_thumbnail.xml` (16:9, 재생 시간 배지) | `thumbnail_image`, `thumbnail_duration` ← `DurationFormat.format(초)` |
+| 썸네일 (UI4/Thumbnail) | `view_thumbnail.xml` (16:9, 재생 시간 배지) | `thumbnail_image` ← `ThumbnailLoader.load(...)`, `thumbnail_duration` ← `DurationFormat.format(초)` |
 | 영상 한 줄 (UI4/VideoRow) | `item_video_row.xml` | `video_row_title`, `video_row_meta`, `video_row_action`("평가하기 →", 필요 없으면 GONE) |
 | 카테고리 영상 (UI4/CategoryCard) | `item_category_video.xml` | `category_video_title`, `category_video_rating` ← `getString(R.string.video_average, RatingFormat.averageText(평균, 개수))` |
 | 평가 타일 (UI4/RatingTile) | `item_rating_tile.xml` (정사각형, "★4" 배지) | `rating_tile_image`, `rating_tile_score` |
@@ -96,6 +96,8 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 | `RatingFormat.labelRes(4)` | R.string.rating_label_4 ("좋아요") |
 | `DurationFormat.format(750)` | "12:30" (1시간 넘으면 "1:02:03") |
 | `TimeAgoFormat.format(context, 작성시각, 지금)` | "방금 전 / 5분 전 / 3시간 전 / 2일 전 / 2026.11.06" |
+| `ThumbnailLoader.load(이미지뷰, video.getThumbnailUrl())` | 썸네일 이미지 불러오기(Glide). 불러오는 동안·실패 시 회색 칸 |
+| `YouTubeErrorMessage.of(context, 오류)` | YouTube 호출 실패 안내 문구 ("인터넷 연결을 확인해 주세요." 등) |
 
 한국어 제목·한줄평은 Android 13 이상에서 단어 단위로 줄이 바뀝니다(`lineBreakWordStyle="phrase"`). 그보다 낮은 버전에서는 글자 단위로 바뀝니다.
 

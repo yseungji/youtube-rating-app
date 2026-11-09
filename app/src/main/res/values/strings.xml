@@ -11,6 +11,12 @@
     <string name="google_sign_in_canceled">로그인을 취소했어요</string>
     <string name="google_sign_in_failed">로그인에 실패했어요. 다시 시도해 주세요</string>
 
+    <!-- 임시 컴포넌트 -->
+    <string name="profile_setup_placeholder">프로필 설정 (3.2에서 구현)</string>
+    <string name="dev_sign_out">로그아웃 (테스트용)</string>
+    <string name="not_log_in_status">로그인 상태가 아니예요</string>
+    <string name="profile_setup_temp_next">다음 (임시, 3.2에서 프로필 저장으로 변경)</string>
+
     <!-- 공통 컴포넌트 -->
     <string name="search_hint">영상 또는 사용자 검색</string>
 
@@ -28,6 +34,7 @@
     <string name="rating_label_3">괜찮아요</string>
     <string name="rating_label_4">좋아요</string>
     <string name="rating_label_5">최고예요</string>
+    <string name="rating_average_description">평균 별점 %1$s점</string>
     <string name="rating_star_description">%1$d점</string>
 
     <!-- 사람·리뷰 (2.3-C) -->
@@ -73,4 +80,10 @@
     <string name="youtube_error_not_found">영상을 찾을 수 없어요. 삭제되었거나 비공개 영상일 수 있어요.</string>
     <string name="youtube_error_network">인터넷 연결을 확인해 주세요.</string>
     <string name="youtube_error_unknown">영상 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</string>
+
+    <!-- 첫 화면 -->
+    <string name="wordmark_view">view</string>
+    <string name="wordmark_it">it</string>
+    <string name="sign_in_tagline">취향이 맞는 사람의 평가로\n다음에 볼 영상을 골라요</string>
+    <string name="sign_in_terms">계속하면 이용약관과 개인정보처리방침에 동의하게 됩니다.</string>
 </resources>

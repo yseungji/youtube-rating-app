@@ -85,14 +85,16 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 | 별점 입력 | `com.example.viewit.ui.common.StarRatingInputView` | `getScore()`, `setScore(int)`, `setOnScoreChangeListener(...)` |
 | 평가 패널 (UI4/RatingPanel) | `com.example.viewit.ui.common.RatingPanelView` | `getScore()`, `getComment()`, `getRatingVisibility()`(public/private), `setSaved(true)`→"평가 수정", `setOnSaveClickListener(...)`, `setOnWatchLaterClickListener(...)`. 별을 고르기 전에는 저장 버튼이 비활성 |
 | 공개 범위 토글 (UI4/VisibilityToggle) | `<include layout="@layout/view_visibility_toggle" />` | `visibility_group.getCheckedChipId() == R.id.visibility_public` |
-| 별점 통계 (UI4/RatingStatistics) | `com.example.viewit.ui.common.RatingStatisticsView` | `setStats(video)` 또는 `setStats(평균, 개수, 분포)`. 막대는 가장 많은 점수를 100%로 |
+| 별점 통계 (UI4/RatingStatistics) | `com.example.viewit.ui.common.RatingStatisticsView` | `setStats(video)` 또는 `setStats(평균, 개수, 분포)`. 평균 별은 0.5점 단위, 막대는 가장 많은 점수를 100%로 |
+| 평균 별점 표시 (0.5점 단위) | `com.example.viewit.ui.common.StarRatingView` | `setRating(평균)` → 예: 3.6이면 별 3개 반. 누를 수 없는 표시 전용(입력은 `StarRatingInputView`) |
 
 ## 공통 함수 (`ui/common`)
 
 | 함수 | 예 |
 |---|---|
-| `RatingFormat.stars(4)` / `stars(3.6)` | "★★★★☆" |
+| `RatingFormat.stars(4)` | "★★★★☆" (1~5점 정수 별점용. 평균은 `StarRatingView`) |
 | `RatingFormat.averageText(4.0, 3)` | "4.0" (평가 0개면 "—") |
+| `RatingFormat.roundToHalf(3.6)` | 3.5 (0.5 단위 반올림, 3.75 → 4.0) |
 | `RatingFormat.labelRes(4)` | R.string.rating_label_4 ("좋아요") |
 | `DurationFormat.format(750)` | "12:30" (1시간 넘으면 "1:02:03") |
 | `TimeAgoFormat.format(context, 작성시각, 지금)` | "방금 전 / 5분 전 / 3시간 전 / 2일 전 / 2026.11.06" |

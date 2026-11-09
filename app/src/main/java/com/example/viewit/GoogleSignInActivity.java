@@ -1,8 +1,12 @@
 package com.example.viewit;
 
+import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -10,30 +14,25 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.credentials.Credential;
 import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
 import androidx.credentials.CustomCredential;
 import androidx.credentials.GetCredentialRequest;
-
-import com.example.viewit.databinding.ActivityGoogleSignInBinding;
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
-import com.google.firebase.auth.FirebaseUser;
-
-import java.util.concurrent.Executors;
-
-import static com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL;
-
-import android.util.Log;
-import android.widget.Toast;
-
-import androidx.credentials.Credential;
-import androidx.credentials.CredentialManagerCallback;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialCancellationException;
 import androidx.credentials.exceptions.GetCredentialException;
+
+import com.example.viewit.data.model.FirestorePaths;
+import com.example.viewit.databinding.ActivityGoogleSignInBinding;
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 public class GoogleSignInActivity extends AppCompatActivity {
@@ -57,6 +56,10 @@ public class GoogleSignInActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        FirebaseUser user = mAuth.getCurrentUser();
+        if(user != null){
+            updateUI(user);
+        }
     }
     private void signIn(){
         launchCredentialManager();
@@ -144,10 +147,31 @@ public class GoogleSignInActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser user) {
         if(user != null) { //로그인 된 상태라면
-            Intent intent =new Intent(getApplicationContext(), SignOutActivity.class);
-            intent.putExtra("USER_PROFILE", "email: " + user.getEmail() + "\n" + "uid: " + user.getUid());
-
-            startActivity(intent);
+            FirebaseFirestore.getInstance()
+                .collection(FirestorePaths.USERS)
+                    .document(user.getUid())
+                        .get()
+                            .addOnCompleteListener(this,task -> {
+                                if(!task.isSuccessful()){ //조회 실패
+                                    Log.w(TAG, "usersDocumentSearch:failure", task.getException());
+                                    Toast.makeText(GoogleSignInActivity.this, R.string.google_sign_in_failed, Toast.LENGTH_SHORT).show();
+                                    mAuth.signOut();
+                                    return;
+                                }
+                                DocumentSnapshot document = task.getResult();
+                                if(document.exists()){  //기존 회원 -> MainActivity로 이동
+                                    openAndClear(MainActivity.class);
+                                }
+                                else{ //신규회원 -> Profile 만들기로 이동
+                                    openAndClear(ProfileSetupActivity.class);
+                                }
+                            });
         }
+    }
+    private void openAndClear(Class<?> target) {
+        Intent intent = new Intent(this, target);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

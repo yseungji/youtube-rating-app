@@ -39,4 +39,16 @@
     <style name="ShapeAppearance.Viewit.Rate.Thumbnail" parent="ShapeAppearance.Material3.Corner.Small">
         <item name="cornerSize">@dimen/radius_s</item>
     </style>
+
+    <!-- Firestore 평가 페이징 화면 -->
+    <string name="rate_ratings_heading">저장된 공개 평가</string>
+    <string name="rate_ratings_order">문서 ID순으로 불러오기</string>
+    <string name="rate_loading">평가를 불러오는 중…</string>
+    <string name="rate_empty">등록된 공개 평가가 없습니다.</string>
+    <string name="rate_load_error">평가를 불러오지 못했습니다. 로그인·네트워크·Firestore 읽기 권한을 확인해 주세요.</string>
+    <string name="rate_refresh">새로고침</string>
+    <string name="rate_retry">다시 시도</string>
+    <string name="rate_video_id_label">영상 ID: %1$s</string>
+    <string name="rate_rating_metadata">★ %1$d점 · 작성자 %2$s</string>
+    <string name="rate_no_comment">한줄평 없음</string>
 </resources>

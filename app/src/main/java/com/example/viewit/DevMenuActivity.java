@@ -3,6 +3,7 @@ package com.example.viewit;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.viewit.databinding.ActivityDevMenuBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class DevMenuActivity extends AppCompatActivity {
 
@@ -38,6 +41,21 @@ public class DevMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(DevMenuActivity.this, GoogleSignInActivity.class));
+            }
+        });
+        binding.signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                  if(user == null) {
+                    Toast.makeText(DevMenuActivity.this, R.string.not_log_in_status, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent =new Intent(getApplicationContext(), SignOutActivity.class);
+                intent.putExtra("USER_PROFILE", "email: " + user.getEmail() + "\n" + "uid: " + user.getUid());
+
+                startActivity(intent);
             }
         });
         binding.cloudFirestoreButton.setOnClickListener(new View.OnClickListener() {

@@ -64,6 +64,7 @@ public class RateFragment extends Fragment {
             renderLoadState(states);
             return null;
         });
+
         binding.rateRefresh.setOnClickListener(v -> {
             if (loadFailed) {
                 adapter.retry();

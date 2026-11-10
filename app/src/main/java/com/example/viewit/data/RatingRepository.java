@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,8 +37,9 @@ public class RatingRepository {
 
     // 단건 조회 예: getRating(uid, videoId).addOnSuccessListener(snapshot -> snapshot.toObject(Rating.class));
     public Task<DocumentSnapshot> getRating(String uid, String videoId) { //Snapshot을 찍어 단건을 조회한다.
+        // 서버 조회 실패와 실제 평가 없음을 구분한다.
         return db.collection(FirestorePaths.RATINGS)
-                .document(Rating.documentId(uid, videoId)).get();
+                .document(Rating.documentId(uid, videoId)).get(Source.SERVER);
     }
 
     // Query.get() + onSuccess + DocumentSnapshot을 직접 연습할 때 사용하는 일회성 조회.
@@ -61,6 +63,21 @@ public class RatingRepository {
                     }
                 })
                 .addOnFailureListener(onFailure);
+    }
+
+    // 현재 로그인한 사용자의 해당 영상 평가만 삭제한다.
+    // 평균·개수 집계와 반응 하위 컬렉션 정리는 별도 서버 처리 범위다.
+    public Task<Void> deleteRating(@NonNull String videoId) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            return Tasks.forException(new IllegalStateException("로그인이 필요합니다."));
+        }
+        if (videoId.trim().isEmpty() || videoId.contains("/")) {
+            return Tasks.forException(new IllegalArgumentException("영상 ID를 확인하세요."));
+        }
+        return db.collection(FirestorePaths.RATINGS)
+                .document(Rating.documentId(user.getUid(), videoId.trim()))
+                .delete();
     }
 
     // 저장 버튼에서 호출할 API. 기존 평가는 최초 작성 시각과 반응 수를 유지한다.

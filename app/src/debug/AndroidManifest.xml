@@ -20,6 +20,12 @@
         <activity
             android:name=".debug.ComponentGalleryActivity"
             android:exported="true" />
+
+        <!-- YouTube 영상 정보 불러오기 확인 화면 (아이콘 없음, 4.1). 실행 구성에서 Specified Activity로 연다 -->
+        <activity
+            android:name=".debug.VideoInfoTestActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

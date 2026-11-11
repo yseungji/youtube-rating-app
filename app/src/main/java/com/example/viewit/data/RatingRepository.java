@@ -4,12 +4,16 @@ import androidx.annotation.NonNull;
 
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
+import com.example.viewit.data.model.Video;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.AggregateField;
+import com.google.firebase.firestore.AggregateQuerySnapshot;
+import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
@@ -19,6 +23,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +38,88 @@ public class RatingRepository {
         return db.collection(FirestorePaths.RATINGS)
                 .whereEqualTo("visibility", Rating.VISIBILITY_PUBLIC) //where로 공개평가만 조회한다
                 .orderBy(FieldPath.documentId()); //documentId를 가져온다.
+    }
+
+    // 전체 사람 = 팔로우 조건 없이, 이 영상에 남긴 공개 평가 전체(내 공개 평가 포함).
+    // 페이지 크기 제한은 목록 Adapter가 설정한다. 집계에는 limit를 넣으면 안 된다.
+    public Query publicVideoRatingsQuery(@NonNull String videoId) {
+        if (videoId.trim().isEmpty() || videoId.contains("/")) {
+            throw new IllegalArgumentException("영상 ID를 확인하세요.");
+        }
+        return db.collection(FirestorePaths.RATINGS)
+                .whereEqualTo("videoId", videoId.trim())
+                .whereEqualTo("visibility", Rating.VISIBILITY_PUBLIC)
+                // 테스트 문서의 4.5점이나 필드 누락은 서비스용 평가에서 제외한다.
+                .whereIn("score", Arrays.asList(1, 2, 3, 4, 5));
+    }
+
+    /**
+     * Firestore가 계산한 평균·개수와 점수별 개수를 읽는다. 서버 함수 배포는 필요 없다.
+     * 실시간 구독이 아니므로 화면 진입/저장·수정·삭제 성공 시 다시 호출한다.
+     * 평가 문서 전체를 다운로드하거나 videos 문서의 집계 필드를 수정하지 않는다.
+     * Video는 기존 공통 통계 View에 값을 전달하는 용도로만 사용한다.
+     */
+    public void loadPublicVideoStatistics(
+            @NonNull String videoId,
+            @NonNull OnSuccessListener<Video> onSuccess,
+            @NonNull OnFailureListener onFailure) {
+        final Query query;
+        try {
+            query = publicVideoRatingsQuery(videoId);
+        } catch (IllegalArgumentException error) {
+            onFailure.onFailure(error);
+            return;
+        }
+        List<Task<AggregateQuerySnapshot>> requests = new ArrayList<>();
+        requests.add(query.aggregate(AggregateField.count(),
+                        AggregateField.sum("score"), AggregateField.average("score"))
+                .get(AggregateSource.SERVER));
+        for (int score = Rating.MIN_SCORE; score <= Rating.MAX_SCORE; score++) {
+            requests.add(query.whereEqualTo("score", score).count().get(AggregateSource.SERVER));
+        }
+
+        // 요청들은 순서대로 기다리지 않고 함께 보낸다.
+        // whenAllSuccess는 모두 성공했을 때만 결과 목록을 전달하는 Firebase Task 기능이다.
+        // 하나라도 실패하면 onFailure가 실행되므로 오류를 '평가 0개'로 표시하지 않는다.
+        Tasks.<Object>whenAllSuccess(requests)
+                .addOnSuccessListener(new OnSuccessListener<List<Object>>() {
+                    @Override
+                    public void onSuccess(List<Object> results) {
+                        final Video statistics = new Video();
+                        try {
+                            AggregateQuerySnapshot summary = (AggregateQuerySnapshot) results.get(0);
+                            long count = summary.getCount();
+                            Number sum = (Number) summary.get(AggregateField.sum("score"));
+                            Number average = (Number) summary.get(AggregateField.average("score"));
+                            Map<String, Long> distribution = new HashMap<>();
+                            long bucketCount = 0;
+                            long bucketSum = 0;
+                            for (int score = Rating.MIN_SCORE; score <= Rating.MAX_SCORE; score++) {
+                                long number = ((AggregateQuerySnapshot) results.get(score)).getCount();
+                                distribution.put(Video.distributionKey(score), number);
+                                bucketCount += number;
+                                bucketSum += score * number;
+                            }
+                            // 여섯 쿼리는 같은 시점의 원자적 조회가 아니다.
+                            // 조회 도중 평가가 바뀌어 요약과 분포가 다르면 새로고침하도록 실패를 전달한다.
+                            if (count != bucketCount || (sum != null && sum.doubleValue() != bucketSum)
+                                    || (count > 0 && (average == null || sum == null))) {
+                                throw new IllegalStateException("평가가 변경되었습니다. 다시 조회해 주세요.");
+                            }
+                            statistics.setVideoId(videoId.trim());
+                            statistics.setPublicRatingCount(count);
+                            statistics.setRatingSum(bucketSum);
+                            // 평가 0개이면 average가 null이다. 통계 View는 count 0일 때 '—'를 표시한다.
+                            statistics.setRatingAverage(count == 0 ? 0 : average.doubleValue());
+                            statistics.setRatingDistribution(distribution);
+                        } catch (RuntimeException error) {
+                            onFailure.onFailure(error);
+                            return;
+                        }
+                        onSuccess.onSuccess(statistics);
+                    }
+                })
+                .addOnFailureListener(onFailure);
     }
 
     // 단건 조회 예: getRating(uid, videoId).addOnSuccessListener(snapshot -> snapshot.toObject(Rating.class));
@@ -66,7 +153,7 @@ public class RatingRepository {
     }
 
     // 현재 로그인한 사용자의 해당 영상 평가만 삭제한다.
-    // 평균·개수 집계와 반응 하위 컬렉션 정리는 별도 서버 처리 범위다.
+    // 성공 후 공개 집계를 다시 조회한다. 반응 하위 컬렉션 정리는 별도 처리 범위다.
     public Task<Void> deleteRating(@NonNull String videoId) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
@@ -81,7 +168,7 @@ public class RatingRepository {
     }
 
     // 저장 버튼에서 호출할 API. 기존 평가는 최초 작성 시각과 반응 수를 유지한다.
-    // 공개 집계 갱신은 이 메서드의 범위가 아니며 서버 함수 구현 단계에서 연결한다.
+    // 성공 리스너에서 loadPublicVideoStatistics를 호출하면 변경된 집계를 읽을 수 있다.
     public Task<Void> saveRating(@NonNull Rating rating) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); //유저 정보 반환
         if (user == null) { //로그인 안되어 있을 때

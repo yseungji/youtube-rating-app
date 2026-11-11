@@ -15,11 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Viewit">
 
-        <!-- 로그인 후 메인 화면: 하단 5탭 -->
+        <!-- 앱 시작 화면: 로그인 상태를 확인한 뒤 하단 5탭 표시 -->
         <activity
             android:name=".MainActivity"
-            android:exported="false"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <!-- 영상 상세의 평가 입력 화면 -->
@@ -27,12 +32,17 @@
             android:name=".VideoDetailActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
+
+        <!-- 영상 상세에서 명시적 Intent로 여는 전체 공개 평가 목록 -->
+        <activity
+            android:name=".ui.rate.VideoRatingsActivity"
+            android:exported="false" />
 
         <!-- 개발용 Firebase 테스트 메뉴. 디버그 빌드에서만 src/debug/AndroidManifest.xml로 아이콘이 생긴다 -->
         <activity
@@ -47,7 +57,7 @@
             android:name=".PWAuthActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <!-- 앱 시작 화면: 로그인 -->
+        <!-- MainActivity에서 미로그인 상태일 때 여는 로그인 화면 -->
         <activity
             android:name=".GoogleSignInActivity"
             android:exported="true"

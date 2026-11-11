@@ -10,6 +10,17 @@
     <string name="video_detail_open_youtube">YouTube에서 보기</string>
     <string name="video_detail_thumbnail">평가할 영상 썸네일</string>
     <string name="video_detail_missing_ids">영상 정보가 없습니다. 평가할 영상을 선택해 주세요.</string>
+    <string name="video_detail_rating_loading">내 평가를 불러오는 중…</string>
+    <string name="video_detail_rating_load_error">내 평가를 불러오지 못했어요. 다시 시도해 주세요.</string>
+    <string name="video_detail_rating_login_required">내 평가를 불러오려면 로그인해 주세요.</string>
+    <string name="video_detail_rating_retry">내 평가 다시 불러오기</string>
+    <string name="video_detail_delete">평가 삭제</string>
+    <string name="video_detail_delete_question">내 평가를 삭제할까요? 삭제한 평가는 되돌릴 수 없어요.</string>
+    <string name="video_detail_delete_cancel">취소</string>
+    <string name="video_detail_delete_confirm">삭제하기</string>
+    <string name="video_detail_delete_success">내 평가를 삭제했어요.</string>
+    <string name="video_detail_delete_error">평가를 삭제하지 못했어요. 다시 시도해 주세요.</string>
+    <string name="video_detail_delete_loading">내 평가를 삭제하는 중…</string>
     <string name="video_detail_save_success">평가를 저장했어요.</string>
     <string name="video_detail_save_error">평가를 저장하지 못했어요. 로그인 상태와 네트워크를 확인하고 다시 시도해 주세요.</string>
 </resources>

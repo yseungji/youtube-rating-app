@@ -48,6 +48,7 @@ import androidx.paging.CombinedLoadStates;
 import androidx.paging.LoadState;
 import androidx.paging.PagingConfig;
 import androidx.recyclerview.widget.ConcatAdapter;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -76,6 +77,9 @@ public class VideoDetailActivity extends AppCompatActivity {
     private String videoId;
     private String categoryId;
     private boolean ratingWriteInProgress;
+    // 통계와 첫 페이지는 별도 요청이다. 둘 다 끝나야 당기기 로딩을 종료한다.
+    private boolean publicStatisticsLoading;
+    private boolean publicListRefreshing;
     private AlertDialog ratingDeleteDialog;
     private MyAdapter publicRatingsAdapter;
     // 나중에 보낸 요청보다 먼저 보낸 요청이 늦게 도착해 화면을 덮는 것을 막는다.
@@ -138,6 +142,20 @@ public class VideoDetailActivity extends AppCompatActivity {
         loadMyRating();
         // 화면의 Query/Adapter를 먼저 연결한 뒤 통계와 목록을 조회한다.
         setupPublicRatingsList();
+        // 영상은 이 View 바깥에 있으므로 당겨도 고정되어 있다.
+        binding.publicRatingSwipeRefresh.setOnChildScrollUpCallback(
+                new SwipeRefreshLayout.OnChildScrollUpCallback() {
+                    @Override
+                    public boolean canChildScrollUp(@NonNull SwipeRefreshLayout parent, View child) {
+                        return binding.publicRatingList.canScrollVertically(-1);
+                    }
+                });
+        binding.publicRatingSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshPublicRatingsFromUser();
+            }
+        });
         refreshPublicRatings();
         statusBinding.publicRatingRetry.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,13 +165,6 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             }
         });
-        headerBinding.publicRatingRefresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshPublicRatings();
-            }
-        });
-
         // 패널 전체가 아니라 패널 안의 '평가 저장' 버튼에 리스너를 연결한다.
         headerBinding.ratingPanel.setOnSaveClickListener(new View.OnClickListener() {
             @Override
@@ -511,7 +522,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     }
 
     // static이므로 바깥 Activity 인스턴스를 보관하지 않는다.
-    // 전체 평가 화면에서도 같은 ViewHolder/Adapter를 재사용해 행 표시를 통일한다.
+    // 상세화면의 공개 평가 행에 별점·작성자·한줄평을 표시한다.
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         private final ItemReviewDetailBinding itemBinding;
         private String boundUid;
@@ -648,11 +659,32 @@ public class VideoDetailActivity extends AppCompatActivity {
      * 화면 진입/새로고침/저장·수정·삭제 성공 리스너에서 호출한다.
      * 내 평가 입력 패널을 다시 읽지 않으므로 작성 중인 별점과 한줄평을 덮어쓰지 않는다.
      */
+    // 목록 맨 위에서 당길 때 호출한다. 손가락을 여러 번 움직여도 중복 조회하지 않는다.
+    private void refreshPublicRatingsFromUser() {
+        if (ratingWriteInProgress || publicStatisticsLoading || publicListRefreshing) {
+            updatePublicRefreshIndicator();
+            return;
+        }
+        refreshPublicRatings();
+    }
+
+    // 다음 페이지 append 로딩은 새로고침과 별개이므로 위쪽 당기기 표시에는 포함하지 않는다.
+    private void updatePublicRefreshIndicator() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+        boolean refreshing = publicStatisticsLoading || publicListRefreshing;
+        binding.publicRatingSwipeRefresh.setRefreshing(refreshing);
+    }
+
     private void refreshPublicRatings() {
         if (videoId == null || ratingWriteInProgress) {
             return;
         }
         final int request = ++publicStatisticsRequest;
+        publicStatisticsLoading = true;
+        publicListRefreshing = publicRatingsAdapter != null;
+        updatePublicRefreshIndicator();
         headerBinding.publicRatingLoading.setVisibility(View.VISIBLE);
         headerBinding.publicRatingStatistics.setVisibility(View.GONE);
         headerBinding.publicRatingStatus.setText(R.string.video_detail_public_loading);
@@ -673,6 +705,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                         }
                         Log.d("VideoDetailActivity", "Public statistics loaded: count="
                                 + statistics.getPublicRatingCount() + ", average=" + statistics.getRatingAverage());
+                        publicStatisticsLoading = false;
+                        updatePublicRefreshIndicator();
                         headerBinding.publicRatingLoading.setVisibility(View.GONE);
                         headerBinding.publicRatingCount.setText(getString(
                                 R.string.video_detail_public_count, statistics.getPublicRatingCount()));
@@ -693,6 +727,8 @@ public class VideoDetailActivity extends AppCompatActivity {
                             return;
                         }
                         Log.e("VideoDetailActivity", "Public statistics load failed", error);
+                        publicStatisticsLoading = false;
+                        updatePublicRefreshIndicator();
                         headerBinding.publicRatingLoading.setVisibility(View.GONE);
                         headerBinding.publicRatingStatus.setText(R.string.video_detail_public_error);
                         headerBinding.publicRatingStatus.setVisibility(View.VISIBLE);
@@ -708,6 +744,9 @@ public class VideoDetailActivity extends AppCompatActivity {
         }
         LoadState refresh = states.getRefresh();
         LoadState append = states.getAppend();
+        // 성공·빈 목록·오류는 모두 NotLoading/Error로 종료되어 로딩 표시가 남지 않는다.
+        publicListRefreshing = refresh instanceof LoadState.Loading;
+        updatePublicRefreshIndicator();
         boolean loading = refresh instanceof LoadState.Loading || append instanceof LoadState.Loading;
         statusBinding.publicRatingListLoading.setVisibility(loading ? View.VISIBLE : View.GONE);
         statusBinding.publicRatingRetry.setVisibility(

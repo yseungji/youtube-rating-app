@@ -71,6 +71,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.firebaseui:firebase-ui-firestore:10.0.0")
     implementation("androidx.paging:paging-runtime:3.5.3")
+    // 목록을 맨 위에서 당겨 새로고침하는 UI.
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
 
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")

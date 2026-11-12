@@ -28,6 +28,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/screen_padding"
-        android:text="@string/video_detail_public_refresh"
+        android:text="@string/video_detail_public_retry"
         android:visibility="gone" />
 </LinearLayout>

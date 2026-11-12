@@ -153,12 +153,4 @@
             tools:text="2" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/public_rating_refresh"
-        style="@style/Widget.Viewit.Button.Secondary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/screen_padding"
-        android:text="@string/video_detail_public_refresh" />
-
 </LinearLayout>

@@ -25,10 +25,10 @@
     <string name="video_detail_save_error">평가를 저장하지 못했어요. 로그인 상태와 네트워크를 확인하고 다시 시도해 주세요.</string>
     <!-- 전체 사람의 공개 평가: 실시간 구독 없이 필요할 때 다시 조회한다. -->
     <string name="video_detail_public_heading">전체 사람의 평가</string>
-    <string name="video_detail_public_refresh">평가 새로고침</string>
+    <string name="video_detail_public_retry">평가 다시 불러오기</string>
     <string name="video_detail_public_loading">공개 평가 통계를 불러오는 중…</string>
     <string name="video_detail_public_error">공개 평가 통계를 불러오지 못했어요. 다시 시도해 주세요.</string>
-    <string name="video_detail_public_idle">새로고침하면 최신 공개 평가를 확인할 수 있어요.</string>
+    <string name="video_detail_public_idle">목록 맨 위에서 아래로 당기면 최신 공개 평가를 확인할 수 있어요.</string>
     <string name="video_detail_public_empty">아직 등록된 공개 평가가 없어요.</string>
     <string name="video_detail_public_list_error">평가 목록을 불러오지 못했어요. 다시 시도해 주세요.</string>
     <string name="video_detail_review_score">%1$s  %2$d점</string>
@@ -38,9 +38,6 @@
     <string name="video_detail_review_comment_count">댓글 %1$d</string>
     <string name="video_detail_public_list_loading">평가 목록을 불러오는 중…</string>
     <string name="video_detail_public_count">%1$d</string>
-    <string name="video_detail_all_reviews">평가 전체 보기 →</string>
-    <string name="video_detail_all_reviews_title">전체 사람의 평가</string>
-    <string name="video_detail_back">뒤로가기</string>
     <!-- Figma 06-D 중앙 삭제 확인창 -->
     <string name="video_detail_delete_dialog_title">내 평가를 삭제할까요?</string>
     <string name="video_detail_delete_dialog_message">삭제한 평가는 되돌릴 수 없어요.</string>

@@ -49,12 +49,19 @@
         android:contentDescription="@string/video_detail_thumbnail"
         android:scaleType="centerCrop" />
 
-    <!-- 하나의 목록: 위쪽 정보 → Firebase 평가 행들 → 로딩·오류 안내. -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/public_rating_list"
+    <!-- 영상은 고정하고, 목록 맨 위에서 아래로 당길 때만 새로고침한다. -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/public_rating_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        tools:listitem="@layout/item_review_detail" />
+        android:layout_weight="1">
+
+        <!-- 위쪽 정보 → Firebase 평가 행들 → 로딩·오류 안내. -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/public_rating_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            tools:listitem="@layout/item_review_detail" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

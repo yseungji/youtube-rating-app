@@ -60,6 +60,24 @@ YouTubeApi.getInstance().fetchVideo("jNQXAC9IVRw", new YouTubeApi.Callback<Video
 - 결과는 메인 스레드에서 받으므로 바로 화면을 고쳐도 됩니다.
 - 실패 이유(`YouTubeException.Reason`): 키 없음, 키 거부(틀린 키·API 꺼짐), 사용량 초과, 영상 없음, 인터넷 연결, 기타
 - 디버그 빌드의 `debug/VideoInfoTestActivity`(아이콘 없음)에서 영상 ID를 넣고 바로 확인할 수 있습니다. 실행 구성의 Launch를 `Specified Activity` → `com.example.viewit.debug.VideoInfoTestActivity`로 지정합니다.
-- Firestore `videos`에 저장하고 30일마다 새로 받는 기능은 4.1의 다음 작업입니다.
+
+### 화면에서는 VideoRepository를 씁니다 (Firestore 저장·30일 갱신)
+
+화면에서 영상 정보가 필요하면 `YouTubeApi`를 직접 부르지 말고 `data/VideoRepository`를 씁니다. Firestore `videos/{영상ID}`에 저장해 둔 정보를 먼저 보고, 없을 때만 YouTube를 부르므로 사용량이 줄어듭니다.
+
+```java
+new VideoRepository().getVideo("jNQXAC9IVRw", new VideoRepository.Callback<Video>() {
+    @Override public void onSuccess(Video video) { /* 제목·썸네일 + 평균 별점(집계값)까지 들어 있음 */ }
+    @Override public void onError(@NonNull Exception e) { /* YouTubeErrorMessage.of(context, e) 안내 */ }
+});
+```
+
+- 저장본의 수집 시각(`fetchedAt`)이 **30일 안이면 그대로** 쓰고(YouTube 사용량 0), 없거나 30일이 지났으면 YouTube에서 새로 받아 `videos`에 저장합니다. YouTube API 정책상 받아 온 정보는 30일 안에 새로 받아야 하기 때문입니다.
+- 저장할 때는 영상 정보 필드(`title`·`channelId`·`channelTitle`·`thumbnailUrl`·`categoryId`·`durationSeconds`·`publishedAt`·`fetchedAt`)만 **merge**로 씁니다. 평가 집계 필드(`publicRatingCount`, `ratingAverage` 등)는 건드리지 않습니다.
+- YouTube에서 사라진(삭제·비공개) 영상은 저장해 둔 영상 정보 필드를 지우고 결과에서 뺍니다. 평가 집계값은 남깁니다.
+- 30일이 지났는데 새로 받지 못하면(인터넷·사용량 문제) 오래된 정보를 보여 주지 않고 오류로 알립니다.
+- 여러 개는 `getVideos(List<String>, ...)`. 결과는 요청한 순서대로이며 찾을 수 없는 영상은 빠집니다.
+- 확인 화면(`VideoInfoTestActivity`)의 **Firestore 거쳐 불러오기** 버튼으로 "저장본 n개, YouTube에서 새로 m개"를 볼 수 있고, **저장본 수집 시각을 31일 전으로** 버튼으로 30일 규칙을 확인할 수 있습니다.
+- Security Rules(6.4)에서는 로그인한 사용자가 영상 정보 필드만 쓸 수 있고 집계 필드는 쓸 수 없게 막아야 합니다.
 
 공식 참고: https://developer.android.com/build

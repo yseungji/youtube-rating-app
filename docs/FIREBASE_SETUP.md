@@ -18,7 +18,8 @@
 
 ## 현재 설정과 저장 테스트
 
-- Google services 플러그인 4.5.0, Firebase BoM 35.1.0, Firestore·Analytics SDK를 사용합니다.
+- Google services 플러그인 4.5.0, Firebase BoM 35.1.0, Authentication·Firestore·Storage·Analytics SDK를 사용합니다.
+- Storage는 프로필 사진(`profileImages/{uid}.jpg`)에만 씁니다. 콘솔의 Storage 메뉴에서 버킷이 만들어져 있어야 하고, Storage 보안 규칙에서 본인만 자기 사진을 올리도록 제한합니다. (3.2, 2026-11-12 팀 합의)
 - Android application 플러그인은 기존 alias를 사용합니다. 같은 플러그인을 id 방식으로 중복 선언하지 않습니다.
 - Firebase는 공식 문서 방식대로 `app/build.gradle.kts`에 BoM과 버전 없는 문자열로 선언합니다. 예: `implementation("com.google.firebase:firebase-auth")`. 버전은 BoM(`firebase-bom:35.1.0`) 한 곳에서만 정하고, 버전 카탈로그에는 Firebase 항목을 두지 않습니다. (2.1에서 카탈로그·문자열로 중복돼 있던 Firestore 선언을 정리, BoM 35.1.0 기준 Firestore 27.1.0)
 - `CloudFirestoreActivity` 실행 시 `ratings/testRating`에 예시 데이터를 저장합니다.

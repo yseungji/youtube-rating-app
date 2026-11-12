@@ -16,7 +16,7 @@ public class User {
     private String uid;                 // 문서 ID(Firebase Authentication UID). 필드로는 저장하지 않음
     private String username;            // 사용자 아이디, 영문·숫자·밑줄 3~20자, 소문자
     private String displayName;         // 표시 이름
-    private String photoUrl;            // Google 프로필 사진 URL
+    private String photoUrl;            // 프로필 사진 URL(Storage profileImages/{uid}.jpg), 없으면 빈 문자열
     private String introduction;        // 자기소개, 선택·최대 40자
     private List<String> categoryIds = new ArrayList<>();                   // 관심 카테고리, 최소 3개
     private long publicRatingCount;     // 공개 평가 수 (집계값)

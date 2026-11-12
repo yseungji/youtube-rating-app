@@ -69,6 +69,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     implementation("com.google.firebase:firebase-firestore")
+    // 프로필 사진 업로드 (3.2). 버전은 위 Firebase BoM이 정한다
+    implementation("com.google.firebase:firebase-storage")
     implementation("com.firebaseui:firebase-ui-firestore:10.0.0")
     implementation("androidx.paging:paging-runtime:3.5.3")
 

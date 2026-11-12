@@ -52,4 +52,10 @@
     <string name="video_test_empty">영상 ID를 하나 이상 넣어 주세요.</string>
     <string name="video_test_result">요청 %1$d개 중 %2$d개를 받았어요.</string>
     <string name="video_test_error">%1$s (%2$s)</string>
+    <string name="video_test_load_cached">Firestore 거쳐 불러오기 (30일 저장)</string>
+    <string name="video_test_make_stale">저장본 수집 시각을 31일 전으로</string>
+    <string name="video_test_cached_result">요청 %1$d개 중 %2$d개 · 저장본 %3$d개, YouTube에서 새로 %4$d개</string>
+    <string name="video_test_stale_done">%1$d개 문서의 수집 시각을 31일 전으로 바꿨어요. 다시 불러오면 새로 받아야 해요.</string>
+    <string name="video_test_stale_failed">수집 시각 바꾸기 실패: %1$s</string>
+    <string name="video_test_cached_error">%1$s</string>
 </resources>

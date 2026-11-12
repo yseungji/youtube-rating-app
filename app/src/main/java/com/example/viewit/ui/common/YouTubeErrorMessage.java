@@ -12,6 +12,14 @@ public final class YouTubeErrorMessage {
     private YouTubeErrorMessage() {
     }
 
+    // VideoRepository처럼 Firestore 오류도 함께 오는 경우. YouTube 오류가 아니면 일반 안내 문구
+    public static String of(Context context, Exception error) {
+        if (error instanceof YouTubeException) {
+            return of(context, (YouTubeException) error);
+        }
+        return context.getString(R.string.youtube_error_unknown);
+    }
+
     public static String of(Context context, YouTubeException error) {
         int res;
         switch (error.getReason()) {

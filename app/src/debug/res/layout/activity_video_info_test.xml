@@ -50,6 +50,22 @@
             android:layout_marginTop="@dimen/space_s"
             android:text="@string/video_test_load" />
 
+        <Button
+            android:id="@+id/video_test_load_cached"
+            style="@style/Widget.Viewit.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/video_test_load_cached" />
+
+        <Button
+            android:id="@+id/video_test_make_stale"
+            style="@style/Widget.Viewit.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:text="@string/video_test_make_stale" />
+
         <TextView
             android:id="@+id/video_test_status"
             android:layout_width="match_parent"

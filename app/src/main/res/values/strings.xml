@@ -12,10 +12,8 @@
     <string name="google_sign_in_failed">로그인에 실패했어요. 다시 시도해 주세요</string>
 
     <!-- 임시 컴포넌트 -->
-    <string name="profile_setup_placeholder">프로필 설정 (3.2에서 구현)</string>
     <string name="dev_sign_out">로그아웃 (테스트용)</string>
     <string name="not_log_in_status">로그인 상태가 아니예요</string>
-    <string name="profile_setup_temp_next">다음 (임시, 3.2에서 프로필 저장으로 변경)</string>
 
     <!-- 공통 컴포넌트 -->
     <string name="navigate_back">뒤로가기</string>
@@ -87,4 +85,24 @@
     <string name="wordmark_it">it</string>
     <string name="sign_in_tagline">취향이 맞는 사람의 평가로\n다음에 볼 영상을 골라요</string>
     <string name="sign_in_terms">계속하면 이용약관과 개인정보처리방침에 동의하게 됩니다.</string>
+
+    <!-- 3.2 프로필 만들기 -->
+    <string name="onboarding_step_1">1 / 3</string>
+    <string name="profile_setup_title">프로필을 만들어요</string>
+    <string name="profile_setup_subtitle">평가와 함께 다른 사람에게 보여요</string>
+    <string name="profile_setup_photo_title">사진을 눌러 앨범에서 골라요</string>
+    <string name="profile_setup_photo_desc">나중에 설정에서 바꿀 수 있어요</string>
+    <string name="profile_setup_name_label">이름</string>
+    <string name="profile_setup_username_label">아이디</string>
+    <string name="profile_setup_intro_label">한줄 소개 (선택)</string>
+    <string name="profile_setup_intro_hint">어떤 영상을 좋아하는지 적어보세요</string>
+    <string name="profile_setup_next">다음</string>
+    <string name="profile_setup_error_name">이름을 입력해 주세요</string>
+    <string name="profile_setup_error_username">영문 소문자·숫자·밑줄로 3~20자 입력해 주세요</string>
+    <string name="profile_setup_error_intro">한줄 소개는 40자까지 쓸 수 있어요</string>
+    <string name="profile_setup_error_username_taken">이미 사용 중인 아이디예요</string>
+    <string name="profile_setup_error_upload">사진 업로드에 실패했어요. 다시 시도해 주세요</string>
+    <string name="profile_setup_error_photo">사진을 불러오지 못했어요</string>
+    <string name="profile_setup_error_save">프로필 저장에 실패했어요. 다시 시도해 주세요</string>
 </resources>
+

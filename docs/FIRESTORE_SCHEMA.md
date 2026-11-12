@@ -17,6 +17,7 @@
 - 카테고리의 인기 평가는 공개 평가의 좋아요 많은 순입니다.
 - 사용자 차단을 포함합니다. 개인 콘텐츠 숨김과 공유받은 영상 기능은 제외합니다.
 - 새 평가는 해당 작성자의 평가를 마지막으로 확인한 이후 작성된 공개 평가입니다.
+- 프로필 사진은 사용자가 앨범에서 고른 사진을 Firebase Storage에 올려 사용합니다. Google 계정 사진은 쓰지 않습니다. (2026-11-12 팀 합의로 "Storage 사용 안 함" 결정을 변경)
 
 ## 1. 전체 컬렉션·문서 구조
 
@@ -29,7 +30,7 @@ Firestore
 |   `-- {uid} [Firebase Authentication UID]
 |       |-- username: String                         사용자 아이디
 |       |-- displayName: String                      표시 이름
-|       |-- photoUrl: String                         Google 프로필 사진 URL
+|       |-- photoUrl: String                         프로필 사진 URL(Storage), 없으면 빈 문자열
 |       |-- introduction: String                     자기소개, 선택·최대 40자
 |       |-- categoryIds: Array<String>               관심 카테고리, 최소 3개
 |       |-- publicRatingCount: Integer               공개 평가 수
@@ -132,6 +133,19 @@ Firestore
         `-- createdAt: Timestamp                     팔로우 시각
 ```
 
+### Firebase Storage
+
+```text
+Storage
+|
+`-- profileImages [프로필 사진]
+    `-- {uid}.jpg                                    512×512 JPEG, 사용자당 파일 하나
+```
+
+- 프로필 만들기(3.2)에서 고른 사진을 512×512 JPEG로 줄여 올리고, 받은 다운로드 URL을 `users/{uid}.photoUrl`에 저장합니다.
+- 파일 이름을 `{uid}.jpg` 하나로 고정해, 다시 올리거나 사진을 바꾸면 같은 파일을 덮어씁니다.
+- 사진을 고르지 않으면 파일을 만들지 않고 `photoUrl`은 빈 문자열입니다. 화면에서는 기본 프로필 그림(`ic_avatar_default`)을 보여 줍니다.
+
 ### 자료형과 공통 저장 규칙
 
 | 표기 | Java에서 사용하는 형태 | 규칙 |
@@ -204,6 +218,9 @@ Firestore
 - 실제 접근 제어는 Security Rules와 필요한 서버 처리로 구현합니다. 문서 경로만으로 보호되지는 않습니다.
 - 탈퇴·평가 삭제 시 하위 컬렉션과 연결 데이터도 정리해야 합니다. 부모 문서 삭제만으로 하위 문서가 자동 삭제되지는 않습니다.
 - 내 활동(내가 좋아요한 리뷰·내가 쓴 댓글 목록)은 본인 전용입니다.
+- Storage `profileImages/{uid}.jpg`는 로그인한 사용자만 읽고, 본인만 올리거나 바꿉니다. 이미지 형식과 크기(2MB 미만)도 Storage 규칙으로 제한합니다.
+- 탈퇴 시 Storage의 프로필 사진도 지워야 합니다. Firestore 문서를 지워도 Storage 파일은 자동으로 삭제되지 않습니다.
+- 부적절한 프로필 사진의 차단·검수는 과제 범위에서 제외하고 배포 전에 결정합니다.
 
 ## 3. 화면별 조회 기준
 

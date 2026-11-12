@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 중앙 삭제 확인창: 기존 표면 색과 12dp 모서리 토큰 사용 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/bg_surface" />
+    <corners android:radius="@dimen/radius_m" />
+</shape>

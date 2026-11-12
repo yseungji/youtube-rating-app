@@ -46,6 +46,7 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 | 뒤로가기 버튼 | `<include android:id="@+id/video_back" layout="@layout/view_back_button" />`. 48dp 터치 영역. `binding.videoBack.getRoot().setOnClickListener(...)`로 화면별 이동 동작 연결. 공통 XML에는 이동 로직을 넣지 않음 |
 | 검정 버튼 (UI4/Button / Primary) | `style="@style/Widget.Viewit.Button.Primary"` (스타일을 안 적은 버튼도 기본으로 이 모양). 비활성 시 회색 |
 | 흰 테두리 버튼 (UI4/Button / Secondary) | `style="@style/Widget.Viewit.Button.Secondary"` |
+| 평가 삭제 확인창 | `dialog_rating_delete.xml` + `DialogRatingDeleteBinding`. 영상 상세의 `MaterialAlertDialogBuilder`로 중앙 표시. 최대 너비 342dp·안쪽 여백 24dp·모서리 12dp, 삭제 버튼은 `negative`. 취소·바깥 터치·뒤로가기는 창만 닫고, 삭제하기에서만 Repository 호출. [Figma 06-D](https://www.figma.com/design/wEfyU89iY8HaVx42LV1ENB/?node-id=338-2419) |
 | 선택 칩 (UI4/Chip) | `ChipGroup` 안의 `Chip`에 `style="@style/Widget.Viewit.Chip"`. 선택하면 검정 |
 | 검색창 (UI4/SearchField) | `<include layout="@layout/view_search_field" />`, 입력값은 `R.id.search_input` |
 | 작은 버튼 | 검정 `Widget.Viewit.Button.Small`("팔로우"), 회색 `Widget.Viewit.Button.Small.Tonal`("팔로잉") |

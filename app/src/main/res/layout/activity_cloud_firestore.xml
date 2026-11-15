@@ -12,10 +12,79 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
-        android:text="@string/feed_sample_saving"
+        android:text="@string/feed_paging_ready"
         android:textAppearance="@style/TextAppearance.Viewit.Body"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="24dp"
+        app:layout_constraintTop_toBottomOf="@id/firestore_status"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/feed_paging_notice"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary" />
+
+        <Button
+            android:id="@+id/paging_create"
+            style="@style/Widget.Viewit.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/feed_paging_create" />
+
+        <Button
+            android:id="@+id/paging_delete"
+            style="@style/Widget.Viewit.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/feed_paging_delete" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/feed_follow_sample_notice"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary" />
+
+        <Button
+            android:id="@+id/following_create"
+            style="@style/Widget.Viewit.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/feed_follow_sample_create" />
+
+        <Button
+            android:id="@+id/following_delete"
+            style="@style/Widget.Viewit.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/feed_follow_sample_delete" />
+
+        <Button
+            android:id="@+id/single_sample"
+            style="@style/Widget.Viewit.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/feed_paging_single" />
+    </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,6 +2,10 @@
 
 유승지 담당 피드·평가하기·상세 평가 영역의 리팩토링 기록. 테스트·빌드는 사용자가 직접 수행한다.
 
+## 사용자 실행 확인
+
+2026-11-16 사용자 Logcat 확인: 피드에서 저장·삭제 후 RESULT_OK 수신과 피드 재조회 성공. 평가하기에서도 상세 저장 후 resultCode=-1, hasData=true, ratingChanged=true, adapterReady=true 및 목록 갱신 호출을 확인했다. 회전 관련 검증과 각 경로의 나머지 예외 조건은 별도로 남는다. 에이전트가 실행한 테스트는 아니다.
+
 ## Launcher 흐름
 
 1. Fragment 생성 시 registerForActivityResult()로 Launcher와 결과 콜백을 등록한다.

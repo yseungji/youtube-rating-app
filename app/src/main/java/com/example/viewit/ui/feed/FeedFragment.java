@@ -22,6 +22,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.viewit.R;
 import com.example.viewit.VideoDetailActivity;
 import com.example.viewit.data.FeedRepository;
+import com.example.viewit.data.FeedPagingSamples;
+import com.example.viewit.data.FollowingFeedSamples;
 import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.User;
@@ -282,12 +284,25 @@ public class FeedFragment extends Fragment {
 
             // ID로 별도 문서를 조회하고 응답이 도착하면 이 행을 채운다.
             loadAuthor(rating.getUserId(), timeText, generation);
-            loadVideo(rating.getVideoId(), generation);
+            final boolean pagingSample = FeedPagingSamples.isSample(rating)
+                    || FollowingFeedSamples.isSample(rating);
+            if (pagingSample) {
+                // 개발용 가상 영상은 제목만 표시한다. 실제 YouTube API는 호출하지 않는다.
+                String id = rating.getVideoId();
+                itemBinding.feedVideoTitle.setText(context.getString(
+                        R.string.feed_paging_video_title, id.substring(id.lastIndexOf('-') + 1)));
+                itemBinding.feedVideoMetadata.setText(R.string.feed_paging_video_metadata);
+            } else {
+                loadVideo(rating.getVideoId(), generation);
+            }
 
             // 썸네일과 제목에 new View.OnClickListener() 연결.
             itemBinding.feedThumbnail.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (pagingSample) {
+                        return;
+                    }
                     Intent intent = new Intent(v.getContext(), VideoDetailActivity.class);
                     intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
                     intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
@@ -299,6 +314,9 @@ public class FeedFragment extends Fragment {
             itemBinding.feedVideoTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (pagingSample) {
+                        return;
+                    }
                     Intent intent = new Intent(v.getContext(), VideoDetailActivity.class);
                     intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
                     intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());

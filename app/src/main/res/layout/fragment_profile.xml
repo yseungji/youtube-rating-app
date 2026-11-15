@@ -1,29 +1,200 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 프로필 탭 화면 뼈대. 내용: 내 프로필·평가·팔로우 (6.1 김도엽) -->
+<!-- 프로필 탭 (6.1 김도엽). 아래 탭 3개·평가 격자는 다음 PR에서 추가 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- 상단 제목 (Figma App bar, 높이 64dp) -->
-    <TextView
-        android:id="@+id/profile_title"
+    <!-- App bar: 제목 + 설정 아이콘 (Figma 높이 64dp) -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/app_bar_height"
         android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:text="@string/tab_profile"
-        android:textAppearance="@style/TextAppearance.Viewit.Display" />
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/screen_padding">
+
+        <TextView
+            android:id="@+id/profile_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/tab_profile"
+            android:textAppearance="@style/TextAppearance.Viewit.Display" />
+
+        <ImageButton
+            android:id="@+id/profile_settings_button"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/profile_settings"
+            android:src="@drawable/ic_tune" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />
-
-    <!-- 담당자가 화면 내용을 넣을 영역 -->
-    <FrameLayout
-        android:id="@+id/profile_content"
+    <!-- 프로필 상단 (다음 PR에서 AppBarLayout 안으로 옮김) -->
+    <LinearLayout
+        android:id="@+id/profile_header"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
+        <!-- 사진 + 이름·숫자 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/profile_avatar"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:contentDescription="@string/profile_avatar"
+                android:src="@drawable/ic_avatar_default" />
+
+            <!-- 이름 + 숫자 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_xl"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/profile_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Viewit.Body.Strong" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:orientation="horizontal">
+
+                    <!-- 평가 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/profile_rating_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textAppearance="@style/TextAppearance.Viewit.Heading" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/profile_stat_rating"
+                            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+                    </LinearLayout>
+
+                    <!-- 팔로워 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/profile_follower_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textAppearance="@style/TextAppearance.Viewit.Heading" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/profile_stat_follower"
+                            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+                    </LinearLayout>
+
+                    <!-- 팔로잉 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/profile_following_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textAppearance="@style/TextAppearance.Viewit.Heading" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/profile_stat_following"
+                            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+                    </LinearLayout>
+                </LinearLayout>   <!-- 숫자 줄 끝 -->
+            </LinearLayout>       <!-- 이름·숫자 끝 -->
+        </LinearLayout>           <!-- 사진 줄 끝 -->
+
+        <!-- @아이디 · 소개 -->
+        <TextView
+            android:id="@+id/profile_handle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+
+        <!-- 프로필 편집 · 공유 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/profile_edit_button"
+                style="@style/Widget.Viewit.Button.Secondary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/space_s"
+                android:layout_weight="1"
+                android:text="@string/profile_edit" />
+
+            <Button
+                android:id="@+id/profile_share_button"
+                style="@style/Widget.Viewit.Button.Secondary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/profile_share" />
+        </LinearLayout>
+    </LinearLayout>   <!-- profile_header 끝 -->
+</LinearLayout>       <!-- 맨 바깥 끝 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,29 @@
+{
+  "sessionId": "dd359672-3143-4cc7-8f8e-523e722a4d1a",
+  "fileKey": "wEfyU89iY8HaVx42LV1ENB",
+  "pageId": "63:556",
+  "scope": "평가 댓글 바텀시트: 기본·답글 펼침·답글 작성·빈 상태",
+  "sourceDetailId": "95:1830",
+  "localAssets": {
+    "author": "90:716",
+    "searchField": "90:711",
+    "primaryButton": "90:807",
+    "secondaryButton": "92:1062"
+  },
+  "assets": {
+    "commentRow": "380:2571",
+    "commentInput": "380:2581",
+    "commentComposer": "380:2586",
+    "commentLikeSet": "395:3749",
+    "commentLikeOff": "395:3747",
+    "commentLikeOn": "395:3748"
+  },
+  "boardId": "384:2573",
+  "reviewScreens": ["384:2579", "384:2682", "384:2807", "384:2932"],
+  "prototypeScreens": ["389:3184", "389:3242", "389:3304", "389:3366"],
+  "lastUpdated": "2026-11-15",
+  "boardPosition": {"x": 3620, "y": 2324, "reference": "63:562"},
+  "dismissal": "손잡이를 아래로 끌어 닫는 디자인. 닫기 버튼과 배경 클릭 닫기 제거. 실제 Android 드래그 구현 및 Figma 드래그 반응 연결은 미완료.",
+  "likeCounts": "디자인 예시. 댓글/답글 공통 하트 상태 전환은 Figma CHANGE_TO로 연결, 서버 저장과 숫자 증감은 미연결.",
+  "status": "02 큰 시안 오른쪽 배치. 제목 중앙 정렬·평가 요약 제거 유지. 댓글/답글 공통 좋아요 2상태 추가. 편집 가능한 레이어와 Noto Sans KR 사용."
+}

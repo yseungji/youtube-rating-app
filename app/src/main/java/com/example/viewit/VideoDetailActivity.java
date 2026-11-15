@@ -3,6 +3,7 @@ package com.example.viewit;
 import static android.widget.Toast.LENGTH_SHORT;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.DialogInterface;
 import android.view.Gravity;
 import android.view.Window;
@@ -68,8 +69,16 @@ import java.util.concurrent.Executors;
 
 // Figma 06 영상 상세: 공통 평가 패널을 표시하는 화면.
 public class VideoDetailActivity extends AppCompatActivity {
+    private static final String TAG = "VideoDetailActivity";
     public static final String EXTRA_VIDEO_ID = "videoId";
     public static final String EXTRA_CATEGORY_ID = "categoryId";
+    public static final String EXTRA_RATING_CHANGED = "ratingChanged";
+    private static final String STATE_RATING_CHANGED = "detail.ratingChanged";
+    private static final String STATE_RATING_DRAFT = "detail.ratingDraft";
+    private static final String STATE_CATEGORY_ID = "detail.categoryId";
+    private boolean ratingChanged;
+    private boolean myRatingLoaded;
+    private Bundle restoredRatingDraft;
     private final ExecutorService videoExecutor = Executors.newSingleThreadExecutor();
     private ActivityVideoDetailBinding binding;
     private ItemVideoDetailHeaderBinding headerBinding;
@@ -88,6 +97,8 @@ public class VideoDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: savedState=" + (savedInstanceState != null)
+                + ", launchedForResult=" + (getCallingActivity() != null));
         WindowCompat.enableEdgeToEdge(getWindow());
         binding = ActivityVideoDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -102,6 +113,13 @@ public class VideoDetailActivity extends AppCompatActivity {
         binding.videoBack.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //결과를 받으려고 이 화면을 연 원래 화면이 있으면, 현재 상세 화면을 닫는 코드.
+                if (getCallingActivity() != null) {
+                    Log.d(TAG, "상세 종료: finish, ratingChanged=" + ratingChanged);
+                    // launcher로 연 경우 원래 화면의 결과 콜백으로 돌아간다.
+                    finish();
+                    return;
+                }
                 Intent intent = new Intent(VideoDetailActivity.this, MainActivity.class);
                 // 기존 메인 위의 화면을 정리하고, 메인을 다시 열어 기본 피드 탭을 표시한다.
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -120,6 +138,14 @@ public class VideoDetailActivity extends AppCompatActivity {
         // 평가 탭에서 전달한 영상이 있으면 우선 사용한다.
         videoId = getIntent().getStringExtra(EXTRA_VIDEO_ID);
         categoryId = getIntent().getStringExtra(EXTRA_CATEGORY_ID);
+        if (savedInstanceState != null) {
+            categoryId = savedInstanceState.getString(STATE_CATEGORY_ID, categoryId);
+            ratingChanged = savedInstanceState.getBoolean(STATE_RATING_CHANGED, false);
+            restoredRatingDraft = savedInstanceState.getBundle(STATE_RATING_DRAFT);
+            if (ratingChanged) {
+                returnRatingChangeResult();
+            }
+        }
         // 디버그 화면을 직접 실행할 때만 '봤다고 가정한' 테스트 영상을 선택한다.
         // 실제 시청 기록이나 평가는 여기서 저장하지 않는다.
         if ((videoId == null || videoId.trim().isEmpty()) && BuildConfig.DEBUG) {
@@ -174,6 +200,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
                 if (videoId == null || videoId.trim().isEmpty() || videoId.contains("/")
                         || categoryId == null || categoryId.trim().isEmpty()) {
+                    Log.e(TAG, "평가 저장 중단: 영상 또는 카테고리 정보 없음");
                     makeToast(R.string.video_detail_missing_ids);
                     return;
                 }
@@ -189,12 +216,16 @@ public class VideoDetailActivity extends AppCompatActivity {
                 // 작성자 UID는 Repository가 로그인 정보에서 채운다.
                 // 같은 사용자·영상의 평가는 Repository가 기존 문서를 수정한다.
                 ratingWriteInProgress = true;
+                Log.d(TAG, "평가 저장 요청");
                 repository.saveRating(rating)
                         .addOnSuccessListener(unused -> {
                             ratingWriteInProgress = false;
                             if (isFinishing() || isDestroyed()) {
                                 return;
                             }
+                            Log.d(TAG, "평가 저장 성공");
+                            ratingChanged = true;
+                            returnRatingChangeResult();
                             // 서버 저장·수정 성공 후에만 공개 목록과 통계를 다시 읽는다.
                             refreshPublicRatings();
                             headerBinding.ratingPanel.setSaved(true);
@@ -208,7 +239,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                             if (isFinishing() || isDestroyed()) {
                                 return;
                             }
-                            Log.e("VideoDetailActivity", "Rating save failed", error);
+                            Log.e(TAG, "Rating save failed", error);
                             Toast.makeText(VideoDetailActivity.this,
                                     R.string.video_detail_save_error, Toast.LENGTH_LONG).show();
                         });
@@ -221,6 +252,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         if (ratingWriteInProgress) {
             return;
         }
+        myRatingLoaded = false;
         setupDeleteActions();
         headerBinding.myRatingDeleteArea.setVisibility(View.GONE);
 
@@ -290,8 +322,11 @@ public class VideoDetailActivity extends AppCompatActivity {
                             headerBinding.myRatingStatus.setVisibility(View.GONE);
                             headerBinding.myRatingRetry.setVisibility(View.GONE);
                             headerBinding.ratingPanel.setVisibility(View.VISIBLE);
+                            myRatingLoaded = true;
+                            // 서버 조회가 회전 전 입력값을 덮지 않도록 마지막에 복원한다.
+                            restoreRatingDraft();
                         } catch (RuntimeException error) {
-                            Log.e("VideoDetailActivity", "Rating data conversion failed", error);
+                            Log.e(TAG, "Rating data conversion failed", error);
                             showMyRatingLoadError();
                         }
                     }
@@ -302,7 +337,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                         if (isFinishing() || isDestroyed()) {
                             return;
                         }
-                        Log.e("VideoDetailActivity", "Rating load failed", error);
+                        Log.e(TAG, "Rating load failed", error);
                         // 실패를 '평가 없음'으로 처리하지 않는다.
                         showMyRatingLoadError();
                     }
@@ -405,6 +440,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         headerBinding.myRatingStatus.setText(R.string.video_detail_delete_loading);
         headerBinding.myRatingStatus.setVisibility(View.VISIBLE);
 
+        Log.d(TAG, "평가 삭제 요청");
         new RatingRepository().deleteRating(videoId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -413,6 +449,9 @@ public class VideoDetailActivity extends AppCompatActivity {
                         if (isFinishing() || isDestroyed()) {
                             return;
                         }
+                        ratingChanged = true;
+                        Log.d(TAG, "평가 삭제 성공");
+                        returnRatingChangeResult();
                         headerBinding.ratingPanel.setScore(0);
                         headerBinding.ratingPanel.setComment("");
                         headerBinding.ratingPanel.setRatingVisibility(Rating.VISIBILITY_PUBLIC);
@@ -433,7 +472,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                             return;
                         }
                         // 실패하면 입력값은 그대로 두고 다시 시도할 수 있게 한다.
-                        Log.e("VideoDetailActivity", "Rating delete failed", error);
+                        Log.e(TAG, "Rating delete failed", error);
 
                         headerBinding.myRatingStatus.setVisibility(View.GONE);
                         headerBinding.ratingPanel.setVisibility(View.VISIBLE);
@@ -703,7 +742,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                         if (isFinishing() || isDestroyed() || request != publicStatisticsRequest) {
                             return;
                         }
-                        Log.d("VideoDetailActivity", "Public statistics loaded: count="
+                        Log.d(TAG, "Public statistics loaded: count="
                                 + statistics.getPublicRatingCount() + ", average=" + statistics.getRatingAverage());
                         publicStatisticsLoading = false;
                         updatePublicRefreshIndicator();
@@ -726,7 +765,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                         if (isFinishing() || isDestroyed() || request != publicStatisticsRequest) {
                             return;
                         }
-                        Log.e("VideoDetailActivity", "Public statistics load failed", error);
+                        Log.e(TAG, "Public statistics load failed", error);
                         publicStatisticsLoading = false;
                         updatePublicRefreshIndicator();
                         headerBinding.publicRatingLoading.setVisibility(View.GONE);
@@ -754,7 +793,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         if (refresh instanceof LoadState.Error || append instanceof LoadState.Error) {
             LoadState.Error failure = refresh instanceof LoadState.Error
                     ? (LoadState.Error) refresh : (LoadState.Error) append;
-            Log.e("VideoDetailActivity", "Public rating list load failed", failure.getError());
+            Log.e(TAG, "Public rating list load failed", failure.getError());
             statusBinding.publicRatingListStatus.setText(R.string.video_detail_public_list_error);
             statusBinding.publicRatingListStatus.setVisibility(View.VISIBLE);
         } else if (refresh instanceof LoadState.NotLoading
@@ -763,7 +802,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             statusBinding.publicRatingListStatus.setVisibility(View.VISIBLE);
         } else {
             if (refresh instanceof LoadState.NotLoading) {
-                Log.d("VideoDetailActivity", "Public rating list loaded: rows=" + publicRatingsAdapter.getItemCount());
+                Log.d(TAG, "Public rating list loaded: rows=" + publicRatingsAdapter.getItemCount());
             }
             statusBinding.publicRatingListStatus.setVisibility(View.GONE);
         }
@@ -771,6 +810,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
     private void loadVideoInfo() {
         if (BuildConfig.YOUTUBE_API_KEY.trim().isEmpty()) {
+            Log.e(TAG, "영상 정보 조회 중단: API 키 설정 없음");
             headerBinding.videoTitle.setText(R.string.video_detail_api_key_missing);
             return;
         }
@@ -795,6 +835,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 // 요청 URL에 API 키가 들어 있으므로 예외 원문은 로그에 남기지 않는다.
                 runOnUiThread(() -> {
                     if (!isDestroyed()) {
+                        Log.e(TAG, "영상 정보 조회 실패: " + error.getClass().getSimpleName());
                         headerBinding.videoTitle.setText(R.string.video_detail_load_error);
                     }
                 });
@@ -802,8 +843,63 @@ public class VideoDetailActivity extends AppCompatActivity {
         });
     }
 
+    // setResult()는 결과를 준비하고, 종료될 때 원래 화면에 전달한다.
+    private void returnRatingChangeResult() {
+        Intent result = new Intent();
+        result.putExtra(EXTRA_VIDEO_ID, videoId);
+        result.putExtra(EXTRA_RATING_CHANGED, true);
+        setResult(RESULT_OK, result);
+        Log.d(TAG, "결과 준비: setResult(RESULT_OK), ratingChanged=true");
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(STATE_RATING_CHANGED, ratingChanged);
+        outState.putString(STATE_CATEGORY_ID, categoryId);
+        if (restoredRatingDraft != null) {
+            outState.putBundle(STATE_RATING_DRAFT, restoredRatingDraft);
+        } else if (myRatingLoaded && !ratingWriteInProgress) {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                Bundle draft = new Bundle();
+                draft.putString("userId", user.getUid());
+                draft.putInt("score", headerBinding.ratingPanel.getScore());
+                draft.putString("comment", headerBinding.ratingPanel.getComment());
+                draft.putString("visibility", headerBinding.ratingPanel.getRatingVisibility());
+                outState.putBundle(STATE_RATING_DRAFT, draft);
+            }
+        }
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState: 평가 입력 상태 저장");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // 조회 중이면 조회 성공 콜백에서 복원한다.
+        restoreRatingDraft();
+        Log.d(TAG, "onRestoreInstanceState: 복원 요청, ratingLoaded=" + myRatingLoaded);
+    }
+
+    private void restoreRatingDraft() {
+        if (!myRatingLoaded || restoredRatingDraft == null) {
+            return;
+        }
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && user.getUid().equals(restoredRatingDraft.getString("userId"))) {
+            headerBinding.ratingPanel.setScore(restoredRatingDraft.getInt("score", 0));
+            headerBinding.ratingPanel.setComment(restoredRatingDraft.getString("comment", ""));
+            headerBinding.ratingPanel.setRatingVisibility(
+                    restoredRatingDraft.getString("visibility", Rating.VISIBILITY_PUBLIC));
+            Log.d(TAG, "평가 입력 복원 완료");
+        }
+        restoredRatingDraft = null;
+    }
+
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "onDestroy: changingConfigurations=" + isChangingConfigurations()
+                + ", finishing=" + isFinishing());
         // Activity가 종료될 때 열려 있는 창도 닫아 Window 누수를 방지한다.
         if (ratingDeleteDialog != null) {
             ratingDeleteDialog.dismiss();
@@ -815,6 +911,16 @@ public class VideoDetailActivity extends AppCompatActivity {
             binding.publicRatingList.setAdapter(null);
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Manifest에 configChanges를 지정한 비교 버전에서 호출된다.
+        // 현재 XML은 세로·가로에 공통이며 시스템 바 여백만 다시 적용한다.
+        ViewCompat.requestApplyInsets(binding.getRoot());
+        Log.d(TAG, "onConfigurationChanged: orientation="
+                + newConfig.orientation);
     }
 
     private void makeToast(@StringRes int messageResId) {

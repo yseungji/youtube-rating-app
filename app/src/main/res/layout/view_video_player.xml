@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 앱 안 YouTube 플레이어 (4.2). VideoPlayerView가 사용한다.
+     재생할 수 없는 영상이면 플레이어 위에 썸네일·안내 문구·YouTube에서 보기 버튼을 덮는다. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+        android:id="@+id/player_youtube"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:enableAutomaticInitialization="false" />
+
+    <FrameLayout
+        android:id="@+id/player_fallback"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/accent_deep"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/player_fallback_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.35"
+            android:importantForAccessibility="no"
+            android:scaleType="centerCrop" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="@dimen/space_m">
+
+            <TextView
+                android:id="@+id/player_fallback_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/video_player_blocked"
+                android:textAppearance="@style/TextAppearance.Viewit.Body.Strong"
+                android:textColor="@color/bg_surface" />
+
+            <Button
+                android:id="@+id/player_open_youtube"
+                style="@style/Widget.Viewit.Button.Small.Tonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/video_player_open_youtube" />
+        </LinearLayout>
+    </FrameLayout>
+</merge>

@@ -11,7 +11,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.example.viewit.databinding.DialogRatingDeleteBinding;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,13 +28,15 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.viewit.data.RatingRepository;
-import com.example.viewit.data.VideoInfoLoader;
+import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.Video;
 import com.example.viewit.data.model.User;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.ui.common.RatingFormat;
 import com.example.viewit.ui.common.TimeAgoFormat;
+import com.example.viewit.ui.common.YouTubeErrorMessage;
+import com.example.viewit.ui.common.YouTubeLinks;
 import com.example.viewit.databinding.ItemVideoDetailHeaderBinding;
 import com.example.viewit.databinding.ItemVideoDetailStatusBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -63,14 +64,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 // Figma 06 영상 상세: 공통 평가 패널을 표시하는 화면.
 public class VideoDetailActivity extends AppCompatActivity {
     public static final String EXTRA_VIDEO_ID = "videoId";
     public static final String EXTRA_CATEGORY_ID = "categoryId";
-    private final ExecutorService videoExecutor = Executors.newSingleThreadExecutor();
     private ActivityVideoDetailBinding binding;
     private ItemVideoDetailHeaderBinding headerBinding;
     private ItemVideoDetailStatusBinding statusBinding;
@@ -133,8 +131,9 @@ public class VideoDetailActivity extends AppCompatActivity {
         }
         videoId = videoId.trim();
         headerBinding.videoId.setText(getString(R.string.video_detail_video_id, videoId));
-        headerBinding.videoOpenYoutube.setOnClickListener(v -> startActivity(new Intent(
-                Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoId))));
+        headerBinding.videoOpenYoutube.setOnClickListener(v -> YouTubeLinks.open(this, videoId));
+        // 앱 안 플레이어(4.2): 화면이 멈추면 일시정지, 화면이 끝나면 정리된다
+        binding.videoPlayer.load(this, videoId);
         loadVideoInfo();
         RatingRepository repository = new RatingRepository();
 
@@ -769,35 +768,30 @@ public class VideoDetailActivity extends AppCompatActivity {
         }
     }
 
+    // 영상 정보는 VideoRepository로 받는다: Firestore 저장본이 30일 안이면 그대로, 아니면 YouTube에서 받아 저장(4.1).
+    // 결과는 메인 스레드로 오므로 따로 스레드를 만들지 않는다.
     private void loadVideoInfo() {
-        if (BuildConfig.YOUTUBE_API_KEY.trim().isEmpty()) {
-            headerBinding.videoTitle.setText(R.string.video_detail_api_key_missing);
-            return;
-        }
-        final String requestedVideoId = videoId;
-        videoExecutor.execute(() -> {
-            try {
-                VideoInfoLoader.Result result = new VideoInfoLoader().load(requestedVideoId);
-                runOnUiThread(() -> {
-                    if (isDestroyed()) {
-                        return;
-                    }
-                    categoryId = result.video.getCategoryId();
-                    headerBinding.videoTitle.setText(result.video.getTitle());
-                    headerBinding.videoChannel.setText(result.video.getChannelTitle());
-                    headerBinding.videoCategory.setText(getString(
-                            R.string.video_detail_category_id, categoryId));
-                    if (result.thumbnail != null) {
-                        binding.videoThumbnail.setImageBitmap(result.thumbnail);
-                    }
-                });
-            } catch (Exception error) {
-                // 요청 URL에 API 키가 들어 있으므로 예외 원문은 로그에 남기지 않는다.
-                runOnUiThread(() -> {
-                    if (!isDestroyed()) {
-                        headerBinding.videoTitle.setText(R.string.video_detail_load_error);
-                    }
-                });
+        new VideoRepository().getVideo(videoId, new VideoRepository.Callback<Video>() {
+            @Override
+            public void onSuccess(Video video) {
+                if (isDestroyed()) {
+                    return;
+                }
+                categoryId = video.getCategoryId();
+                headerBinding.videoTitle.setText(video.getTitle());
+                headerBinding.videoChannel.setText(video.getChannelTitle());
+                headerBinding.videoCategory.setText(getString(
+                        R.string.video_detail_category_id, categoryId));
+                binding.videoPlayer.setThumbnailUrl(video.getThumbnailUrl());
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                // 오류 안내에는 API 키가 들어 있지 않다. 이유별 문구(키 없음·사용량·인터넷 등)를 보여 준다.
+                if (!isDestroyed()) {
+                    headerBinding.videoTitle.setText(
+                            YouTubeErrorMessage.of(VideoDetailActivity.this, error));
+                }
             }
         });
     }
@@ -809,7 +803,6 @@ public class VideoDetailActivity extends AppCompatActivity {
             ratingDeleteDialog.dismiss();
             ratingDeleteDialog = null;
         }
-        videoExecutor.shutdownNow();
         // FirebaseUI는 LifecycleOwner를 따라 중지한다. 화면과 Adapter의 연결도 해제한다.
         if (binding != null) {
             binding.publicRatingList.setAdapter(null);

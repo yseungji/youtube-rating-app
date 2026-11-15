@@ -40,14 +40,12 @@
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />
 
-    <!-- 영상 영역은 스크롤 밖에 두어 고정한다. 재생 연동 시 이 영역을 플레이어로 교체한다. -->
-    <ImageView
-        android:id="@+id/video_thumbnail"
+    <!-- 영상 영역은 스크롤 밖에 두어 고정한다. 앱 안 YouTube 플레이어(4.2), 16:9 -->
+    <com.example.viewit.ui.common.VideoPlayerView
+        android:id="@+id/video_player"
         android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:background="@color/action_soft"
-        android:contentDescription="@string/video_detail_thumbnail"
-        android:scaleType="centerCrop" />
+        android:layout_height="wrap_content"
+        android:background="@color/accent_deep" />
 
     <!-- 영상은 고정하고, 목록 맨 위에서 아래로 당길 때만 새로고침한다. -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

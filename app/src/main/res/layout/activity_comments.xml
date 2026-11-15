@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_surface"
+    android:paddingHorizontal="@dimen/screen_padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/comments_back"
+            style="@style/Widget.Viewit.Button.Small.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/comments_back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/space_m"
+            android:text="@string/comments_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Title" />
+
+        <Button
+            android:id="@+id/comments_refresh"
+            style="@style/Widget.Viewit.Button.Small.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/comments_refresh" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/comments_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/space_s"
+        android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+        android:text="@string/comments_loading" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/comments_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/comments_more"
+        style="@style/Widget.Viewit.Button.Small.Tonal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/comments_more"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="@dimen/space_s">
+
+        <EditText
+            android:id="@+id/comments_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="top"
+            android:hint="@string/comments_hint"
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLength="500"
+            android:maxLines="4" />
+
+        <Button
+            android:id="@+id/comments_send"
+            style="@style/Widget.Viewit.Button.Small.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:text="@string/comments_send" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 게시글 한 개 전체가 ViewHolder 한 개에 대응한다. 공통 컴포넌트를 include로 재사용한다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_surface"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/feed_author"
+        layout="@layout/view_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/screen_padding" />
+
+    <!-- 영상 클릭은 이 썸네일과 아래 영상 제목에 연결한다. -->
+    <include
+        android:id="@+id/feed_thumbnail"
+        layout="@layout/view_thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
+
+        <TextView
+            android:id="@+id/feed_video_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Title"
+            tools:text="집에서 만드는 나폴리 피자, 오븐 없이 프라이팬으로 끝내기" />
+
+        <TextView
+            android:id="@+id/feed_video_metadata"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption"
+            tools:text="요리하는 사람들 · 12분 30초" />
+
+        <include
+            android:id="@+id/feed_quote"
+            layout="@layout/view_review_quote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m" />
+
+        <include
+            android:id="@+id/feed_actions"
+            layout="@layout/view_review_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+</LinearLayout>

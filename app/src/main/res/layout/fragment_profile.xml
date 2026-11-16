@@ -170,7 +170,7 @@
                 </LinearLayout>       <!-- 이름·숫자 끝 -->
             </LinearLayout>           <!-- 사진 줄 끝 -->
 
-            <!-- 한줄 소개 (비어 있으면 숨김) -->
+            <!-- @아이디 · 한줄 소개 (소개가 없으면 @아이디만) -->
             <TextView
                 android:id="@+id/profile_handle"
                 android:layout_width="match_parent"

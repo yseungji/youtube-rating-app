@@ -117,16 +117,14 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showProfile(User user){
-        binding.profileTitle.setText(user.getUsername());
         binding.profileName.setText(user.getDisplayName());
         binding.profileFollowerCount.setText(String.valueOf(user.getFollowerCount()));
         binding.profileFollowingCount.setText(String.valueOf(user.getFollowingCount()));
         String intro = user.getIntroduction();
         if (TextUtils.isEmpty(intro)) {
-            binding.profileHandle.setVisibility(View.GONE);
+            binding.profileHandle.setText(getString(R.string.profile_handle, user.getUsername()));
         } else {
-            binding.profileHandle.setText(intro);
-            binding.profileHandle.setVisibility(View.VISIBLE);
+            binding.profileHandle.setText(getString(R.string.profile_handle_with_intro, user.getUsername(), intro));
         }
         Glide.with(this)
             .load(user.getPhotoUrl())

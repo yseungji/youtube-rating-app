@@ -82,4 +82,7 @@ dependencies {
 
     // 썸네일 이미지 불러오기·캐시 (4.1)
     implementation("com.github.bumptech.glide:glide:5.0.9")
+
+    // 앱 안 YouTube 플레이어 (4.2). YouTube 공식 IFrame 플레이어를 WebView로 감싼 라이브러리
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:13.1.0")
 }

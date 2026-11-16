@@ -62,6 +62,7 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 | 영상 한 줄 (UI4/VideoRow) | `item_video_row.xml` | `video_row_title`, `video_row_meta`, `video_row_action`("평가하기 →", 필요 없으면 GONE) |
 | 카테고리 영상 (UI4/CategoryCard) | `item_category_video.xml` | `category_video_title`, `category_video_rating` ← `getString(R.string.video_average, RatingFormat.averageText(평균, 개수))` |
 | 평가 타일 (UI4/RatingTile) | `item_rating_tile.xml` (정사각형, "★4" 배지) | `rating_tile_image`, `rating_tile_score` |
+| 앱 안 플레이어 (4.2) | `com.example.viewit.ui.common.VideoPlayerView` (16:9) | `load(this, 영상ID)` 한 번 호출. 화면이 멈추면 일시정지·끝나면 정리. 재생이 막힌 영상은 안내 + "YouTube에서 보기" 버튼. 안내 뒤 썸네일은 `setThumbnailUrl(...)` |
 
 ## 사람·리뷰 컴포넌트
 
@@ -101,6 +102,7 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 | `DurationFormat.format(750)` | "12:30" (1시간 넘으면 "1:02:03") |
 | `TimeAgoFormat.format(context, 작성시각, 지금)` | "방금 전 / 5분 전 / 3시간 전 / 2일 전 / 2026.11.06" |
 | `ThumbnailLoader.load(이미지뷰, video.getThumbnailUrl())` | 썸네일 이미지 불러오기(Glide). 불러오는 동안·실패 시 회색 칸 |
+| `YouTubeLinks.open(context, 영상ID)` | YouTube 앱(없으면 브라우저)으로 영상 열기 |
 | `YouTubeErrorMessage.of(context, 오류)` | YouTube 호출 실패 안내 문구 ("인터넷 연결을 확인해 주세요." 등) |
 
 한국어 제목·한줄평은 Android 13 이상에서 단어 단위로 줄이 바뀝니다(`lineBreakWordStyle="phrase"`). 그보다 낮은 버전에서는 글자 단위로 바뀝니다.

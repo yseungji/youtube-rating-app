@@ -20,4 +20,9 @@
     <dimen name="search_field_height">48dp</dimen>
     <dimen name="chip_height">36dp</dimen>
     <dimen name="divider">1dp</dimen>
+
+    <!-- 프로필 상단 (Figma 05-B·05-C) -->
+    <dimen name="profile_banner_height">112dp</dimen>       <!-- 배너 높이 -->
+    <dimen name="profile_header_top_padding">72dp</dimen>   <!-- 사진 80dp 중 40dp가 배너에 걸치는 위치 -->
+    <dimen name="profile_banner_edit_size">32dp</dimen>     <!-- 배너 위 연필·배너 추가 버튼 높이 -->
 </resources>

@@ -89,7 +89,7 @@
                     android:layout_width="72dp"
                     android:layout_height="72dp"
                     android:contentDescription="@string/profile_setup_photo_title"
-                    android:src="@drawable/ic_avatar_default"
+                    android:src="@drawable/avatar_default"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true"/>

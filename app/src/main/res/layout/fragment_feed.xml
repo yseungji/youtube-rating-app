@@ -1,29 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 피드 탭 화면 뼈대. 내용: 팔로우한 사람의 최신 평가 (5.3 유승지) -->
+<!-- 피드: 고정 제목·목록 선택 영역 아래에서 게시글 전체를 RecyclerView로 재사용한다. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_surface"
     android:orientation="vertical">
 
-    <!-- 상단 제목 (Figma App bar, 높이 64dp) -->
-    <TextView
-        android:id="@+id/feed_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/app_bar_height"
         android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:text="@string/tab_feed"
-        android:textAppearance="@style/TextAppearance.Viewit.Display" />
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/screen_padding">
+
+        <TextView
+            android:id="@+id/feed_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/tab_feed"
+            android:textAppearance="@style/TextAppearance.Viewit.Display" />
+
+        <!-- 선택 메뉴를 여는 onClick-->
+        <Button
+            android:id="@+id/feed_order"
+            style="@style/Widget.Viewit.Button.Small.Tonal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/feed_order_description"
+            android:text="@string/feed_order_latest"
+            android:textColor="@color/text_primary" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />
 
-    <!-- 담당자가 화면 내용을 넣을 영역 -->
-    <FrameLayout
-        android:id="@+id/feed_content"
+    <!-- 팔로잉 없음·평가 없음·조회 실패를 서로 구분해서 표시한다. -->
+    <TextView
+        android:id="@+id/feed_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/screen_padding"
+        android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+        android:visibility="gone" />
+
+    <!-- 목록 맨 위에서 아래로 당기면 새로 조회해 목록을 교체한다. -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/feed_refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/feed_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:itemCount="2"
+            tools:listitem="@layout/item_feed_post" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reactions_login_required">로그인 후 사용할 수 있어요.</string>
+    <string name="reactions_load_error">반응을 불러오지 못했어요. 새로고침해 주세요.</string>
+    <string name="reactions_save_error">저장하지 못했어요. 네트워크와 접근 권한을 확인한 뒤 다시 시도해 주세요.</string>
+    <string name="reactions_like_add">좋아요 추가</string>
+    <string name="reactions_like_remove">좋아요 취소</string>
+    <string name="reactions_comment_count">댓글 %1$d</string>
+    <string name="comments_title">댓글</string>
+    <string name="comments_back">뒤로</string>
+    <string name="comments_refresh">새로고침</string>
+    <string name="comments_more">댓글 더 보기</string>
+    <string name="comments_hint">댓글을 입력하세요 (최대 500자)</string>
+    <string name="comments_send">등록</string>
+    <string name="comments_loading">댓글을 불러오는 중…</string>
+    <string name="comments_empty">아직 댓글이 없어요. 첫 댓글을 남겨 보세요.</string>
+    <string name="comments_input_required">댓글 내용을 입력해 주세요.</string>
+    <string name="comments_unavailable">삭제되었거나 공개되지 않은 평가예요.</string>
+    <string name="comments_load_error">댓글을 불러오지 못했어요. 새로고침하거나 더 보기를 눌러 다시 시도해 주세요.</string>
+    <string name="comments_saved">댓글을 등록했어요.</string>
+    <string name="comments_unknown_author">알 수 없는 작성자</string>
+    <string name="comments_unknown_time">작성 시각 없음</string>
+</resources>

@@ -18,6 +18,14 @@
     <color name="brand_orange">#FFFF7A1A</color>
     <color name="brand_orange_soft">#FFFFE7D1</color>
 
+    <!-- 프로필 배너·기본 프로필 사진 (Figma 확정안 D) -->
+    <color name="profile_banner_start">#FFFCE6D4</color>        <!-- 기본 배너 위쪽 -->
+    <color name="profile_banner_mid">#FFFEF4EC</color>          <!-- 기본 배너 60% 지점, 끝은 bg_surface -->
+    <color name="profile_banner_veil_top">#73FFFFFF</color>     <!-- 사진 배너 흰 막 위쪽 (흰색 45%) -->
+    <color name="profile_banner_veil_mid">#99FFFFFF</color>     <!-- 사진 배너 흰 막 60% 지점 (흰색 60%) -->
+    <color name="profile_banner_button_bg">#E6FFFFFF</color>    <!-- 배너 위 버튼 바탕 (흰색 90%) -->
+    <color name="avatar_default_silhouette">#FFFF9E65</color>   <!-- 기본 프로필 사진의 사람 모양 -->
+
     <!-- 하단 탭: 선택된 탭은 주 텍스트색, 나머지는 보조 텍스트색 -->
     <color name="tab_selected">@color/text_primary</color>
     <color name="tab_unselected">@color/text_secondary</color>

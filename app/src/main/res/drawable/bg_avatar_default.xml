@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 기본 프로필 사진 바탕: 기본 배너(bg_profile_banner_default)와 같은 그라데이션을 원 안에 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:angle="270"
+        android:centerY="0.6"
+        android:startColor="@color/profile_banner_start"
+        android:centerColor="@color/profile_banner_mid"
+        android:endColor="@color/bg_surface"
+        android:type="linear" />
+</shape>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 프로필 배너 위 연필 버튼 바탕 (흰색 90% 원). 그림자는 레이아웃의 elevation으로 준다. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/profile_banner_button_bg" />
+</shape>

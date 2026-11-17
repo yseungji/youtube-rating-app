@@ -28,6 +28,8 @@ public class User {
     @ServerTimestamp
     private Timestamp updatedAt;        // 프로필 수정 시각
 
+    private String bannerVideoId;       //배너로 고른 영상 ID, 안 골랐으면 null
+
     // Firestore가 문서를 객체로 바꿀 때 필요한 빈 생성자
     public User() {
     }
@@ -126,5 +128,13 @@ public class User {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getBannerVideoId() {
+        return bannerVideoId;
+    }
+
+    public void setBannerVideoId(String bannerVideoId) {
+        this.bannerVideoId = bannerVideoId;
     }
 }

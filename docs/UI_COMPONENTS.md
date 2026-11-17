@@ -20,6 +20,11 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 | `negative` | #FF3040 | 오류·회원 탈퇴 |
 | `attention` | #F0EDE8 | 따뜻한 강조 |
 | `accent_deep` | #141414 | 딥 네이비 |
+| `profile_banner_start` | #FCE6D4 | 기본 프로필 배너·기본 프로필 사진 그라데이션 위쪽 |
+| `profile_banner_mid` | #FEF4EC | 같은 그라데이션 60% 지점 (끝은 `bg_surface`) |
+| `profile_banner_veil_top` / `_mid` | 흰색 45% / 60% | 사진 배너 위 흰 막 (아래 끝은 `bg_surface`) |
+| `profile_banner_button_bg` | 흰색 90% | 배너 위 연필·"배너 추가" 버튼 바탕 |
+| `avatar_default_silhouette` | #FF9E65 | 기본 프로필 사진의 사람 모양 |
 
 ## 글자 (`res/values/type.xml`)
 
@@ -38,6 +43,22 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 ## 간격·크기 (`res/values/dimens.xml`)
 
 8pt 기반입니다. `space_xs` 4 · `space_s` 8 · `space_m` 12 · `space_l` 16 · `space_xl` 24 · `space_xxl` 32, 화면 좌우 여백 `screen_padding` 16, 모서리 `radius_s` 10 · `radius_m` 12, `button_height`·`search_field_height` 48, `chip_height` 36, `app_bar_height` 64, 구분선 `divider` 1.
+
+프로필 상단: 배너 높이 `profile_banner_height` 112, 헤더 위쪽 여백 `profile_header_top_padding` 72(사진 80 중 40이 배너에 걸침), 배너 위 버튼 `profile_banner_edit_size` 32.
+
+## 프로필 배너·기본 프로필 사진 (`res/drawable`)
+
+[Figma 확정안 D](https://www.figma.com/design/wEfyU89iY8HaVx42LV1ENB/?node-id=408-3940) · [05-B 사진 배너](https://www.figma.com/design/wEfyU89iY8HaVx42LV1ENB/?node-id=402-3854) · [05-C 기본 배너](https://www.figma.com/design/wEfyU89iY8HaVx42LV1ENB/?node-id=407-3915)
+
+| 파일 | 모양 | 쓰는 곳 |
+|---|---|---|
+| `avatar_default` | 아래 두 개를 겹친 기본 프로필 사진 | 사진이 없을 때 모든 화면(프로필·피드·팔로워 목록·댓글). Glide의 `placeholder`·`error`·`fallback`에도 이것을 넣음 |
+| `bg_avatar_default` | 원, 위→아래 `profile_banner_start` → `_mid`(60%) → 흰색 | `avatar_default`의 바탕 |
+| `ic_avatar_default` | 머리 원 + 어깨, `avatar_default_silhouette` | `avatar_default`의 사람 모양 |
+| `bg_profile_banner_default` | 사각형, 기본 사진과 같은 그라데이션 | 공개 평가가 없을 때의 배너 |
+| `bg_profile_banner_veil` | 흰색 45% → 60%(60% 지점) → 100% | 사진(썸네일) 배너 위에 씌우는 막 |
+| `bg_banner_edit_button` + `ic_edit` | 흰색 90% 원 + 연필 | 사진 배너일 때 배너 바꾸기 버튼 (32dp, elevation 2dp) |
+| `ic_add` | 더하기 | 기본 배너일 때 "+ 배너 추가" 알약 버튼 |
 
 ## 위젯
 

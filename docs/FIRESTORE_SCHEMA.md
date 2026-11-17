@@ -32,6 +32,7 @@ Firestore
 |       |-- displayName: String                      표시 이름
 |       |-- photoUrl: String                         프로필 사진 URL(Storage), 없으면 빈 문자열
 |       |-- introduction: String                     자기소개, 선택·최대 40자
+|       |-- bannerVideoId: String | null             프로필 배너로 고른 영상 ID, 안 골랐으면 null
 |       |-- categoryIds: Array<String>               관심 카테고리, 최소 3개
 |       |-- publicRatingCount: Integer               공개 평가 수
 |       |-- publicRatingCountsByCategory: Map<String, Integer>
@@ -144,7 +145,7 @@ Storage
 
 - 프로필 만들기(3.2)에서 고른 사진을 512×512 JPEG로 줄여 올리고, 받은 다운로드 URL을 `users/{uid}.photoUrl`에 저장합니다.
 - 파일 이름을 `{uid}.jpg` 하나로 고정해, 다시 올리거나 사진을 바꾸면 같은 파일을 덮어씁니다.
-- 사진을 고르지 않으면 파일을 만들지 않고 `photoUrl`은 빈 문자열입니다. 화면에서는 기본 프로필 그림(`ic_avatar_default`)을 보여 줍니다.
+- 사진을 고르지 않으면 파일을 만들지 않고 `photoUrl`은 빈 문자열입니다. 화면에서는 기본 프로필 그림(`avatar_default`)을 보여 줍니다.
 
 ### 자료형과 공통 저장 규칙
 
@@ -221,6 +222,19 @@ Storage
 - Storage `profileImages/{uid}.jpg`는 로그인한 사용자만 읽고, 본인만 올리거나 바꿉니다. 이미지 형식과 크기(2MB 미만)도 Storage 규칙으로 제한합니다.
 - 탈퇴 시 Storage의 프로필 사진도 지워야 합니다. Firestore 문서를 지워도 Storage 파일은 자동으로 삭제되지 않습니다.
 - 부적절한 프로필 사진의 차단·검수는 과제 범위에서 제외하고 배포 전에 결정합니다.
+- `users/{uid}.bannerVideoId`는 본인만 바꿀 수 있습니다. 실제 규칙은 6.4 보안 규칙 작업에서 콘솔에 반영합니다.
+
+### 프로필 배너
+
+프로필 상단 배너(6.1)는 아래 순서로 정합니다. 배너용 사진은 올리지 않고, Storage도 쓰지 않습니다.
+
+1. `bannerVideoId`가 있고, 그 영상의 내 평가 `ratings/{uid}_{bannerVideoId}`가 남아 있으며 `visibility == public`이면 그 영상의 썸네일 `https://i.ytimg.com/vi/{videoId}/hqdefault.jpg`를 씁니다.
+2. 1단계에 해당하지 않으면 그 사용자의 공개 평가 중 `score`가 가장 높은 영상의 썸네일을 씁니다. 점수가 같으면 `createdAt`이 최근인 평가를 고릅니다.
+3. 공개 평가가 하나도 없으면 기본 그라데이션 배너(`bg_profile_banner_default`)를 보여 줍니다.
+
+- 비공개 평가 영상은 배너에 쓰지 않습니다. 2단계 조회에는 `visibility == public` 조건을 반드시 넣습니다.
+- `bannerVideoId`로 고른 평가를 나중에 비공개로 바꾸거나 삭제하면 `bannerVideoId`가 남아 있어도 2단계로 넘어갑니다.
+- 배너를 고르는 화면은 아직 없습니다. 지금은 배너 위 버튼만 두었습니다.
 
 ## 3. 화면별 조회 기준
 
@@ -231,6 +245,7 @@ Storage
 | 영상 전체 평가 | `videoId` + `visibility == public` |
 | 내 평가 | `userId == 내 UID` |
 | 다른 사용자의 평가 | 해당 `userId` + `visibility == public` |
+| 프로필 배너 자동 선택 | `userId` + `visibility == public`, `score` 내림차순 → `createdAt` 내림차순, 1개 (복합 인덱스 `firestore.indexes.json`) |
 | 카테고리 인기 평가 | `categoryId` + `visibility == public`, `likeCount` 내림차순 |
 | 카테고리 평점순 영상 | `videos.categoryId`, `ratingAverage` 내림차순 |
 | 최근 본 영상 | `watchHistory.lastWatchedAt` 내림차순 |

@@ -110,5 +110,21 @@
     <string name="profile_setup_error_upload">사진 업로드에 실패했어요. 다시 시도해 주세요</string>
     <string name="profile_setup_error_photo">사진을 불러오지 못했어요</string>
     <string name="profile_setup_error_save">프로필 저장에 실패했어요. 다시 시도해 주세요</string>
+
+    <!-- 6.1 프로필 -->
+    <string name="profile_settings">설정</string>
+    <string name="profile_avatar">프로필</string>
+    <string name="profile_stat_rating">평가</string>
+    <string name="profile_stat_follower">팔로워</string>
+    <string name="profile_stat_following">팔로잉</string>
+    <string name="profile_edit">프로필 편집</string>
+    <string name="profile_share">프로필 공유</string>
+    <string name="profile_coming_soon">준비 중입니다</string>
+    <string name="profile_share_text">viewit에서 @%1$s 님의 평가를 확인해 보세요</string>
+    <string name="profile_handle">\@%1$s</string>
+    <string name="profile_handle_with_intro">\@%1$s · %2$s</string>
+    <string name="profile_banner_add">배너 추가</string>
+    <string name="profile_banner_edit">배너 바꾸기</string>
+
 </resources>
 

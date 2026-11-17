@@ -1,27 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 기본 프로필 그림: 사진이 없거나 불러오는 중일 때 보여 준다.
-     바탕은 brand_orange_soft, 사람 모양은 그보다 조금 진한 연주황. -->
+<!-- 기본 프로필 사진의 사람 모양 (머리 원 + 어깨). 바탕은 bg_avatar_default.
+     화면에서는 둘을 겹친 avatar_default를 쓴다. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="72dp"
-    android:height="72dp"
+    android:width="80dp"
+    android:height="80dp"
     android:viewportWidth="100"
     android:viewportHeight="100">
 
-    <!-- 바탕 원 -->
-    <path
-        android:fillColor="@color/brand_orange_soft"
-        android:pathData="M50,0A50,50 0,1 1,50,100A50,50 0,1 1,50,0Z" />
-
-    <!-- 사람 모양 (어깨가 원 밖으로 나가지 않게 원으로 잘라 냄) -->
+    <!-- 어깨가 원 밖으로 나가지 않게 원으로 잘라 낸다 -->
     <group>
         <clip-path android:pathData="M50,0A50,50 0,1 1,50,100A50,50 0,1 1,50,0Z" />
         <!-- 머리 -->
         <path
-            android:fillColor="#FFFFC9A3"
-            android:pathData="M50,23A16,16 0,1 1,50,55A16,16 0,1 1,50,23Z" />
+            android:fillColor="@color/avatar_default_silhouette"
+            android:pathData="M50,22A17,17 0,1 1,50,56A17,17 0,1 1,50,22Z" />
         <!-- 어깨 -->
         <path
-            android:fillColor="#FFFFC9A3"
-            android:pathData="M18,100C18,75 32,61 50,61C68,61 82,75 82,100Z" />
+            android:fillColor="@color/avatar_default_silhouette"
+            android:pathData="M16,100C16,76 31,62 50,62C69,62 84,76 84,100Z" />
     </group>
 </vector>

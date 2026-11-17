@@ -80,6 +80,12 @@
     <string name="youtube_error_network">인터넷 연결을 확인해 주세요.</string>
     <string name="youtube_error_unknown">영상 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</string>
 
+    <!-- 앱 안 YouTube 플레이어 (4.2) -->
+    <string name="video_player_blocked">이 영상은 앱 안에서 재생할 수 없어요.</string>
+    <string name="video_player_error">영상을 재생할 수 없어요.</string>
+    <string name="video_player_open_youtube">YouTube에서 보기</string>
+    <string name="video_player_no_app">영상을 열 수 있는 앱이 없어요.</string>
+
     <!-- 첫 화면 -->
     <string name="wordmark_view">view</string>
     <string name="wordmark_it">it</string>

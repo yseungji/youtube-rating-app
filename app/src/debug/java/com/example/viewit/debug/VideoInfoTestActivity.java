@@ -1,5 +1,6 @@
 package com.example.viewit.debug;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.inputmethod.InputMethodManager;
 
@@ -11,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.viewit.R;
+import com.example.viewit.VideoDetailActivity;
 import com.example.viewit.data.VideoCachePolicy;
 import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.model.FirestorePaths;
@@ -173,6 +175,9 @@ public class VideoInfoTestActivity extends AppCompatActivity {
         row.videoRowTitle.setText(video.getTitle());
         row.videoRowMeta.setText(getString(R.string.video_meta,
                 video.getChannelTitle(), DurationFormat.format(video.getDurationSeconds())));
+        row.getRoot().setOnClickListener(v -> {
+            startActivity(new Intent(VideoInfoTestActivity.this, VideoDetailActivity.class).putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, video.getVideoId()));
+        });
     }
 
     private static String describe(Video video) {

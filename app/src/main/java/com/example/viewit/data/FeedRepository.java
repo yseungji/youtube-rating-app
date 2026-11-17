@@ -1,5 +1,7 @@
 package com.example.viewit.data;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.viewit.data.model.FirestorePaths;
@@ -25,6 +27,7 @@ import java.util.Set;
 // 화면에 보여 줄 20개를 만든다. 실시간 구독 없이 당겨서 새로고침할 때만 처음부터 읽는다.
 // 최신순: 팔로잉 30명씩 여러 Query. 인기순: 전체 공개 평가 Query 하나.
 public class FeedRepository {
+    private static final String TAG = "FeedRepository";
     private static final int PAGE_SIZE = 20;
     private static final int AUTHORS_PER_GROUP = 30;
     private static final int MAX_PARALLEL_READS = 4;
@@ -152,6 +155,8 @@ public class FeedRepository {
                                     .orderBy("createdAt", Query.Direction.DESCENDING)));
                         }
                         followingReady = true;
+                        Log.d(TAG, "팔로잉 조회 완료: authors=" + ids.size()
+                                + ", groups=" + groups.size());
                         if (groups.isEmpty()) {
                             loading = false;
                             callback.onNoFollowing();
@@ -224,6 +229,8 @@ public class FeedRepository {
             if (group.lastRead != null) {
                 query = query.startAfter(group.lastRead);
             }
+            Log.d(TAG, "묶음 조회: group=" + (groups.indexOf(group) + 1)
+                    + ", hasCursor=" + (group.lastRead != null));
             reads.add(query.limit(PAGE_SIZE).get(Source.SERVER));
         }
         Tasks.whenAllComplete(reads)
@@ -279,6 +286,8 @@ public class FeedRepository {
             group.lastRead = snapshot.getDocuments().get(snapshot.size() - 1);
         }
         group.exhausted = snapshot.size() < PAGE_SIZE;
+        Log.d(TAG, "묶음 조회 완료: group=" + (groups.indexOf(group) + 1)
+                + ", received=" + snapshot.size() + ", exhausted=" + group.exhausted);
     }
 
     private int compare(Rating left, Rating right) {

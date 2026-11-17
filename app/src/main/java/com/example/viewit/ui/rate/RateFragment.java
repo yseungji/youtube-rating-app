@@ -1,5 +1,7 @@
 package com.example.viewit.ui.rate;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +10,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.paging.CombinedLoadStates;
 import androidx.paging.LoadState;
@@ -16,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.viewit.R;
+import com.example.viewit.VideoDetailActivity;
 import com.example.viewit.data.RatingRepository;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.databinding.FragmentRateBinding;
@@ -31,6 +38,29 @@ public class RateFragment extends Fragment {
     private FragmentRateBinding binding;
     private RatingAdapter adapter;
     private boolean loadFailed;
+    // Activity와 같은 실습 구조로 등록하고, 상세에서 돌아온 결과를 받는다.
+    //상세로 보낸 데이터를 받아온다.
+    private final ActivityResultLauncher<Intent> videoDetailLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            Intent data = result.getData();
+                            Log.d(TAG, "상세 결과 수신: resultCode=" + result.getResultCode()
+                                    + ", hasData=" + (data != null)
+                                    + ", ratingChanged=" + (data != null && data.getBooleanExtra(
+                                            VideoDetailActivity.EXTRA_RATING_CHANGED, false))
+                                    + ", adapterReady=" + (adapter != null));
+                            if (result.getResultCode() == Activity.RESULT_OK
+                                    && data != null
+                                    && data.getBooleanExtra(
+                                            VideoDetailActivity.EXTRA_RATING_CHANGED, false)
+                                    && adapter != null) {
+                                Log.d(TAG, "평가 변경 결과로 목록 갱신");
+                                adapter.refresh();
+                            }
+                        }
+                    });
 
     // ViewBinding으로 XML 화면을 만들고 Fragment에 반환한다.
     @NonNull
@@ -121,7 +151,7 @@ public class RateFragment extends Fragment {
     }
 
     //뷰홀더
-    private static class RatingViewHolder extends RecyclerView.ViewHolder {
+    private class RatingViewHolder extends RecyclerView.ViewHolder {
         private final ItemRatingBinding itemRatingBinding;
 
         RatingViewHolder(ItemRatingBinding itemRatingBinding) {
@@ -131,6 +161,16 @@ public class RateFragment extends Fragment {
 
         //bind 함수로 데이터 채우기
         void bind(Rating rating) {
+            itemRatingBinding.getRoot().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(requireContext(), VideoDetailActivity.class);
+                    intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
+                    intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
+                    Log.d(TAG, "상세 실행: launcher.launch");
+                    videoDetailLauncher.launch(intent);
+                }
+            });
             //영상 ID 표시
             itemRatingBinding.ratingVideo.setText(itemRatingBinding.getRoot().getContext().getString(
                     R.string.rate_video_id_label, rating.getVideoId()));
@@ -145,7 +185,7 @@ public class RateFragment extends Fragment {
     }
 
     //생성자·행 생성·데이터 연결을 한곳에 모은다.
-    private static class RatingAdapter extends FirestorePagingAdapter<Rating, RatingViewHolder> {
+    private class RatingAdapter extends FirestorePagingAdapter<Rating, RatingViewHolder> {
 
         public RatingAdapter(@NonNull FirestorePagingOptions<Rating> options) {
             super(options);

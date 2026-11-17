@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feed_paging_ready">로그인한 본인 계정으로 실행합니다. 생성 버튼을 누를 때만 Firestore에 저장합니다.</string>
+    <string name="feed_paging_notice">인기순 페이징 확인용 가상 영상 평가 45개입니다. 좋아요는 모두 0이며 실제 영상 재생은 지원하지 않습니다. 공개 평가이므로 다른 사용자 피드에도 보일 수 있습니다. 확인 후 아래 버튼으로 정리해 주세요.</string>
+    <string name="feed_paging_create">내 계정에 샘플 평가 45개 생성</string>
+    <string name="feed_paging_delete">내 계정의 페이징 샘플만 삭제</string>
+    <string name="feed_paging_single">기존 실제 영상 샘플 1개 준비</string>
+    <string name="feed_paging_working">%1$s 진행 중: %2$d / %3$d</string>
+    <string name="feed_paging_done">%1$s 완료: 성공 %2$d개 · 건너뜀 %3$d개 · 실패 %4$d개. 실패는 Logcat의 FeedPagingSample을 확인하세요.</string>
+    <string name="feed_paging_creating">샘플 생성</string>
+    <string name="feed_paging_deleting">샘플 삭제</string>
+    <string name="feed_paging_video_title">페이징 샘플 영상 %1$s</string>
+    <string name="feed_paging_video_metadata">개발용 가상 영상 · 페이징 확인용</string>
+</resources>

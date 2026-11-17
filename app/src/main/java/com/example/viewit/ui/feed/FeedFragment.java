@@ -103,6 +103,9 @@ public class FeedFragment extends Fragment {
             latestOrder = savedInstanceState.getBoolean(STATE_LATEST_ORDER, true);
         }
         binding.feedList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+
         binding.feedOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -377,6 +380,7 @@ public class FeedFragment extends Fragment {
                         }
                     });
         }
+
 
         private void loadVideo(String videoId, int generation) {
             if (videoId == null || videoId.isEmpty() || videoId.contains("/")) {

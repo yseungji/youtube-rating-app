@@ -60,18 +60,14 @@ public class FeedFragment extends Fragment {
                             //데이터를 보내고, 나중에 받아온다
                             //영상 상세 화면에서 돌아왔을 때, 평가가 변경됐다면, 피드 목록을 새로 불러오는 코드.
                             Intent data = result.getData();
-                            Log.d(TAG, "상세 결과 수신: resultCode=" + result.getResultCode()
-                                    + ", hasData=" + (data != null)
-                                    + ", ratingChanged=" + (data != null && data.getBooleanExtra(
-                                            VideoDetailActivity.EXTRA_RATING_CHANGED, false))
-                                    + ", viewReady=" + (binding != null));
+                            boolean ratingChanged = data != null
+                                    && data.getBooleanExtra(VideoDetailActivity.EXTRA_RATING_CHANGED, false);
+                            logDebug("상세 결과 수신: resultCode=" + result.getResultCode() + ", ratingChanged=" + ratingChanged);
                             if (result.getResultCode() == android.app.Activity.RESULT_OK
-                                    && data != null
-                                    && data.getBooleanExtra(
-                                            VideoDetailActivity.EXTRA_RATING_CHANGED, false)
+                                    && ratingChanged
                                     && binding != null) {
                                 // 평가 저장·삭제가 성공한 경우에만 현재 정렬로 다시 조회한다.
-                                Log.d(TAG, "평가 변경 결과로 피드 갱신");
+                                logDebug("평가 변경 결과로 피드 갱신");
                                 loadFeed(latestOrder);
                             }
                             // View가 없으면 onViewCreated()의 첫 조회에서 최신 데이터를 읽는다.
@@ -91,10 +87,12 @@ public class FeedFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentFeedBinding.inflate(inflater, container, false);
+        binding = FragmentFeedBinding.inflate(inflater,container,false);
         return binding.getRoot();
     }
 
+
+    //리스너 연결하는 부분
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -105,7 +103,7 @@ public class FeedFragment extends Fragment {
         binding.feedList.setLayoutManager(new LinearLayoutManager(getContext()));
 
 
-
+        //인기순 , 최신순을 변경하는 리스너
         binding.feedOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,7 +140,7 @@ public class FeedFragment extends Fragment {
     }
 
     private void loadFeed(boolean latest) {
-        Log.d(TAG, "피드 조회 시작: order=" + (latest ? "latest" : "popular"));
+        logDebug("피드 조회 시작: order=" + (latest ? "latest" : "popular"));
         latestOrder = latest;
         feedRequestNumber++;
         feedRepository.cancel();
@@ -195,7 +193,7 @@ public class FeedFragment extends Fragment {
                 hasMore = more;
                 binding.feedRefresh.setRefreshing(false);
                 currentAdapter.addPage(ratings);
-                Log.d(TAG, "피드 조회 성공: added=" + ratings.size()
+                logDebug("피드 조회 성공: added=" + ratings.size()
                         + ", total=" + currentAdapter.getItemCount() + ", hasMore=" + more);
                 if (currentAdapter.getItemCount() == 0) {
                     showStatus(latestOrder ? R.string.feed_latest_empty : R.string.feed_popular_empty);
@@ -478,5 +476,10 @@ public class FeedFragment extends Fragment {
         adapter = null;
         binding = null;
         super.onDestroyView();
+    }
+
+    // 로그 출력을 간결하게 관리하기 위한 메서드
+    private void logDebug(String message) {
+        Log.d(TAG, message);
     }
 }

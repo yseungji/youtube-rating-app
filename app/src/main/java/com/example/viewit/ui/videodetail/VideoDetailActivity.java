@@ -1,70 +1,55 @@
-package com.example.viewit;
+package com.example.viewit.ui.videodetail;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.DialogInterface;
-import android.view.Gravity;
-import android.view.Window;
-import android.view.WindowManager;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.example.viewit.databinding.DialogRatingDeleteBinding;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-import com.example.viewit.data.RatingRepository;
-import com.example.viewit.data.VideoRepository;
-import com.example.viewit.data.model.Rating;
-import com.example.viewit.data.model.Video;
-import com.example.viewit.data.model.User;
-import com.example.viewit.data.model.FirestorePaths;
-import com.example.viewit.ui.common.RatingFormat;
-import com.example.viewit.ui.common.TimeAgoFormat;
-import com.example.viewit.ui.common.YouTubeErrorMessage;
-import com.example.viewit.ui.common.YouTubeLinks;
-import com.example.viewit.databinding.ItemVideoDetailHeaderBinding;
-import com.example.viewit.databinding.ItemVideoDetailStatusBinding;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
-import com.google.android.gms.tasks.Task;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import androidx.paging.CombinedLoadStates;
 import androidx.paging.LoadState;
 import androidx.paging.PagingConfig;
 import androidx.recyclerview.widget.ConcatAdapter;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.viewit.databinding.ItemReviewDetailBinding;
-import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
-import com.firebase.ui.firestore.paging.FirestorePagingOptions;
-import com.google.firebase.firestore.FieldPath;
+import com.example.viewit.BuildConfig;
+import com.example.viewit.MainActivity;
+import com.example.viewit.R;
+import com.example.viewit.data.RatingRepository;
+import com.example.viewit.data.VideoRepository;
+import com.example.viewit.data.model.Rating;
+import com.example.viewit.data.model.Video;
 import com.example.viewit.databinding.ActivityVideoDetailBinding;
+import com.example.viewit.databinding.DialogRatingDeleteBinding;
+import com.example.viewit.databinding.ItemVideoDetailHeaderBinding;
+import com.example.viewit.databinding.ItemVideoDetailStatusBinding;
+import com.example.viewit.ui.common.YouTubeErrorMessage;
+import com.example.viewit.ui.common.YouTubeLinks;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-
+import com.google.firebase.firestore.FieldPath;
 
 // Figma 06 영상 상세: 공통 평가 패널을 표시하는 화면.
 public class VideoDetailActivity extends AppCompatActivity {
@@ -88,7 +73,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private boolean publicStatisticsLoading;
     private boolean publicListRefreshing;
     private AlertDialog ratingDeleteDialog;
-    private MyAdapter publicRatingsAdapter;
+    private VideoDetailAdapter videoDetailAdapter;
     // 나중에 보낸 요청보다 먼저 보낸 요청이 늦게 도착해 화면을 덮는 것을 막는다.
     private int publicStatisticsRequest;
 
@@ -185,8 +170,8 @@ public class VideoDetailActivity extends AppCompatActivity {
         statusBinding.publicRatingRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (publicRatingsAdapter != null) {
-                    publicRatingsAdapter.retry();
+                if (videoDetailAdapter != null) {
+                    videoDetailAdapter.retry();
                 }
             }
         });
@@ -484,201 +469,19 @@ public class VideoDetailActivity extends AppCompatActivity {
     //화면 설정 → ViewHolder → Adapter.
     private void setupPublicRatingsList() {
         binding.publicRatingList.setLayoutManager(new LinearLayoutManager(this));
-        publicRatingsAdapter = new MyAdapter(publicRatingOptions());
+        videoDetailAdapter = new VideoDetailAdapter(publicRatingOptions());
         // ConcatAdapter는 순서만 연결하며, 평가의 조회·페이지 관리는 FirebaseUI가 담당한다.
         // 기본 viewType 분리로 정보용 Holder와 평가용 Holder가 섞이지 않는다.
         ConcatAdapter detailAdapter = new ConcatAdapter(
                 new DetailSectionAdapter(headerBinding.getRoot()),
-                publicRatingsAdapter,
+                videoDetailAdapter,
                 new DetailSectionAdapter(statusBinding.getRoot()));
         binding.publicRatingList.setAdapter(detailAdapter);
         // FirebaseUI가 로딩·실패·빈 목록 상태를 전달한다. 실패 원인은 Logcat에도 남긴다.
-        publicRatingsAdapter.addLoadStateListener(states -> {
+        videoDetailAdapter.addLoadStateListener(states -> {
             renderPublicRatingsLoadState(states);
             return null;
         });
-    }
-
-    // 정보·입력 패널과 상태 안내는 각각 한 번만 나타나는 화면이다.
-    // 입력 패널 자체를 유지하고 RecyclerView의 FrameLayout 틀에 연결하므로,
-    // 위로 돌아왔을 때 별점·한줄평과 기존 리스너가 초기화되지 않는다.
-    //viewHolder
-    private static class DetailSectionViewHolder extends RecyclerView.ViewHolder {
-        private final FrameLayout container;
-
-        DetailSectionViewHolder(FrameLayout container) {
-            super(container);
-            this.container = container;
-        }
-
-        void bind(View section) {
-            if (section.getParent() == container) {
-                return;
-            }
-            if (section.getParent() instanceof ViewGroup) {
-                ((ViewGroup) section.getParent()).removeView(section);
-            }
-            container.removeAllViews();
-            container.addView(section, new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        }
-    }
-
-    //Adapter
-    private static class DetailSectionAdapter extends RecyclerView.Adapter<DetailSectionViewHolder> {
-        private final View section;
-
-        DetailSectionAdapter(View section) {
-            this.section = section;
-        }
-
-        @NonNull
-        @Override
-        public DetailSectionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            FrameLayout container = new FrameLayout(parent.getContext());
-            container.setLayoutParams(new RecyclerView.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            return new DetailSectionViewHolder(container);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull DetailSectionViewHolder holder, int position) {
-            holder.bind(section);
-        }
-
-        @Override
-        public int getItemCount() {
-            // Firebase 평가 개수와 별개로 정보/상태 화면은 각각 한 항목이다.
-            return 1;
-        }
-
-        @Override
-        public void onViewRecycled(@NonNull DetailSectionViewHolder holder) {
-            holder.container.removeAllViews();
-            super.onViewRecycled(holder);
-        }
-    }
-
-    // static이므로 바깥 Activity 인스턴스를 보관하지 않는다.
-    // 상세화면의 공개 평가 행에 별점·작성자·한줄평을 표시한다.
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
-        private final ItemReviewDetailBinding itemBinding;
-        private String boundUid;
-        private String timeText;
-        private int bindingGeneration;
-
-        public MyViewHolder(@NonNull ItemReviewDetailBinding itemBinding) {
-            super(itemBinding.getRoot());
-            this.itemBinding = itemBinding;
-        }
-
-        public void bind(Rating rating) {
-            bindingGeneration++;
-            boundUid = rating.getUserId();
-            android.content.Context context = itemBinding.getRoot().getContext();
-            timeText = rating.getCreatedAt() == null
-                    ? context.getString(R.string.video_detail_review_unknown_time)
-                    : TimeAgoFormat.format(context, rating.getCreatedAt().toDate(), new Date());
-            itemBinding.reviewRating.setText(context.getString(
-                    R.string.video_detail_review_score, RatingFormat.stars(rating.getScore()), rating.getScore()));
-            String comment = rating.getComment();
-            itemBinding.reviewComment.setText(comment == null || comment.trim().isEmpty()
-                    ? context.getString(R.string.video_detail_review_no_comment) : comment);
-            itemBinding.reviewActions.reviewActionLike.setText(context.getString(
-                    R.string.review_like_count, Math.max(0, rating.getLikeCount())));
-            itemBinding.reviewActions.reviewActionComment.setText(context.getString(
-                    R.string.video_detail_review_comment_count, Math.max(0, rating.getCommentCount())));
-            // 반응 버튼의 모양과 저장된 개수만 표시한다. 실제 동작은 5.4에서 연결한다.
-            showProfile(null);
-        }
-
-        private void showProfile(User profile) {
-            android.content.Context context = itemBinding.getRoot().getContext();
-            String name = boundUid;
-            // 공개 프로필이 아직 없는 본인 계정은 실제 인증 정보의 표시 이름을 사용할 수 있다.
-            FirebaseUser current = FirebaseAuth.getInstance().getCurrentUser();
-            if (current != null && current.getUid().equals(boundUid)
-                    && current.getDisplayName() != null) {
-                name = current.getDisplayName();
-            }
-            if (profile != null && profile.getDisplayName() != null
-                    && !profile.getDisplayName().trim().isEmpty()) {
-                name = profile.getDisplayName().trim();
-            }
-            if (name == null || name.trim().isEmpty()) {
-                name = context.getString(R.string.video_detail_review_unknown_author);
-            }
-            itemBinding.reviewAuthor.authorName.setText(name);
-            // Figma 공통 Author는 사진 대신 실제 이름의 첫 글자 아바타를 사용한다.
-            itemBinding.reviewAuthor.authorAvatar.setText(name.substring(0, name.offsetByCodePoints(0, 1)));
-            String username = profile == null ? null : profile.getUsername();
-            itemBinding.reviewAuthor.authorMeta.setText(username == null || username.trim().isEmpty()
-                    ? timeText : context.getString(R.string.author_meta, username, timeText));
-        }
-    }
-
-    public static class MyAdapter extends FirestorePagingAdapter<Rating, MyViewHolder> {
-        // 같은 작성자의 프로필을 행마다 중복 요청하지 않는다. 새로고침하면 캐시도 비운다.
-        private final Map<String, Task<DocumentSnapshot>> profiles = new HashMap<>();
-
-        public MyAdapter(@NonNull FirestorePagingOptions<Rating> options) {
-            super(options);
-        }
-
-        public void clearProfiles() {
-            profiles.clear();
-        }
-
-        @Override
-        protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Rating model) {
-            holder.bind(model);
-            final String uid = model.getUserId();
-            if (uid == null || uid.isEmpty() || uid.contains("/")) {
-                return;
-            }
-            final int generation = holder.bindingGeneration;
-            Task<DocumentSnapshot> profile = profiles.get(uid);
-            if (profile == null) {
-                profile = FirebaseFirestore.getInstance().collection(FirestorePaths.USERS)
-                        .document(uid).get(Source.SERVER);
-                profiles.put(uid, profile);
-            }
-            profile.addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot snapshot) {
-                    // RecyclerView가 이 Holder를 다른 행에 재사용했다면 오래된 응답은 무시한다.
-                    if (generation != holder.bindingGeneration || !uid.equals(holder.boundUid)) {
-                        return;
-                    }
-                    try {
-                        holder.showProfile(snapshot.exists() ? snapshot.toObject(User.class) : null);
-                    } catch (RuntimeException error) {
-                        Log.w("VideoDetailActivity", "Author profile conversion failed", error);
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception error) {
-                    // 프로필 오류 때문에 평가 행 전체를 숨기지 않는다. UID/인증 이름은 이미 표시돼 있다.
-                    Log.w("VideoDetailActivity", "Author profile load failed", error);
-                }
-            });
-        }
-
-        @NonNull
-        @Override
-        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ItemReviewDetailBinding itemBinding = ItemReviewDetailBinding.inflate(
-                    LayoutInflater.from(parent.getContext()), parent, false);
-            return new MyViewHolder(itemBinding);
-        }
-
-        @Override
-        public void onViewRecycled(@NonNull MyViewHolder holder) {
-            holder.bindingGeneration++;
-            holder.boundUid = null;
-            super.onViewRecycled(holder);
-        }
     }
 
     // FirebaseUI가 사용할 조회 설정만 준비한다. 생명주기에 맞춘 시작·정지는 FirebaseUI가 관리한다.
@@ -721,16 +524,16 @@ public class VideoDetailActivity extends AppCompatActivity {
         }
         final int request = ++publicStatisticsRequest;
         publicStatisticsLoading = true;
-        publicListRefreshing = publicRatingsAdapter != null;
+        publicListRefreshing = videoDetailAdapter != null;
         updatePublicRefreshIndicator();
         headerBinding.publicRatingLoading.setVisibility(View.VISIBLE);
         headerBinding.publicRatingStatistics.setVisibility(View.GONE);
         headerBinding.publicRatingStatus.setText(R.string.video_detail_public_loading);
         headerBinding.publicRatingStatus.setVisibility(View.VISIBLE);
 
-        if (publicRatingsAdapter != null) {
-            publicRatingsAdapter.clearProfiles();
-            publicRatingsAdapter.refresh();
+        if (videoDetailAdapter != null) {
+            videoDetailAdapter.clearProfiles();
+            videoDetailAdapter.refresh();
         }
         // 목록과 별도로 전체 공개 평가 통계를 조회한다.
         new RatingRepository().loadPublicVideoStatistics(videoId,
@@ -777,7 +580,7 @@ public class VideoDetailActivity extends AppCompatActivity {
 
     // 목록 오류와 집계 오류는 독립적으로 표시한다. 통계 성공이 목록 성공을 의미하지는 않는다.
     private void renderPublicRatingsLoadState(CombinedLoadStates states) {
-        if (publicRatingsAdapter == null || isDestroyed()) {
+        if (videoDetailAdapter == null || isDestroyed()) {
             return;
         }
         LoadState refresh = states.getRefresh();
@@ -796,12 +599,12 @@ public class VideoDetailActivity extends AppCompatActivity {
             statusBinding.publicRatingListStatus.setText(R.string.video_detail_public_list_error);
             statusBinding.publicRatingListStatus.setVisibility(View.VISIBLE);
         } else if (refresh instanceof LoadState.NotLoading
-                && publicRatingsAdapter.getItemCount() == 0) {
+                && videoDetailAdapter.getItemCount() == 0) {
             statusBinding.publicRatingListStatus.setText(R.string.video_detail_public_empty);
             statusBinding.publicRatingListStatus.setVisibility(View.VISIBLE);
         } else {
             if (refresh instanceof LoadState.NotLoading) {
-                Log.d(TAG, "Public rating list loaded: rows=" + publicRatingsAdapter.getItemCount());
+                Log.d(TAG, "Public rating list loaded: rows=" + videoDetailAdapter.getItemCount());
             }
             statusBinding.publicRatingListStatus.setVisibility(View.GONE);
         }

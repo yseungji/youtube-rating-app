@@ -18,6 +18,7 @@ import android.view.Gravity;
 import android.view.WindowManager;
 
 import androidx.test.core.app.ActivityScenario;
+import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 

@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.viewit.R;
-import com.example.viewit.VideoDetailActivity;
+import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.example.viewit.data.FeedRepository;
 import com.example.viewit.data.FeedPagingSamples;
 import com.example.viewit.data.FollowingFeedSamples;
@@ -60,24 +60,21 @@ public class FeedFragment extends Fragment {
                             //데이터를 보내고, 나중에 받아온다
                             //영상 상세 화면에서 돌아왔을 때, 평가가 변경됐다면, 피드 목록을 새로 불러오는 코드.
                             Intent data = result.getData();
-                            Log.d(TAG, "상세 결과 수신: resultCode=" + result.getResultCode()
-                                    + ", hasData=" + (data != null)
-                                    + ", ratingChanged=" + (data != null && data.getBooleanExtra(
-                                            VideoDetailActivity.EXTRA_RATING_CHANGED, false))
-                                    + ", viewReady=" + (binding != null));
+                            boolean ratingChanged = data != null
+                                    && data.getBooleanExtra(VideoDetailActivity.EXTRA_RATING_CHANGED, false);
+                            logDebug("상세 결과 수신: resultCode=" + result.getResultCode() + ", ratingChanged=" + ratingChanged);
                             if (result.getResultCode() == android.app.Activity.RESULT_OK
-                                    && data != null
-                                    && data.getBooleanExtra(
-                                            VideoDetailActivity.EXTRA_RATING_CHANGED, false)
+                                    && ratingChanged
                                     && binding != null) {
                                 // 평가 저장·삭제가 성공한 경우에만 현재 정렬로 다시 조회한다.
-                                Log.d(TAG, "평가 변경 결과로 피드 갱신");
+                                logDebug("평가 변경 결과로 피드 갱신");
                                 loadFeed(latestOrder);
                             }
                             // View가 없으면 onViewCreated()의 첫 조회에서 최신 데이터를 읽는다.
                         }
                     });
     private FeedAdapter adapter;
+    private final List<Rating> feedRatings = new ArrayList<>();
     private boolean latestOrder = true;
     private boolean loading;
     private boolean hasMore;
@@ -86,15 +83,29 @@ public class FeedFragment extends Fragment {
     private final FeedRepository feedRepository = new FeedRepository();
     private final VideoRepository videoRepository = new VideoRepository();
 
+    // 카드 아이템 클릭 시 상세 화면으로 이동하는 공통 리스너
+    private final FeedAdapter.OnItemClickListener itemClickListener = new FeedAdapter.OnItemClickListener() {
+        @Override
+        public void onItemClick(Rating rating) {
+            Intent intent = new Intent(requireContext(), VideoDetailActivity.class);
+            intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
+            intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
+            logDebug("상세 실행: launcher.launch");
+            videoDetailLauncher.launch(intent);
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentFeedBinding.inflate(inflater, container, false);
+        binding = FragmentFeedBinding.inflate(inflater,container,false);
         return binding.getRoot();
     }
 
+
+    //리스너 연결하는 부분
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -102,10 +113,13 @@ public class FeedFragment extends Fragment {
         if (savedInstanceState != null) {
             latestOrder = savedInstanceState.getBoolean(STATE_LATEST_ORDER, true);
         }
+        //feedList는 리사이클러뷰 xml이다
+        //한번만 만들면 되기 때문에 onViewCreated에 뒀다.
         binding.feedList.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new FeedAdapter(feedRatings, videoRepository, itemClickListener);
+        binding.feedList.setAdapter(adapter);
 
-
-
+        //인기순 , 최신순을 변경하는 리스너
         binding.feedOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,7 +156,7 @@ public class FeedFragment extends Fragment {
     }
 
     private void loadFeed(boolean latest) {
-        Log.d(TAG, "피드 조회 시작: order=" + (latest ? "latest" : "popular"));
+        logDebug("피드 조회 시작: order=" + (latest ? "latest" : "popular"));
         latestOrder = latest;
         feedRequestNumber++;
         feedRepository.cancel();
@@ -150,9 +164,12 @@ public class FeedFragment extends Fragment {
         loadFailed = false;
         hasMore = true;
         binding.feedOrder.setText(latest ? R.string.feed_order_latest : R.string.feed_order_popular);
-        // 새로고침은 조회 위치와 보관 목록을 초기화하고 화면도 교체한다.
-        adapter = new FeedAdapter(new ArrayList<Rating>());
-        binding.feedList.setAdapter(adapter);
+
+        // 새로고침/정렬 변경 시 기존 목록을 비운다.
+        if (adapter != null) {
+            adapter.clear();
+        }
+
         if (latest && FirebaseAuth.getInstance().getCurrentUser() == null) {
             hasMore = false;
             binding.feedRefresh.setRefreshing(false);
@@ -195,7 +212,7 @@ public class FeedFragment extends Fragment {
                 hasMore = more;
                 binding.feedRefresh.setRefreshing(false);
                 currentAdapter.addPage(ratings);
-                Log.d(TAG, "피드 조회 성공: added=" + ratings.size()
+                logDebug("피드 조회 성공: added=" + ratings.size()
                         + ", total=" + currentAdapter.getItemCount() + ", hasMore=" + more);
                 if (currentAdapter.getItemCount() == 0) {
                     showStatus(latestOrder ? R.string.feed_latest_empty : R.string.feed_popular_empty);
@@ -244,222 +261,6 @@ public class FeedFragment extends Fragment {
         binding.feedStatus.setClickable(loadFailed);
     }
 
-    // ViewHolder: 게시글 한 개 전체의 Binding을 보관한다.
-    private class FeedViewHolder extends RecyclerView.ViewHolder {
-        private final ItemFeedPostBinding itemBinding;
-        private final FeedAdapter owner;
-        private int bindingGeneration;
-
-        FeedViewHolder(@NonNull ItemFeedPostBinding itemBinding, FeedAdapter owner) {
-            super(itemBinding.getRoot());
-            this.itemBinding = itemBinding;
-            this.owner = owner;
-        }
-
-        void bind(Rating rating) {
-            // bind할 때마다 번호를 바꿔 이전 행의 늦은 조회 응답을 구분한다.
-            final int generation = ++bindingGeneration;
-            Context context = itemBinding.getRoot().getContext();
-            final String timeText = rating.getCreatedAt() == null
-                    ? context.getString(R.string.feed_unknown_time)
-                    : TimeAgoFormat.format(context, rating.getCreatedAt().toDate(), new Date());
-
-            // Rating에 있는 값은 추가 조회 없이 바로 표시한다.
-            itemBinding.feedQuote.reviewQuoteRating.setText(
-                    RatingFormat.stars(rating.getScore()) + " "
-                            + context.getString(R.string.rating_score, rating.getScore()));
-            String comment = rating.getComment();
-            itemBinding.feedQuote.reviewQuoteComment.setText(
-                    comment == null || comment.trim().isEmpty()
-                            ? context.getString(R.string.feed_no_comment) : comment);
-            itemBinding.feedActions.reviewActionLike.setText(context.getString(
-                    R.string.review_like_count, rating.getLikeCount()));
-            itemBinding.feedActions.reviewActionComment.setText(context.getString(
-                    R.string.feed_comment_count, rating.getCommentCount()));
-
-            // 재사용된 행에 이전 작성자·영상 정보가 남지 않도록 먼저 초기화한다.
-            showAuthor(null, timeText);
-            itemBinding.feedVideoTitle.setText(R.string.feed_video_loading);
-            itemBinding.feedVideoMetadata.setText("");
-            itemBinding.feedThumbnail.thumbnailDuration.setText("");
-            itemBinding.feedThumbnail.thumbnailDuration.setVisibility(View.GONE);
-            ThumbnailLoader.load(itemBinding.feedThumbnail.thumbnailImage, null);
-
-            // ID로 별도 문서를 조회하고 응답이 도착하면 이 행을 채운다.
-            loadAuthor(rating.getUserId(), timeText, generation);
-            final boolean pagingSample = FeedPagingSamples.isSample(rating)
-                    || FollowingFeedSamples.isSample(rating);
-            if (pagingSample) {
-                // 개발용 가상 영상은 제목만 표시한다. 실제 YouTube API는 호출하지 않는다.
-                String id = rating.getVideoId();
-                itemBinding.feedVideoTitle.setText(context.getString(
-                        R.string.feed_paging_video_title, id.substring(id.lastIndexOf('-') + 1)));
-                itemBinding.feedVideoMetadata.setText(R.string.feed_paging_video_metadata);
-            } else {
-                loadVideo(rating.getVideoId(), generation);
-            }
-
-            // 썸네일과 제목에 new View.OnClickListener() 연결.
-            itemBinding.feedThumbnail.getRoot().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (pagingSample) {
-                        return;
-                    }
-                    Intent intent = new Intent(v.getContext(), VideoDetailActivity.class);
-                    intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
-                    intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
-                    //상세 화면에서 평가가 바뀌었는지를 받아서 목록을 갱신해야 하므로 Launcher를 사용한다.
-                    Log.d(TAG, "상세 실행: launcher.launch");
-                    videoDetailLauncher.launch(intent);
-                }
-            });
-            itemBinding.feedVideoTitle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (pagingSample) {
-                        return;
-                    }
-                    Intent intent = new Intent(v.getContext(), VideoDetailActivity.class);
-                    intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
-                    intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
-                    Log.d(TAG, "상세 실행: launcher.launch");
-                    videoDetailLauncher.launch(intent);
-                }
-            });
-        }
-
-        private boolean isCurrentBinding(int generation) {
-            return binding != null && binding.feedList.getAdapter() == owner
-                    && generation == bindingGeneration;
-        }
-
-        private void showAuthor(@Nullable User user, String timeText) {
-            Context context = itemBinding.getRoot().getContext();
-            String name = user == null ? null : user.getDisplayName();
-            if (name == null || name.trim().isEmpty()) {
-                name = context.getString(R.string.feed_unknown_author);
-            } else {
-                name = name.trim();
-            }
-            itemBinding.feedAuthor.authorName.setText(name);
-            itemBinding.feedAuthor.authorAvatar.setText(
-                    name.substring(0, name.offsetByCodePoints(0, 1)));
-            String username = user == null ? null : user.getUsername();
-            itemBinding.feedAuthor.authorMeta.setText(
-                    username == null || username.trim().isEmpty()
-                            ? timeText : context.getString(R.string.author_meta, username, timeText));
-            itemBinding.feedQuote.reviewQuoteTitle.setText(
-                    context.getString(R.string.review_quote_title, name));
-        }
-
-        private void loadAuthor(String userId, String timeText, int generation) {
-            if (userId == null || userId.isEmpty() || userId.contains("/")) {
-                return;
-            }
-            FirebaseFirestore.getInstance().collection("users").document(userId).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot snapshot) {
-                            if (!isCurrentBinding(generation)) {
-                                return;
-                            }
-                            try {
-                                User user = snapshot.exists() ? snapshot.toObject(User.class) : null;
-                                showAuthor(user, timeText);
-                            } catch (RuntimeException error) {
-                                Log.w("FeedFragment", "작성자 정보 변환 실패", error);
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception error) {
-                            // 실패하면 초기화한 작성자 안내와 Rating의 작성 시각을 유지한다.
-                            Log.w("FeedFragment", "작성자 조회 실패", error);
-                        }
-                    });
-        }
-
-
-        private void loadVideo(String videoId, int generation) {
-            if (videoId == null || videoId.isEmpty() || videoId.contains("/")) {
-                itemBinding.feedVideoTitle.setText(R.string.feed_video_unavailable);
-                return;
-            }
-            // 기존 저장소를 사용해 videos 조회와 30일 지난 정보 갱신 규칙을 유지한다.
-            videoRepository.getVideo(videoId, new VideoRepository.Callback<Video>() {
-                @Override
-                public void onSuccess(Video video) {
-                    if (!isCurrentBinding(generation)) {
-                        return;
-                    }
-                    Context context = itemBinding.getRoot().getContext();
-                    String duration = DurationFormat.format(video.getDurationSeconds());
-                    itemBinding.feedVideoTitle.setText(video.getTitle());
-                    String channel = video.getChannelTitle();
-                    itemBinding.feedVideoMetadata.setText(
-                            channel == null || channel.isEmpty() ? duration
-                                    : context.getString(R.string.video_meta, channel, duration));
-                    itemBinding.feedThumbnail.thumbnailDuration.setText(duration);
-                    itemBinding.feedThumbnail.thumbnailDuration.setVisibility(View.VISIBLE);
-                    ThumbnailLoader.load(
-                            itemBinding.feedThumbnail.thumbnailImage, video.getThumbnailUrl());
-                }
-
-                @Override
-                public void onError(@NonNull Exception error) {
-                    if (!isCurrentBinding(generation)) {
-                        return;
-                    }
-                    itemBinding.feedVideoTitle.setText(R.string.feed_video_unavailable);
-                    Log.w("FeedFragment", "영상 조회 실패", error);
-                }
-            });
-        }
-    }
-
-    // 일반 Adapter는 FirebaseUI 대신 직접 보관한 List와 getItemCount()를 사용한다.
-    private class FeedAdapter extends RecyclerView.Adapter<FeedViewHolder> {
-        private final List<Rating> ratings;
-
-        FeedAdapter(List<Rating> ratings) {
-            this.ratings = ratings;
-        }
-
-        void addPage(List<Rating> page) {
-            int start = ratings.size();
-            ratings.addAll(page);
-            if (!page.isEmpty()) {
-                notifyItemRangeInserted(start, page.size());
-            }
-        }
-
-        @NonNull
-        @Override
-        public FeedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ItemFeedPostBinding itemBinding = ItemFeedPostBinding.inflate(
-                    LayoutInflater.from(parent.getContext()), parent, false);
-            return new FeedViewHolder(itemBinding, this);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull FeedViewHolder holder, int position) {
-            holder.bind(ratings.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return ratings.size();
-        }
-
-        @Override
-        public void onViewRecycled(@NonNull FeedViewHolder holder) {
-            holder.bindingGeneration++;
-            super.onViewRecycled(holder);
-        }
-    }
-
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putBoolean(STATE_LATEST_ORDER, latestOrder);
@@ -478,5 +279,10 @@ public class FeedFragment extends Fragment {
         adapter = null;
         binding = null;
         super.onDestroyView();
+    }
+
+    // 로그 출력을 간결하게 관리하기 위한 메서드
+    private void logDebug(String message) {
+        Log.d(TAG, message);
     }
 }

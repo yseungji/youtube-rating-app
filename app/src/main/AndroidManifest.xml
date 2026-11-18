@@ -29,7 +29,7 @@
 
         <!-- 영상 상세의 평가 입력 화면 -->
         <activity
-            android:name=".VideoDetailActivity"
+            android:name=".ui.videodetail.VideoDetailActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
         </activity>

@@ -192,26 +192,15 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
 // 2. 수업 실습 형태: ViewHolder 다음에 Adapter 클래스를 배치한다.
 public class FeedAdapter extends RecyclerView.Adapter<FeedViewHolder> {
 
-    public interface OnItemClickListener {
-        void onItemClick(Rating rating);
-    }
-
     private final List<Rating> ratings;
     private final VideoRepository videoRepository;
     private final OnItemClickListener itemClickListener;
 
+    //생성자
     public FeedAdapter(List<Rating> ratings, VideoRepository videoRepository, OnItemClickListener itemClickListener) {
         this.ratings = ratings;
         this.videoRepository = videoRepository;
         this.itemClickListener = itemClickListener;
-    }
-
-    public void addPage(List<Rating> page) {
-        int start = ratings.size();
-        ratings.addAll(page);
-        if (!page.isEmpty()) {
-            notifyItemRangeInserted(start, page.size());
-        }
     }
 
     @NonNull
@@ -231,6 +220,28 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedViewHolder> {
     @Override
     public int getItemCount() {
         return ratings.size();
+    }
+
+    // 데이터 목록 전체 초기화 (새로고침 / 정렬 변경 시 사용)
+
+    public interface OnItemClickListener {
+        void onItemClick(Rating rating);
+    }
+
+    public void clear() {
+        int size = ratings.size();
+        ratings.clear();
+        if (size > 0) {
+            notifyItemRangeRemoved(0, size);
+        }
+    }
+
+    public void addPage(List<Rating> page) {
+        int start = ratings.size();
+        ratings.addAll(page);
+        if (!page.isEmpty()) {
+            notifyItemRangeInserted(start, page.size());
+        }
     }
 
     @Override

@@ -74,6 +74,7 @@ public class FeedFragment extends Fragment {
                         }
                     });
     private FeedAdapter adapter;
+    private final List<Rating> feedRatings = new ArrayList<>();
     private boolean latestOrder = true;
     private boolean loading;
     private boolean hasMore;
@@ -81,6 +82,18 @@ public class FeedFragment extends Fragment {
     private int feedRequestNumber;
     private final FeedRepository feedRepository = new FeedRepository();
     private final VideoRepository videoRepository = new VideoRepository();
+
+    // 카드 아이템 클릭 시 상세 화면으로 이동하는 공통 리스너
+    private final FeedAdapter.OnItemClickListener itemClickListener = new FeedAdapter.OnItemClickListener() {
+        @Override
+        public void onItemClick(Rating rating) {
+            Intent intent = new Intent(requireContext(), VideoDetailActivity.class);
+            intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
+            intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
+            logDebug("상세 실행: launcher.launch");
+            videoDetailLauncher.launch(intent);
+        }
+    };
 
     @Nullable
     @Override
@@ -100,8 +113,11 @@ public class FeedFragment extends Fragment {
         if (savedInstanceState != null) {
             latestOrder = savedInstanceState.getBoolean(STATE_LATEST_ORDER, true);
         }
+        //feedList는 리사이클러뷰 xml이다
+        //한번만 만들면 되기 때문에 onViewCreated에 뒀다.
         binding.feedList.setLayoutManager(new LinearLayoutManager(getContext()));
-
+        adapter = new FeedAdapter(feedRatings, videoRepository, itemClickListener);
+        binding.feedList.setAdapter(adapter);
 
         //인기순 , 최신순을 변경하는 리스너
         binding.feedOrder.setOnClickListener(new View.OnClickListener() {
@@ -148,18 +164,12 @@ public class FeedFragment extends Fragment {
         loadFailed = false;
         hasMore = true;
         binding.feedOrder.setText(latest ? R.string.feed_order_latest : R.string.feed_order_popular);
-        // 새로고침은 조회 위치와 보관 목록을 초기화하고 화면도 교체한다.
-        adapter = new FeedAdapter(new ArrayList<Rating>(), videoRepository, new FeedAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Rating rating) {
-                Intent intent = new Intent(requireContext(), VideoDetailActivity.class);
-                intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
-                intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
-                logDebug("상세 실행: launcher.launch");
-                videoDetailLauncher.launch(intent);
-            }
-        });
-        binding.feedList.setAdapter(adapter);
+
+        // 새로고침/정렬 변경 시 기존 목록을 비운다.
+        if (adapter != null) {
+            adapter.clear();
+        }
+
         if (latest && FirebaseAuth.getInstance().getCurrentUser() == null) {
             hasMore = false;
             binding.feedRefresh.setRefreshing(false);

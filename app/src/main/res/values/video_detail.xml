@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="video_detail_title">영상 상세</string>
-    <string name="video_detail_back_to_feed">피드로 돌아가기</string>
+    <string name="video_detail_back_to_feed">이전 화면으로 돌아가기</string>
     <string name="video_detail_loading">영상 정보를 불러오는 중…</string>
     <string name="video_detail_video_id">영상 ID: %1$s</string>
     <string name="video_detail_category_id">카테고리 ID: %1$s</string>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feed_follow_sample_create">팔로잉 31명·최신순 샘플 생성</string>
+    <string name="feed_follow_sample_delete">이번 계정의 팔로잉 샘플만 삭제</string>
+    <string name="feed_follow_sample_notice">팔로잉 검증용: 가상 프로필 32개·팔로우 관계 31개·평가 64개를 준비합니다. 최신순에는 공개 평가 62개만 나와야 합니다. 실제 로그인 계정은 만들지 않습니다. 공개 샘플은 다른 사용자에게 보일 수 있으며, 보안 규칙에 막히면 실패로 표시합니다.</string>
+    <string name="feed_follow_sample_creating">팔로잉 샘플 생성</string>
+    <string name="feed_follow_sample_deleting">팔로잉 샘플 삭제</string>
+    <string name="feed_follow_sample_done">%1$s 완료: 성공 %2$d개 · 건너뜀 %3$d개 · 실패 %4$d개. 전체 대상은 문서 127개입니다. 실패는 Logcat의 FollowingFeedSample을 확인하세요.</string>
+</resources>

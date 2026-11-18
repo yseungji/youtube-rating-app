@@ -10,6 +10,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +22,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.viewit.R;
 import com.example.viewit.VideoDetailActivity;
 import com.example.viewit.data.FeedRepository;
+import com.example.viewit.data.FeedPagingSamples;
+import com.example.viewit.data.FollowingFeedSamples;
 import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.User;
@@ -41,7 +47,36 @@ import java.util.List;
 // 화면 설정 → ViewHolder → 이름 있는 Adapter 순서.
 // 여러 Query의 조회 위치·남은 평가 관리와 병합은 FeedRepository가 담당한다.
 public class FeedFragment extends Fragment {
+    private static final String TAG = "FeedFragment";
+    private static final String STATE_LATEST_ORDER = "feed.latestOrder";
     private FragmentFeedBinding binding;
+    // Fragment도 Activity와 같은 결과 API를 사용한다. 클릭할 때가 아니라 생성 시 등록한다.
+    private final ActivityResultLauncher<Intent> videoDetailLauncher =
+            //registerForActivityResult함수를 사용한다.
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            //데이터를 보내고, 나중에 받아온다
+                            //영상 상세 화면에서 돌아왔을 때, 평가가 변경됐다면, 피드 목록을 새로 불러오는 코드.
+                            Intent data = result.getData();
+                            Log.d(TAG, "상세 결과 수신: resultCode=" + result.getResultCode()
+                                    + ", hasData=" + (data != null)
+                                    + ", ratingChanged=" + (data != null && data.getBooleanExtra(
+                                            VideoDetailActivity.EXTRA_RATING_CHANGED, false))
+                                    + ", viewReady=" + (binding != null));
+                            if (result.getResultCode() == android.app.Activity.RESULT_OK
+                                    && data != null
+                                    && data.getBooleanExtra(
+                                            VideoDetailActivity.EXTRA_RATING_CHANGED, false)
+                                    && binding != null) {
+                                // 평가 저장·삭제가 성공한 경우에만 현재 정렬로 다시 조회한다.
+                                Log.d(TAG, "평가 변경 결과로 피드 갱신");
+                                loadFeed(latestOrder);
+                            }
+                            // View가 없으면 onViewCreated()의 첫 조회에서 최신 데이터를 읽는다.
+                        }
+                    });
     private FeedAdapter adapter;
     private boolean latestOrder = true;
     private boolean loading;
@@ -63,7 +98,14 @@ public class FeedFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        //화면이 다시 만들어졌을 때, 이전에 선택했던 피드 정렬 방식을 복원하는 코드
+        if (savedInstanceState != null) {
+            latestOrder = savedInstanceState.getBoolean(STATE_LATEST_ORDER, true);
+        }
         binding.feedList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+
         binding.feedOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,6 +142,7 @@ public class FeedFragment extends Fragment {
     }
 
     private void loadFeed(boolean latest) {
+        Log.d(TAG, "피드 조회 시작: order=" + (latest ? "latest" : "popular"));
         latestOrder = latest;
         feedRequestNumber++;
         feedRepository.cancel();
@@ -152,6 +195,8 @@ public class FeedFragment extends Fragment {
                 hasMore = more;
                 binding.feedRefresh.setRefreshing(false);
                 currentAdapter.addPage(ratings);
+                Log.d(TAG, "피드 조회 성공: added=" + ratings.size()
+                        + ", total=" + currentAdapter.getItemCount() + ", hasMore=" + more);
                 if (currentAdapter.getItemCount() == 0) {
                     showStatus(latestOrder ? R.string.feed_latest_empty : R.string.feed_popular_empty);
                 } else {
@@ -242,25 +287,44 @@ public class FeedFragment extends Fragment {
 
             // ID로 별도 문서를 조회하고 응답이 도착하면 이 행을 채운다.
             loadAuthor(rating.getUserId(), timeText, generation);
-            loadVideo(rating.getVideoId(), generation);
+            final boolean pagingSample = FeedPagingSamples.isSample(rating)
+                    || FollowingFeedSamples.isSample(rating);
+            if (pagingSample) {
+                // 개발용 가상 영상은 제목만 표시한다. 실제 YouTube API는 호출하지 않는다.
+                String id = rating.getVideoId();
+                itemBinding.feedVideoTitle.setText(context.getString(
+                        R.string.feed_paging_video_title, id.substring(id.lastIndexOf('-') + 1)));
+                itemBinding.feedVideoMetadata.setText(R.string.feed_paging_video_metadata);
+            } else {
+                loadVideo(rating.getVideoId(), generation);
+            }
 
             // 썸네일과 제목에 new View.OnClickListener() 연결.
             itemBinding.feedThumbnail.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (pagingSample) {
+                        return;
+                    }
                     Intent intent = new Intent(v.getContext(), VideoDetailActivity.class);
                     intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
                     intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
-                    startActivity(intent);
+                    //상세 화면에서 평가가 바뀌었는지를 받아서 목록을 갱신해야 하므로 Launcher를 사용한다.
+                    Log.d(TAG, "상세 실행: launcher.launch");
+                    videoDetailLauncher.launch(intent);
                 }
             });
             itemBinding.feedVideoTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (pagingSample) {
+                        return;
+                    }
                     Intent intent = new Intent(v.getContext(), VideoDetailActivity.class);
                     intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, rating.getVideoId());
                     intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
-                    startActivity(intent);
+                    Log.d(TAG, "상세 실행: launcher.launch");
+                    videoDetailLauncher.launch(intent);
                 }
             });
         }
@@ -316,6 +380,7 @@ public class FeedFragment extends Fragment {
                         }
                     });
         }
+
 
         private void loadVideo(String videoId, int generation) {
             if (videoId == null || videoId.isEmpty() || videoId.contains("/")) {
@@ -393,6 +458,12 @@ public class FeedFragment extends Fragment {
             holder.bindingGeneration++;
             super.onViewRecycled(holder);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(STATE_LATEST_ORDER, latestOrder);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

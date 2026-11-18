@@ -126,5 +126,18 @@
     <string name="profile_banner_add">배너 추가</string>
     <string name="profile_banner_edit">배너 바꾸기</string>
 
+    <!-- 6.1 프로필 탭 (아이콘 탭이라 화면 읽기용 이름으로 쓴다) -->
+    <string name="profile_tab_ratings">평가</string>
+    <string name="profile_tab_watch_later">보관함</string>
+    <string name="profile_tab_history">최근 본 영상</string>
+    <string name="profile_empty_ratings_title">첫 번째 평가를 작성해보세요.</string>
+    <string name="profile_empty_ratings_message">당신의 취향을 파악해 드려요.</string>
+    <string name="profile_empty_ratings_action">영상 평가하기</string>
+    <string name="profile_empty_watch_later_title">나중에 볼 영상이 없어요</string>
+    <string name="profile_empty_watch_later_message">피드나 영상 상세에서 \"나중에 보기\"를 누르면\n여기에 담겨요</string>
+    <string name="profile_empty_history_title">최근 본 영상이 없어요</string>
+    <string name="profile_empty_history_message">앱에서 본 영상이 여기에 쌓여요</string>
+    <string name="profile_ratings_load_failed">평가 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요</string>
+
 </resources>
 

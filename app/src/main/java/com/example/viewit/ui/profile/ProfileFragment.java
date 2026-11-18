@@ -19,6 +19,7 @@ import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.User;
 import com.example.viewit.databinding.FragmentProfileBinding;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.AggregateSource;
@@ -47,6 +48,21 @@ public class ProfileFragment extends Fragment {
                 return;
         }
         String uid = currentUser.getUid();
+        binding.profilePager.setAdapter(new ProfilePagerAdapter(this, uid));
+        new TabLayoutMediator(binding.profileTabs, binding.profilePager, (tab, position) -> {
+            if(position == 0){ //평가 격자(기본 탭)
+                tab.setIcon(R.drawable.ic_grid);
+                tab.setContentDescription(R.string.profile_tab_ratings);
+            }
+            else if(position == 1){ //나중에 볼 영상
+                tab.setIcon(R.drawable.ic_bookmark_outline);
+                tab.setContentDescription(R.string.profile_tab_watch_later);
+            }
+            else {
+                tab.setIcon(R.drawable.ic_history); //최근 본 영상
+                tab.setContentDescription(R.string.profile_tab_history);
+            }
+        }).attach();
         listenMyProfile(uid);
         loadMyRatingCount(uid);
 

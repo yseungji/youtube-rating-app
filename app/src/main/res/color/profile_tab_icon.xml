@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 프로필 탭 아이콘 색: 선택된 탭은 주 텍스트색, 나머지는 보조 텍스트색 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/tab_selected" android:state_selected="true" />
+    <item android:color="@color/tab_unselected" />
+</selector>

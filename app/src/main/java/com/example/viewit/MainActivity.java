@@ -67,6 +67,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+  
+  // 다른 화면(예: 프로필 빈 화면의 "영상 평가하기" 버튼)에서 하단 탭을 바꿀 때 쓴다.
+    // setSelectedItemId는 하단 탭 선택 표시를 옮기고, 위의 setOnItemSelectedListener를 거쳐 showTab까지 호출한다.
+    public void openTab(int tabId) {
+        binding.bottomNav.setSelectedItemId(tabId);
+    }
 
 
     private void showTab(int tabId) {

@@ -25,4 +25,7 @@
     <dimen name="profile_banner_height">112dp</dimen>       <!-- 배너 높이 -->
     <dimen name="profile_header_top_padding">72dp</dimen>   <!-- 사진 80dp 중 40dp가 배너에 걸치는 위치 -->
     <dimen name="profile_banner_edit_size">32dp</dimen>     <!-- 배너 위 연필·배너 추가 버튼 높이 -->
+    <dimen name="profile_tab_height">48dp</dimen>           <!-- 평가·보관함·최근 본 영상 탭 높이 -->
+    <dimen name="profile_grid_spacing">2dp</dimen>          <!-- 평가 격자 칸 사이 간격 -->
+    <dimen name="empty_icon_size">40dp</dimen>              <!-- 빈 화면 아이콘 크기 -->
 </resources>

@@ -60,6 +60,15 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 | `bg_banner_edit_button` + `ic_edit` | 흰색 90% 원 + 연필 | 사진 배너일 때 배너 바꾸기 버튼 (32dp, elevation 2dp) |
 | `ic_add` | 더하기 | 기본 배너일 때 "+ 배너 추가" 알약 버튼 |
 
+## 프로필 탭
+
+| 컴포넌트 | 파일 | 채울 곳 |
+|---|---|---|
+| 프로필 탭 줄 | `fragment_profile.xml`의 `profile_tabs` + `profile_pager` | `TabLayoutMediator`로 아이콘 `ic_grid`·`ic_bookmark_outline`·`ic_history`를 넣음. 아이콘 색은 `color/profile_tab_icon`(선택 검정, 나머지 회색) |
+| 평가 격자 탭 | `fragment_profile_ratings.xml` | `profile_ratings_list`(3열, 칸 사이 `profile_grid_spacing` 2dp, 한 칸은 `item_rating_tile`), 0개면 `profile_ratings_empty` |
+| 보관함·최근 본 영상 탭 | `fragment_profile_list.xml` | `profile_list`(나중에 `item_video_row`), 비었으면 `profile_list_empty` |
+| 빈 화면 [Figma 05-C](https://www.figma.com/design/wEfyU89iY8HaVx42LV1ENB/?node-id=407-3915) | `view_profile_empty.xml` | `empty_icon`(기본 `ic_star_outline` 주황), `empty_title`, `empty_message`, `empty_action`(필요할 때만 VISIBLE) |
+
 ## 위젯
 
 | 컴포넌트 | 사용법 |

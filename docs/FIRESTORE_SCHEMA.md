@@ -244,6 +244,7 @@ Storage
 | 팔로우 0명인 초기 피드 | 공개 인기 평가로 대체, 우선 좋아요 많은 순으로 제안 |
 | 영상 전체 평가 | `videoId` + `visibility == public` |
 | 내 평가 | `userId == 내 UID` |
+| 프로필 평가 격자(내 프로필) | `userId == 내 UID`, `createdAt` 내림차순. 비공개 평가도 포함 (복합 인덱스 `firestore.indexes.json`) |
 | 다른 사용자의 평가 | 해당 `userId` + `visibility == public` |
 | 프로필 배너 자동 선택 | `userId` + `visibility == public`, `score` 내림차순 → `createdAt` 내림차순, 1개 (복합 인덱스 `firestore.indexes.json`) |
 | 카테고리 인기 평가 | `categoryId` + `visibility == public`, `likeCount` 내림차순 |

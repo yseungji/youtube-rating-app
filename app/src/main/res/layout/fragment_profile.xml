@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 프로필 탭 (6.1 김도엽). 아래 탭 3개·평가 격자는 다음 PR에서 추가 -->
+<!-- 프로필 탭 (6.1 김도엽). 앱바 + [프로필 상단 + 탭 줄(AppBarLayout)] + 탭 화면(ViewPager2) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -36,12 +36,27 @@
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />
 
-    <!-- 프로필 상단 (Figma 05-B·05-C, 확정안 D). 다음 PR에서 AppBarLayout 안으로 옮김
+    <!-- 프로필 상단 + 탭 + 탭 화면. 아래로 스크롤하면 상단이 위로 접히고 탭 줄은 맨 위에 붙어 남는다 -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/profile_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_surface"
+        app:elevation="0dp"
+        app:liftOnScroll="false">
+
+    <!-- 프로필 상단 (Figma 05-B·05-C, 확정안 D)
          배너를 맨 뒤에 깔고, 사진·이름·숫자를 그 위에 겹쳐 올린다. -->
     <FrameLayout
         android:id="@+id/profile_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_scrollFlags="scroll">
 
         <!-- 배너 (폭 전체 × 112dp). 바탕은 기본 그라데이션, 사진 배너면 그 위에 썸네일을 넣는다 -->
         <ImageView
@@ -247,4 +262,31 @@
             app:iconSize="16dp"
             app:iconTint="@color/text_primary" />
     </FrameLayout>   <!-- profile_header 끝 -->
+
+    <!-- 탭: 평가 격자 / 보관함 / 최근 본 영상. 아이콘과 이름은 Java(TabLayoutMediator)에서 넣는다 -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/profile_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/profile_tab_height"
+        android:background="@color/bg_surface"
+        app:tabGravity="fill"
+        app:tabIconTint="@color/profile_tab_icon"
+        app:tabIndicatorColor="@color/text_primary"
+        app:tabIndicatorFullWidth="true"
+        app:tabIndicatorHeight="2dp"
+        app:tabMode="fixed" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- 탭 화면 (ProfilePagerAdapter가 채움) -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/profile_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>       <!-- 맨 바깥 끝 -->

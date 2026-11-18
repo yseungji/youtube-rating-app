@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.viewit.R;
-import com.example.viewit.VideoDetailActivity;
+import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.example.viewit.data.RatingRepository;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.databinding.FragmentRateBinding;

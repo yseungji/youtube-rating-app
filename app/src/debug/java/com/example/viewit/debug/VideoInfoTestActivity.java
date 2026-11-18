@@ -12,7 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.viewit.R;
-import com.example.viewit.VideoDetailActivity;
+import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.example.viewit.data.VideoCachePolicy;
 import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.model.FirestorePaths;

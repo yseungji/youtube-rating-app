@@ -2,8 +2,10 @@ package com.example.viewit;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -18,6 +20,7 @@ import com.example.viewit.ui.feed.FeedFragment;
 import com.example.viewit.ui.profile.ProfileFragment;
 import com.example.viewit.ui.rate.RateFragment;
 import com.example.viewit.ui.search.SearchFragment;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -46,60 +49,55 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-
-
-        binding.bottomNav.setOnItemSelectedListener(item -> {
-            showTab(item.getItemId());
-            return true;
-        });
-        // 이미 보고 있는 탭을 다시 누른 경우 (맨 위로 이동 등은 각 탭 작업에서 추가)
-        binding.bottomNav.setOnItemReselectedListener(item -> { });
-
-        // 화면 회전 등으로 다시 만들어질 때는 이전 탭 화면이 자동으로 복원된다
+        // 첫 화면을 feedtab으로 설정함과 동시에 화면 회전시 feed로 초기화되지 않도록 해준다.
         if (savedInstanceState == null) {
             showTab(R.id.nav_feed);
         }
-    }
 
-    // 고른 탭의 화면만 보이고 나머지는 숨긴다. 숨긴 화면은 상태(스크롤 위치 등)가 유지된다.
-    private void showTab(int tabId) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        String tag = String.valueOf(tabId);
-        Fragment target = fragmentManager.findFragmentByTag(tag);
+        //setOnClickListener와 같은 원리이다. 구글 머티리얼 디자인 라이브러리를 사용해서 5개의 메뉴 아이콘을 하나의 세트로 묶는다.
+        binding.bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                //menuItem이 어떤 메뉴가 선택됐는지를 가리킨다.
+                int menu = menuItem.getItemId();
+                //조건 분기 5번을 해야해서 코드가 길어지므로, 메서드를 따로 만들어서 가독성을 높였다.
+                showTab(menu);
 
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setReorderingAllowed(true);
-        for (Fragment fragment : fragmentManager.getFragments()) {
-            if (fragment != target) {
-                transaction.hide(fragment);
+                return true;
             }
-        }
-        if (target == null) {
-            transaction.add(R.id.fragment_container, createTabFragment(tabId), tag);
-        } else {
-            transaction.show(target);
-        }
-        transaction.commit();
+        });
     }
 
-    // R.id 값은 상수가 아니라서 switch 대신 if로 나눈다
-    private Fragment createTabFragment(int tabId) {
-        if (tabId == R.id.nav_search) {
-            return new SearchFragment();
-        } else if (tabId == R.id.nav_category) {
-            return new CategoryFragment();
-        } else if (tabId == R.id.nav_rate) {
-            return new RateFragment();
-        } else if (tabId == R.id.nav_profile) {
-            return new ProfileFragment();
+
+    private void showTab(int tabId) {
+        //다형성을 이용해서, 로직 중복을 없애기
+        Fragment fragment = null;
+        if(tabId == R.id.nav_feed) fragment = new FeedFragment();
+        else if(tabId == R.id.nav_rate) fragment = new RateFragment();
+        else if(tabId == R.id.nav_profile) fragment = new ProfileFragment();
+        else if(tabId == R.id.nav_search) fragment = new SearchFragment();
+        else if(tabId == R.id.nav_category) fragment = new CategoryFragment();
+
+        if(fragment != null) {
+            //addToBackStack(null)는 설계상 사용하지 않는다.
+            getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
         }
-        return new FeedFragment();
+
+
     }
 
+    //Intent Flag 활용 : 보안상의 문제를 위한 함수 구현 (백스택 지우는 함수)
+    //로그인이 풀렸을 때,  로그인 액티비티로 넘어가면서 모든 스택을 비우는 함수
     private void openAndClear(Class<?> target) {
+        //FLAG_ACTIVITY_CLEAR_TASK : 현재 실행 중인 모든 액티비티 스택을 비운다.
+        //FLAG_ACTIVITY_NEW_TASK : 기존 화면들을 다 날려버리고 새로운 태스크로 로그인 화면을 시작합니다.
         Intent intent = new Intent(this, target);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
+
 }

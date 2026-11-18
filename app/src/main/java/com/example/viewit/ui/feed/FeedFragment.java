@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.viewit.R;
-import com.example.viewit.VideoDetailActivity;
+import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.example.viewit.data.FeedRepository;
 import com.example.viewit.data.FeedPagingSamples;
 import com.example.viewit.data.FollowingFeedSamples;

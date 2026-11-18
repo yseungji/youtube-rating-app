@@ -1,4 +1,4 @@
-package com.example.viewit;
+package com.example.viewit.ui.videodetail;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.viewit.R;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.User;
@@ -89,65 +90,66 @@ class DetailSectionAdapter extends RecyclerView.Adapter<DetailSectionViewHolder>
 }
 
 // =========================================================================
-// 2. 영상 상세 화면의 공개 평가 카드 1개 뷰홀더 (ViewHolder)
+// 2. 영상 상세 화면의 전체 공개 평가 페이징 어댑터 (FirebaseUI Paging Adapter)
 // =========================================================================
-class VideoDetailViewHolder extends RecyclerView.ViewHolder {
-    private final ItemReviewDetailBinding itemBinding;
-    String boundUid;
-    String timeText;
-    int bindingGeneration;
+public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDetailAdapter.VideoDetailViewHolder> {
 
-    public VideoDetailViewHolder(@NonNull ItemReviewDetailBinding itemBinding) {
-        super(itemBinding.getRoot());
-        this.itemBinding = itemBinding;
+    // =========================================================================
+    // 영상 상세 화면의 공개 평가 카드 1개 뷰홀더 (ViewHolder)
+    // =========================================================================
+    public static class VideoDetailViewHolder extends RecyclerView.ViewHolder {
+        private final ItemReviewDetailBinding itemBinding;
+        String boundUid;
+        String timeText;
+        int bindingGeneration;
+
+        public VideoDetailViewHolder(@NonNull ItemReviewDetailBinding itemBinding) {
+            super(itemBinding.getRoot());
+            this.itemBinding = itemBinding;
+        }
+
+        public void bind(Rating rating) {
+            bindingGeneration++;
+            boundUid = rating.getUserId();
+            Context context = itemBinding.getRoot().getContext();
+            timeText = rating.getCreatedAt() == null
+                    ? context.getString(R.string.video_detail_review_unknown_time)
+                    : TimeAgoFormat.format(context, rating.getCreatedAt().toDate(), new Date());
+            itemBinding.reviewRating.setText(context.getString(
+                    R.string.video_detail_review_score, RatingFormat.stars(rating.getScore()), rating.getScore()));
+            String comment = rating.getComment();
+            itemBinding.reviewComment.setText(comment == null || comment.trim().isEmpty()
+                    ? context.getString(R.string.video_detail_review_no_comment) : comment);
+            itemBinding.reviewActions.reviewActionLike.setText(context.getString(
+                    R.string.review_like_count, Math.max(0, rating.getLikeCount())));
+            itemBinding.reviewActions.reviewActionComment.setText(context.getString(
+                    R.string.video_detail_review_comment_count, Math.max(0, rating.getCommentCount())));
+            showProfile(null);
+        }
+
+        void showProfile(User profile) {
+            Context context = itemBinding.getRoot().getContext();
+            String name = boundUid;
+            FirebaseUser current = FirebaseAuth.getInstance().getCurrentUser();
+            if (current != null && current.getUid().equals(boundUid)
+                    && current.getDisplayName() != null) {
+                name = current.getDisplayName();
+            }
+            if (profile != null && profile.getDisplayName() != null
+                    && !profile.getDisplayName().trim().isEmpty()) {
+                name = profile.getDisplayName().trim();
+            }
+            if (name == null || name.trim().isEmpty()) {
+                name = context.getString(R.string.video_detail_review_unknown_author);
+            }
+            itemBinding.reviewAuthor.authorName.setText(name);
+            itemBinding.reviewAuthor.authorAvatar.setText(name.substring(0, name.offsetByCodePoints(0, 1)));
+            String username = profile == null ? null : profile.getUsername();
+            itemBinding.reviewAuthor.authorMeta.setText(username == null || username.trim().isEmpty()
+                    ? timeText : context.getString(R.string.author_meta, username, timeText));
+        }
     }
 
-    public void bind(Rating rating) {
-        bindingGeneration++;
-        boundUid = rating.getUserId();
-        Context context = itemBinding.getRoot().getContext();
-        timeText = rating.getCreatedAt() == null
-                ? context.getString(R.string.video_detail_review_unknown_time)
-                : TimeAgoFormat.format(context, rating.getCreatedAt().toDate(), new Date());
-        itemBinding.reviewRating.setText(context.getString(
-                R.string.video_detail_review_score, RatingFormat.stars(rating.getScore()), rating.getScore()));
-        String comment = rating.getComment();
-        itemBinding.reviewComment.setText(comment == null || comment.trim().isEmpty()
-                ? context.getString(R.string.video_detail_review_no_comment) : comment);
-        itemBinding.reviewActions.reviewActionLike.setText(context.getString(
-                R.string.review_like_count, Math.max(0, rating.getLikeCount())));
-        itemBinding.reviewActions.reviewActionComment.setText(context.getString(
-                R.string.video_detail_review_comment_count, Math.max(0, rating.getCommentCount())));
-        showProfile(null);
-    }
-
-    void showProfile(User profile) {
-        Context context = itemBinding.getRoot().getContext();
-        String name = boundUid;
-        FirebaseUser current = FirebaseAuth.getInstance().getCurrentUser();
-        if (current != null && current.getUid().equals(boundUid)
-                && current.getDisplayName() != null) {
-            name = current.getDisplayName();
-        }
-        if (profile != null && profile.getDisplayName() != null
-                && !profile.getDisplayName().trim().isEmpty()) {
-            name = profile.getDisplayName().trim();
-        }
-        if (name == null || name.trim().isEmpty()) {
-            name = context.getString(R.string.video_detail_review_unknown_author);
-        }
-        itemBinding.reviewAuthor.authorName.setText(name);
-        itemBinding.reviewAuthor.authorAvatar.setText(name.substring(0, name.offsetByCodePoints(0, 1)));
-        String username = profile == null ? null : profile.getUsername();
-        itemBinding.reviewAuthor.authorMeta.setText(username == null || username.trim().isEmpty()
-                ? timeText : context.getString(R.string.author_meta, username, timeText));
-    }
-}
-
-// =========================================================================
-// 3. 영상 상세 화면의 전체 공개 평가 페이징 어댑터 (FirebaseUI Paging Adapter)
-// =========================================================================
-public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDetailViewHolder> {
     private final Map<String, Task<DocumentSnapshot>> profiles = new HashMap<>();
 
     public VideoDetailAdapter(@NonNull FirestorePagingOptions<Rating> options) {

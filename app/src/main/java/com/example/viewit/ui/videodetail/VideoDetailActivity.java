@@ -1,70 +1,55 @@
-package com.example.viewit;
+package com.example.viewit.ui.videodetail;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.DialogInterface;
-import android.view.Gravity;
-import android.view.Window;
-import android.view.WindowManager;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.example.viewit.databinding.DialogRatingDeleteBinding;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-import com.example.viewit.data.RatingRepository;
-import com.example.viewit.data.VideoRepository;
-import com.example.viewit.data.model.Rating;
-import com.example.viewit.data.model.Video;
-import com.example.viewit.data.model.User;
-import com.example.viewit.data.model.FirestorePaths;
-import com.example.viewit.ui.common.RatingFormat;
-import com.example.viewit.ui.common.TimeAgoFormat;
-import com.example.viewit.ui.common.YouTubeErrorMessage;
-import com.example.viewit.ui.common.YouTubeLinks;
-import com.example.viewit.databinding.ItemVideoDetailHeaderBinding;
-import com.example.viewit.databinding.ItemVideoDetailStatusBinding;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
-import com.google.android.gms.tasks.Task;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import androidx.paging.CombinedLoadStates;
 import androidx.paging.LoadState;
 import androidx.paging.PagingConfig;
 import androidx.recyclerview.widget.ConcatAdapter;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.viewit.databinding.ItemReviewDetailBinding;
-import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
-import com.firebase.ui.firestore.paging.FirestorePagingOptions;
-import com.google.firebase.firestore.FieldPath;
+import com.example.viewit.BuildConfig;
+import com.example.viewit.MainActivity;
+import com.example.viewit.R;
+import com.example.viewit.data.RatingRepository;
+import com.example.viewit.data.VideoRepository;
+import com.example.viewit.data.model.Rating;
+import com.example.viewit.data.model.Video;
 import com.example.viewit.databinding.ActivityVideoDetailBinding;
+import com.example.viewit.databinding.DialogRatingDeleteBinding;
+import com.example.viewit.databinding.ItemVideoDetailHeaderBinding;
+import com.example.viewit.databinding.ItemVideoDetailStatusBinding;
+import com.example.viewit.ui.common.YouTubeErrorMessage;
+import com.example.viewit.ui.common.YouTubeLinks;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-
+import com.google.firebase.firestore.FieldPath;
 
 // Figma 06 영상 상세: 공통 평가 패널을 표시하는 화면.
 public class VideoDetailActivity extends AppCompatActivity {

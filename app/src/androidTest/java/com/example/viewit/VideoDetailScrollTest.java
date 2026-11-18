@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.viewit.ui.videodetail.VideoDetailActivity;
+import com.example.viewit.ui.videodetail.VideoDetailAdapter;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -50,7 +52,7 @@ public class VideoDetailScrollTest {
                 assertTrue(list.getAdapter() instanceof ConcatAdapter);
                 ConcatAdapter concat = (ConcatAdapter) list.getAdapter();
                 assertEquals(3, concat.getAdapters().size());
-                assertTrue(concat.getAdapters().get(1) instanceof VideoDetailActivity.MyAdapter);
+                assertTrue(concat.getAdapters().get(1) instanceof VideoDetailAdapter);
                 // Firestore 데이터를 늘리지 않고 화면의 행 재사용만 검증한다.
                 concat.removeAdapter(concat.getAdapters().get(1));
                 concat.addAdapter(1, new ReviewFixtureAdapter());
@@ -85,17 +87,17 @@ public class VideoDetailScrollTest {
         }
     }
 
-    private static class ReviewFixtureAdapter extends RecyclerView.Adapter<VideoDetailActivity.MyViewHolder> {
+    private static class ReviewFixtureAdapter extends RecyclerView.Adapter<VideoDetailAdapter.VideoDetailViewHolder> {
         @NonNull
         @Override
-        public VideoDetailActivity.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public VideoDetailAdapter.VideoDetailViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             ItemReviewDetailBinding itemBinding = ItemReviewDetailBinding.inflate(
                     LayoutInflater.from(parent.getContext()), parent, false);
-            return new VideoDetailActivity.MyViewHolder(itemBinding);
+            return new VideoDetailAdapter.VideoDetailViewHolder(itemBinding);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull VideoDetailActivity.MyViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull VideoDetailAdapter.VideoDetailViewHolder holder, int position) {
             Rating rating = new Rating();
             rating.setUserId("test-user");
             rating.setScore(5);

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 프로필 "평가" 탭 (6.1): 3열 정사각형 격자(item_rating_tile). 평가가 0개면 빈 화면(05-C) -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/profile_ratings_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        tools:listitem="@layout/item_rating_tile" />
+
+    <!-- 평가 0개일 때. 처음에는 숨겨 두고 조회 결과가 비었을 때 보인다 -->
+    <include
+        android:id="@+id/profile_ratings_empty"
+        layout="@layout/view_profile_empty"
+        android:visibility="gone" />
+</FrameLayout>

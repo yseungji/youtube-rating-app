@@ -180,7 +180,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
 
                 @Override
                 public void onLoadCleared(@Nullable Drawable placeholder) {
-                    // 쓸 일 없음
+                    // 쓸 일 없지만 CustomTarget의 필수 메서드라 없으면 오류가 발생함.
                 }
             });
     }

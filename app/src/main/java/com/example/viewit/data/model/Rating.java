@@ -22,6 +22,8 @@ public class Rating {
     private String visibility = VISIBILITY_PUBLIC; // public 또는 private
     private long likeCount;             // 좋아요 수, 새 평가는 0
     private long commentCount;          // 댓글 수, 새 평가는 0
+    @com.google.firebase.firestore.Exclude
+    private boolean likedByCurrentUser; // 현재 로그인한 사용자가 좋아요를 눌렀는지 여부 (Firestore 저장 제외)
     @ServerTimestamp
     private Timestamp createdAt;        // 최초 작성 시각 (새 평가 판단 기준)
     @ServerTimestamp
@@ -101,6 +103,14 @@ public class Rating {
 
     public void setLikeCount(long likeCount) {
         this.likeCount = likeCount;
+    }
+
+    public boolean isLikedByCurrentUser() {
+        return likedByCurrentUser;
+    }
+
+    public void setLikedByCurrentUser(boolean likedByCurrentUser) {
+        this.likedByCurrentUser = likedByCurrentUser;
     }
 
     public long getCommentCount() {

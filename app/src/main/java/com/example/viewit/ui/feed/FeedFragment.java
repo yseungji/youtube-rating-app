@@ -17,14 +17,19 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.widget.Toast;
+
 import com.example.viewit.R;
+import com.example.viewit.ui.comment.CommentBottomSheetFragment;
 import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.example.viewit.data.FeedRepository;
 import com.example.viewit.data.FeedPagingSamples;
 import com.example.viewit.data.FollowingFeedSamples;
 import com.example.viewit.data.VideoRepository;
+import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.User;
 import com.example.viewit.data.model.Video;
@@ -37,12 +42,17 @@ import com.example.viewit.ui.common.TimeAgoFormat;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 // 화면 설정 → ViewHolder → 이름 있는 Adapter 순서.
 // 여러 Query의 조회 위치·남은 평가 관리와 병합은 FeedRepository가 담당한다.
@@ -82,6 +92,7 @@ public class FeedFragment extends Fragment {
     private int feedRequestNumber;
     private final FeedRepository feedRepository = new FeedRepository();
     private final VideoRepository videoRepository = new VideoRepository();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     // 카드 아이템 클릭 시 상세 화면으로 이동하는 공통 리스너
     private final FeedAdapter.OnItemClickListener itemClickListener = new FeedAdapter.OnItemClickListener() {
@@ -92,6 +103,62 @@ public class FeedFragment extends Fragment {
             intent.putExtra(VideoDetailActivity.EXTRA_CATEGORY_ID, rating.getCategoryId());
             logDebug("상세 실행: launcher.launch");
             videoDetailLauncher.launch(intent);
+        }
+        @Override
+        public void onLikeClick(Rating rating) {
+            if (rating == null || rating.getId() == null) return;
+
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                Toast.makeText(getContext(), R.string.reactions_login_required, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            final String uid = user.getUid();
+            DocumentReference likeRef = db.collection(FirestorePaths.RATINGS)
+                    .document(rating.getId())
+                    .collection("likes")
+                    .document(uid);
+
+            DocumentReference ratingRef = db.collection(FirestorePaths.RATINGS)
+                    .document(rating.getId());
+
+            likeRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        // 이미 좋아요 누른 상태 -> 좋아요 취소 (-1 및 빨간 하트 해제)
+                        likeRef.delete();
+                        ratingRef.update("likeCount", FieldValue.increment(-1));
+                        rating.setLikeCount(Math.max(0, rating.getLikeCount() - 1));
+                        rating.setLikedByCurrentUser(false);
+                    } else {
+                        // 좋아요 안 누른 상태 -> 좋아요 등록 (+1 및 빨간 하트 표시)
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("createdAt", FieldValue.serverTimestamp());
+                        likeRef.set(data);
+
+                        ratingRef.update("likeCount", FieldValue.increment(1));
+                        rating.setLikeCount(rating.getLikeCount() + 1);
+                        rating.setLikedByCurrentUser(true);
+                    }
+
+                    // 전체 목록을 새로고침하지 않고, 좋아요를 누른 카드 1개에 페이로드("LIKE_CHANGED")만 전달하여 부분 업데이트!
+                    int index = feedRatings.indexOf(rating);
+                    if (index != -1 && adapter != null) {
+                        adapter.notifyItemChanged(index, "LIKE_CHANGED");
+                    } else if (adapter != null) {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onCommentClick(Rating rating) {
+            if (rating == null || rating.getId() == null) return;
+            CommentBottomSheetFragment sheet = CommentBottomSheetFragment.newInstance(rating.getId());
+            sheet.show(getChildFragmentManager(), "CommentBottomSheet");
         }
     };
 
@@ -116,6 +183,10 @@ public class FeedFragment extends Fragment {
         //feedList는 리사이클러뷰 xml이다
         //한번만 만들면 되기 때문에 onViewCreated에 뒀다.
         binding.feedList.setLayoutManager(new LinearLayoutManager(getContext()));
+        RecyclerView.ItemAnimator animator = binding.feedList.getItemAnimator();
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
         adapter = new FeedAdapter(feedRatings, videoRepository, itemClickListener);
         binding.feedList.setAdapter(adapter);
 

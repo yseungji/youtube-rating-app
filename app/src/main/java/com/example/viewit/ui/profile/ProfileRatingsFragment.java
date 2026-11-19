@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.example.viewit.MainActivity;
 import com.example.viewit.R;
-import com.example.viewit.VideoDetailActivity;
+import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.databinding.FragmentProfileRatingsBinding;

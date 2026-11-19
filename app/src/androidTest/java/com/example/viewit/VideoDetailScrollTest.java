@@ -54,7 +54,7 @@ public class VideoDetailScrollTest {
                 // Firestore 데이터를 늘리지 않고 화면의 행 재사용만 검증한다.
                 concat.removeAdapter(concat.getAdapters().get(1));
                 concat.addAdapter(1, new ReviewFixtureAdapter());
-                videoTop.set(activity.findViewById(R.id.video_thumbnail).getTop());
+                videoTop.set(activity.findViewById(R.id.video_player).getTop());
                 View panel = activity.findViewById(R.id.rating_panel);
                 assertNotNull(panel);
                 inputPanel.set(panel);
@@ -65,13 +65,13 @@ public class VideoDetailScrollTest {
                 RecyclerView list = activity.findViewById(R.id.public_rating_list);
                 assertTrue("목록의 실제 스크롤 위치가 이동해야 함", list.computeVerticalScrollOffset() > 0);
                 assertEquals("영상은 스크롤과 무관하게 고정", videoTop.get(),
-                        activity.findViewById(R.id.video_thumbnail).getTop());
+                        activity.findViewById(R.id.video_player).getTop());
                 LinearLayoutManager manager = (LinearLayoutManager) list.getLayoutManager();
                 assertNotNull(manager);
                 manager.scrollToPositionWithOffset(25, 0);
             });
             onView(withText("테스트 평가 25")).check(matches(isDisplayed()));
-            onView(withId(R.id.video_thumbnail)).check(matches(isDisplayed()));
+            onView(withId(R.id.video_player)).check(matches(isDisplayed()));
             scenario.onActivity(activity -> {
                 RecyclerView list = activity.findViewById(R.id.public_rating_list);
                 LinearLayoutManager manager = (LinearLayoutManager) list.getLayoutManager();

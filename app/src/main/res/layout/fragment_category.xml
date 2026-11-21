@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 카테고리 탭 화면 (4.3 장주원). 위에서부터 앱 바 → 안내 문구 → 카테고리 칩 → 정렬 칩 → 영상 목록.
+<!-- 카테고리 탭 화면 (4.3 장주원). 위에서부터 앱 바 → 카테고리 칩 → 정렬 칩 → 영상 목록.
+     칩 두 줄은 목록을 올리면 같이 올라가 숨고, 내리면 바로 다시 나온다.
      카테고리 칩의 android:tag가 YouTube 카테고리 ID다("전체"는 tag 없음 = 카테고리 없이 한국 인기 차트).
      교육(27)·여행/이벤트(19)는 한국 인기 차트가 없어(notFound) 넣지 않았다.
      목록 한 줄은 item_category_video.xml. 로딩·빈 목록·오류는 category_loading, category_message로 표시한다. -->
@@ -25,194 +26,210 @@
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />
 
-    <TextView
-        android:id="@+id/category_hint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:paddingTop="@dimen/space_l"
-        android:text="@string/category_hint"
-        android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary" />
-
-    <!-- 카테고리 칩: 가로로 넘겨 보는 한 줄. 하나만 선택되고 선택 해제는 안 된다 -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_m"
-        android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:scrollbars="none">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/category_chip_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:checkedChip="@id/chip_category_all"
-            app:selectionRequired="true"
-            app:singleLine="true"
-            app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_all"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/category_all" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_music"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="10"
-                    android:text="@string/category_music" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_game"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="20"
-                    android:text="@string/category_game" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_entertainment"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="24"
-                    android:text="@string/category_entertainment" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_comedy"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="23"
-                    android:text="@string/category_comedy" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_sports"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="17"
-                    android:text="@string/category_sports" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_film"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="1"
-                    android:text="@string/category_film" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_howto"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="26"
-                    android:text="@string/category_howto" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_science"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="28"
-                    android:text="@string/category_science" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_news"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="25"
-                    android:text="@string/category_news" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_pets"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="15"
-                    android:text="@string/category_pets" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_category_autos"
-                    style="@style/Widget.Viewit.Chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="2"
-                    android:text="@string/category_autos" />
-        </com.google.android.material.chip.ChipGroup>
-    </HorizontalScrollView>
-
-    <!-- 정렬 칩: 인기순(YouTube 인기 차트) / 평점순(우리 앱 평균 별점) -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/category_sort_group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/screen_padding"
-        app:checkedChip="@id/chip_sort_popular"
-        app:selectionRequired="true"
-        app:singleLine="true"
-        app:singleSelection="true">
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_sort_popular"
-            style="@style/Widget.Viewit.Chip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/category_sort_popular" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_sort_rating"
-            style="@style/Widget.Viewit.Chip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/category_sort_rating" />
-    </com.google.android.material.chip.ChipGroup>
-
-    <!-- 목록 영역: 당겨서 새로고침 + 영상 목록. 로딩·안내 문구는 목록 위에 겹쳐 표시 -->
-    <FrameLayout
+    <!-- 칩 두 줄(AppBarLayout) + 목록. 목록을 위로 올리면 칩도 같이 올라가 숨고, 조금만 내려도 바로 다시 보인다(enterAlways)
+         (프로필 탭 fragment_profile.xml과 같은 방식) -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/category_refresh"
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:background="@color/bg_surface"
+            app:elevation="0dp"
+            app:liftOnScroll="false">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/category_list"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingHorizontal="@dimen/screen_padding"
-                android:paddingBottom="@dimen/space_l"
-                tools:listitem="@layout/item_category_video" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_scrollFlags="scroll|enterAlways">
 
-        <ProgressBar
-            android:id="@+id/category_loading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
+                <!-- 카테고리 칩: 가로로 넘겨 보는 한 줄. 하나만 선택되고 선택 해제는 안 된다 -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="@dimen/screen_padding"
+                    android:scrollbars="none">
 
-        <!-- 빈 목록·오류 안내. 문구는 코드에서 넣는다 -->
-        <TextView
-            android:id="@+id/category_message"
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/category_chip_group"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:checkedChip="@id/chip_category_all"
+                        app:selectionRequired="true"
+                        app:singleLine="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_all"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/category_all" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_music"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="10"
+                            android:text="@string/category_music" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_game"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="20"
+                            android:text="@string/category_game" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_entertainment"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="24"
+                            android:text="@string/category_entertainment" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_comedy"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="23"
+                            android:text="@string/category_comedy" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_sports"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="17"
+                            android:text="@string/category_sports" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_film"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="1"
+                            android:text="@string/category_film" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_howto"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="26"
+                            android:text="@string/category_howto" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_science"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="28"
+                            android:text="@string/category_science" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_news"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="25"
+                            android:text="@string/category_news" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_pets"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="15"
+                            android:text="@string/category_pets" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_category_autos"
+                            style="@style/Widget.Viewit.Chip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:tag="2"
+                            android:text="@string/category_autos" />
+                    </com.google.android.material.chip.ChipGroup>
+                </HorizontalScrollView>
+
+                <!-- 정렬 칩: 인기순(YouTube 인기 차트) / 평점순(우리 앱 평균 별점) -->
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/category_sort_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:layout_marginBottom="@dimen/space_m"
+                    android:paddingHorizontal="@dimen/screen_padding"
+                    app:checkedChip="@id/chip_sort_popular"
+                    app:selectionRequired="true"
+                    app:singleLine="true"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_sort_popular"
+                        style="@style/Widget.Viewit.Chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/category_sort_popular" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_sort_rating"
+                        style="@style/Widget.Viewit.Chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/category_sort_rating" />
+                </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <!-- 목록 영역: 당겨서 새로고침 + 영상 목록. 로딩·안내 문구는 목록 위에 겹쳐 표시 -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:padding="@dimen/space_xl"
-            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
-            android:visibility="gone"
-            tools:text="@string/category_empty" />
-    </FrameLayout>
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/category_refresh"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/category_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="@dimen/screen_padding"
+                    android:paddingBottom="@dimen/space_l"
+                    tools:listitem="@layout/item_category_video" />
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            <ProgressBar
+                android:id="@+id/category_loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <!-- 빈 목록·오류 안내. 문구는 코드에서 넣는다 -->
+            <TextView
+                android:id="@+id/category_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="@dimen/space_xl"
+                android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+                android:visibility="gone"
+                tools:text="@string/category_empty" />
+        </FrameLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

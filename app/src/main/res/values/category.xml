@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 카테고리 탭 문자열 (4.3 장주원) -->
 <resources>
-    <string name="category_hint">관심 있는 주제를 골라보세요</string>
 
     <!-- 카테고리 칩. 괄호 안은 YouTube 카테고리 ID(fragment_category.xml의 android:tag) -->
     <string name="category_all">전체</string>

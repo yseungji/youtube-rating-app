@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.viewit.BuildConfig;
 import com.example.viewit.data.model.Video;
@@ -48,6 +49,8 @@ public final class YouTubeApi {
     private static final String VIDEO_FIELDS =
             "items(id,snippet(title,channelId,channelTitle,categoryId,publishedAt,thumbnails),contentDetails/duration)";
     private static final int MAX_IDS_PER_REQUEST = 50;
+    private static final String POPULAR_REGION = "KR";
+    private static final int POPULAR_MAX_RESULTS = 30;
     private static final int TIMEOUT_MS = 10_000;
 
     private static YouTubeApi instance;
@@ -99,11 +102,43 @@ public final class YouTubeApi {
         });
     }
 
-    private List<Video> fetchVideosBlocking(List<String> videoIds) throws YouTubeException {
+    // 한국 YouTube 인기 차트를 받는다(4.3 카테고리 인기순). 요청 1번 = 1유닛.
+    // categoryId가 null이면 전체 인기 차트, 있으면 그 카테고리의 인기 차트
+    public void fetchPopularVideos(@Nullable String categoryId, @NonNull Callback<List<Video>> callback) {
+        executor.execute(() -> {
+            try {
+                List<Video> videos = fetchPopularVideosBlocking(categoryId);
+                mainHandler.post(() -> callback.onSuccess(videos));
+            } catch (YouTubeException e) {
+                mainHandler.post(() -> callback.onError(e));
+            }
+        });
+    }
+
+    private List<Video> fetchPopularVideosBlocking(@Nullable String categoryId) throws YouTubeException {
+        requireApiKey();
+        Uri.Builder url = Uri.parse(VIDEOS_URL).buildUpon()
+                .appendQueryParameter("part", "snippet,contentDetails")
+                .appendQueryParameter("chart", "mostPopular")
+                .appendQueryParameter("regionCode", POPULAR_REGION)
+                .appendQueryParameter("maxResults", String.valueOf(POPULAR_MAX_RESULTS))
+                .appendQueryParameter("fields", VIDEO_FIELDS);
+        if (!TextUtils.isEmpty(categoryId)) {
+            url.appendQueryParameter("videoCategoryId", categoryId);
+        }
+        url.appendQueryParameter("key", apiKey);
+        return YouTubeVideoParser.parse(get(url.build().toString()), Timestamp.now());
+    }
+
+    private void requireApiKey() throws YouTubeException {
         if (apiKey == null || apiKey.isEmpty()) {
             throw new YouTubeException(YouTubeException.Reason.MISSING_API_KEY,
                     "local.properties에 YOUTUBE_API_KEY가 없습니다");
         }
+    }
+
+    private List<Video> fetchVideosBlocking(List<String> videoIds) throws YouTubeException {
+        requireApiKey();
         List<Video> videos = new ArrayList<>();
         Timestamp fetchedAt = Timestamp.now();
         for (int start = 0; start < videoIds.size(); start += MAX_IDS_PER_REQUEST) {

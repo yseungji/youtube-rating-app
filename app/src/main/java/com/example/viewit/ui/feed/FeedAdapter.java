@@ -41,6 +41,8 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
     private final VideoRepository videoRepository;
     private final FeedAdapter.OnItemClickListener itemClickListener;
     int bindingGeneration;
+    private String boundAuthorName = "";
+    private String boundVideoTitle = "";
 
     //생성자 호출
     public FeedViewHolder(@NonNull ItemFeedPostBinding itemBinding,
@@ -74,6 +76,8 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
         loadLikeStatus(rating, generation);
 
         // 2) 비동기 조회 전 기본 뷰 초기화 (재사용 찌꺼기 방지)
+        boundAuthorName = "";
+        boundVideoTitle = "";
         showAuthor(null, timeText);
         itemBinding.feedVideoTitle.setText(R.string.feed_video_loading);
         itemBinding.feedVideoMetadata.setText("");
@@ -128,6 +132,16 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
                 if (pagingSample) return;
                 if (itemClickListener != null) {
                     itemClickListener.onCommentClick(rating);
+                }
+            }
+        });
+        // 3) 공유 버튼 클릭
+        itemBinding.feedActions.reviewActionShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(pagingSample) return;
+                if(itemClickListener != null) {
+                    itemClickListener.onShareClick(rating,boundAuthorName,boundVideoTitle);
                 }
             }
         });
@@ -187,6 +201,7 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
         } else {
             name = name.trim();
         }
+        boundAuthorName = name;
         itemBinding.feedAuthor.authorName.setText(name);
         itemBinding.feedAuthor.authorAvatar.setText(
                 name.substring(0, name.offsetByCodePoints(0, 1)));
@@ -236,6 +251,7 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
                 }
                 Context context = itemBinding.getRoot().getContext();
                 String duration = DurationFormat.format(video.getDurationSeconds());
+                boundVideoTitle = video.getTitle() != null ? video.getTitle() : "";
                 itemBinding.feedVideoTitle.setText(video.getTitle());
                 String channel = video.getChannelTitle();
                 itemBinding.feedVideoMetadata.setText(
@@ -305,6 +321,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedViewHolder> {
         void onItemClick(Rating rating);
         void onLikeClick(Rating rating);         // 좋아요 클릭 (좋아요 수 토글/증가)
         void onCommentClick(Rating rating);      // 댓글 버튼 클릭 (댓글 바텀시트/화면 이동)
+        void onShareClick(Rating rating, String authorName, String videoTitle); // 공유 버튼 클릭 (공유 바텀시트 열기)
     }
 
     public void clear() {

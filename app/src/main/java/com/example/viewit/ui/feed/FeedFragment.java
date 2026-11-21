@@ -1,5 +1,7 @@
 package com.example.viewit.ui.feed;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
@@ -24,6 +27,7 @@ import android.widget.Toast;
 
 import com.example.viewit.R;
 import com.example.viewit.ui.comment.CommentBottomSheetFragment;
+import com.example.viewit.ui.share.ShareRatingBottomSheetFragment;
 import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.example.viewit.data.FeedRepository;
 import com.example.viewit.data.FeedPagingSamples;
@@ -110,7 +114,7 @@ public class FeedFragment extends Fragment {
 
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user == null) {
-                Toast.makeText(getContext(), R.string.reactions_login_required, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.reactions_login_required, LENGTH_SHORT).show();
                 return;
             }
 
@@ -160,6 +164,21 @@ public class FeedFragment extends Fragment {
             CommentBottomSheetFragment sheet = CommentBottomSheetFragment.newInstance(rating.getId());
             sheet.show(getChildFragmentManager(), "CommentBottomSheet");
         }
+        //공유 버튼 눌렀을 때 호출 메서드
+        @Override
+        public void onShareClick(Rating rating, String authorName, String videoTitle) {
+            if (rating == null) {
+                return;
+            }
+            logDebug("공유 바텀시트 열기: videoId=" + rating.getVideoId());
+            ShareRatingBottomSheetFragment sheet = ShareRatingBottomSheetFragment.newInstance(
+                    authorName,
+                    (int) rating.getScore(),
+                    rating.getComment(),
+                    videoTitle,
+                    rating.getVideoId());
+            sheet.show(getChildFragmentManager(), "ShareRatingBottomSheet");
+        }
     };
 
     @Nullable
@@ -189,6 +208,28 @@ public class FeedFragment extends Fragment {
         }
         adapter = new FeedAdapter(feedRatings, videoRepository, itemClickListener);
         binding.feedList.setAdapter(adapter);
+
+        // 공유 바텀시트(ShareRatingBottomSheetFragment)에서 setFragmentResult()로 전달한 결과를 수신한다.
+        getChildFragmentManager().setFragmentResultListener(ShareRatingBottomSheetFragment.REQUEST_KEY,
+            getViewLifecycleOwner(),
+            new FragmentResultListener() {
+                @Override
+                public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                    String action = result.getString(ShareRatingBottomSheetFragment.RESULT_ACTION, "");
+                    logDebug("공유 결과 수신(setFragmentResult): action=" + action);
+                    if (ShareRatingBottomSheetFragment.ACTION_COPY_LINK.equals(action)) {
+                        makeToast(R.string.share_copied_toast);
+                    } else if (ShareRatingBottomSheetFragment.ACTION_KAKAOTALK.equals(action)) {
+                        makeToast(R.string.share_kakaotalk_opened_toast);
+                    } else if (ShareRatingBottomSheetFragment.ACTION_SMS.equals(action)) {
+                        makeToast(R.string.share_sms_opened_toast);
+                    } else if (ShareRatingBottomSheetFragment.ACTION_MORE.equals(action)) {
+                        makeToast(R.string.share_more_opened_toast);
+                    }
+                }
+            }
+
+        );
 
         //인기순 , 최신순을 변경하는 리스너
         binding.feedOrder.setOnClickListener(new View.OnClickListener() {
@@ -224,6 +265,14 @@ public class FeedFragment extends Fragment {
             }
         });
         loadFeed(latestOrder);
+    }
+
+    private void makeToast(int messageRes) {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        Toast.makeText(context, messageRes, LENGTH_SHORT).show();
     }
 
     private void loadFeed(boolean latest) {

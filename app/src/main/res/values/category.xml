@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 카테고리 탭 문자열 (4.3 장주원) -->
+<resources>
+
+    <!-- 카테고리 칩. 괄호 안은 YouTube 카테고리 ID(fragment_category.xml의 android:tag) -->
+    <string name="category_all">전체</string>
+    <string name="category_music">음악</string>                   <!-- 10 -->
+    <string name="category_game">게임</string>                    <!-- 20 -->
+    <string name="category_entertainment">엔터테인먼트</string>    <!-- 24 -->
+    <string name="category_comedy">코미디</string>                 <!-- 23 -->
+    <string name="category_sports">스포츠</string>                 <!-- 17 -->
+    <string name="category_film">영화·애니메이션</string>          <!-- 1 -->
+    <string name="category_howto">노하우·스타일</string>           <!-- 26 -->
+    <string name="category_science">과학기술</string>              <!-- 28 -->
+    <string name="category_news">뉴스·정치</string>                <!-- 25 -->
+    <string name="category_pets">동물</string>                    <!-- 15 -->
+    <string name="category_autos">자동차</string>                  <!-- 2 -->
+
+    <!-- 정렬 칩 -->
+    <string name="category_sort_popular">인기순</string>
+    <string name="category_sort_rating">평점순</string>
+
+    <!-- 목록 한 줄의 별점 줄. %1$s = RatingFormat.averageText(평균, 개수), %2$d = 평가 수 -->
+    <string name="category_rating">★ %1$s · 평가 %2$d개</string>
+    <string name="category_no_rating">아직 평가 없음</string>
+
+    <!-- 목록 안내 -->
+    <string name="category_empty">이 주제의 인기 영상이 없어요</string>
+    <string name="category_rating_coming_soon">평점순은 준비 중이에요</string>
+</resources>

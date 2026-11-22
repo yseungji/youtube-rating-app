@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 카테고리 목록의 영상 한 줄 (Figma UI4/CategoryCard). 평균 별점은 R.id.category_video_rating에
-     getString(R.string.video_average, RatingFormat.averageText(평균, 평가 수))로 넣는다. -->
+<!-- 카테고리 목록의 영상 한 줄 (Figma UI4/CategoryCard). 왼쪽 썸네일(재생 시간 배지), 오른쪽 제목·채널·평균 별점.
+     채울 곳
+     - category_video_thumbnail ← ThumbnailLoader.load(이미지뷰, 썸네일 URL)
+     - category_video_duration  ← DurationFormat.format(초)
+     - category_video_title, category_video_channel ← 제목, 채널 이름
+     - category_video_rating    ← 평가가 있으면 getString(R.string.category_rating, RatingFormat.averageText(평균, 개수), 개수)
+                                  없으면 R.string.category_no_rating -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:baselineAligned="false"
     android:foreground="?attr/selectableItemBackground"
     android:orientation="horizontal"
     android:paddingVertical="@dimen/space_m">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/category_video_thumbnail"
-        android:layout_width="112dp"
-        android:layout_height="63dp"
-        android:contentDescription="@string/thumbnail_description"
-        android:scaleType="centerCrop"
-        android:src="@color/action_soft"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.Viewit.Thumbnail.Small" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/category_video_thumbnail"
+            android:layout_width="128dp"
+            android:layout_height="72dp"
+            android:contentDescription="@string/thumbnail_description"
+            android:scaleType="centerCrop"
+            android:src="@color/action_soft"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Viewit.Thumbnail.Small" />
+
+        <TextView
+            android:id="@+id/category_video_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/space_xs"
+            android:background="@drawable/bg_badge_dark"
+            android:paddingHorizontal="@dimen/space_xs"
+            android:paddingVertical="1dp"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption"
+            android:textColor="@color/bg_surface"
+            tools:text="12:30" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -38,11 +62,21 @@
             tools:text="집에서 만드는 나폴리 피자, 오븐 없이 프라이팬으로 끝내기" />
 
         <TextView
+            android:id="@+id/category_video_channel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Viewit.Meta"
+            tools:text="요리하는 사람들" />
+
+        <TextView
             android:id="@+id/category_video_rating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textAppearance="@style/TextAppearance.Viewit.Meta"
-            tools:text="★ 평균 4.0" />
+            tools:text="★ 4.0 · 평가 3개" />
     </LinearLayout>
 </LinearLayout>

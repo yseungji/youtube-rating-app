@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 설정 화면 (6.3, Figma 10 · 설정 172:1213)
+     앱바(뒤로가기 + 제목) / 계정 / 내 활동 / 공개와 안전 / 정보 / 로그아웃 · 회원 탈퇴
+     각 줄(view_settings_row)의 아이콘·글자는 SettingsActivity에서 넣는다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:orientation="vertical"
+    tools:context=".SettingsActivity">
+
+    <!-- 앱바 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_bar_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_s">
+
+        <include
+            android:id="@+id/settings_back"
+            layout="@layout/view_back_button" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:text="@string/settings_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Heading" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/space_xl">
+
+            <!-- 계정 -->
+            <TextView
+                style="@style/Viewit.SettingsSectionTitle"
+                android:text="@string/settings_section_account" />
+
+            <include
+                android:id="@+id/settings_profile_edit"
+                layout="@layout/view_settings_row" />
+
+            <View style="@style/Viewit.SettingsRowDivider" />
+
+            <include
+                android:id="@+id/settings_youtube"
+                layout="@layout/view_settings_row" />
+
+            <View style="@style/Viewit.SettingsSectionDivider" />
+
+            <!-- 내 활동 -->
+            <TextView
+                style="@style/Viewit.SettingsSectionTitle"
+                android:text="@string/settings_section_activity" />
+
+            <include
+                android:id="@+id/settings_my_activity"
+                layout="@layout/view_settings_row" />
+
+            <View style="@style/Viewit.SettingsSectionDivider" />
+
+            <!-- 공개와 안전 -->
+            <TextView
+                style="@style/Viewit.SettingsSectionTitle"
+                android:text="@string/settings_section_privacy" />
+
+            <include
+                android:id="@+id/settings_visibility"
+                layout="@layout/view_settings_row" />
+
+            <View style="@style/Viewit.SettingsRowDivider" />
+
+            <include
+                android:id="@+id/settings_blocked"
+                layout="@layout/view_settings_row" />
+
+            <View style="@style/Viewit.SettingsSectionDivider" />
+
+            <!-- 정보 -->
+            <TextView
+                style="@style/Viewit.SettingsSectionTitle"
+                android:text="@string/settings_section_info" />
+
+            <include
+                android:id="@+id/settings_terms"
+                layout="@layout/view_settings_row" />
+
+            <View style="@style/Viewit.SettingsRowDivider" />
+
+            <include
+                android:id="@+id/settings_privacy_policy"
+                layout="@layout/view_settings_row" />
+
+            <View style="@style/Viewit.SettingsRowDivider" />
+
+            <include
+                android:id="@+id/settings_app_version"
+                layout="@layout/view_settings_row" />
+
+            <View style="@style/Viewit.SettingsSectionDivider" />
+
+            <!-- 로그아웃 · 회원 탈퇴 (Figma Account actions) -->
+            <TextView
+                android:id="@+id/settings_logout"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/space_s"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:text="@string/settings_logout"
+                android:textAppearance="@style/TextAppearance.Viewit.Body.Strong"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/settings_delete_account"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:text="@string/settings_delete_account"
+                android:textAppearance="@style/TextAppearance.Viewit.Caption"
+                android:textColor="@color/negative"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

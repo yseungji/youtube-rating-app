@@ -139,5 +139,38 @@
     <string name="profile_empty_history_message">앱에서 본 영상이 여기에 쌓여요</string>
     <string name="profile_ratings_load_failed">평가 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요</string>
 
+    <!-- 6.3 설정 (Figma 10 · 설정) -->
+    <string name="settings_title">설정</string>
+    <string name="settings_section_account">계정</string>
+    <string name="settings_section_activity">내 활동</string>
+    <string name="settings_section_privacy">공개와 안전</string>
+    <string name="settings_section_info">정보</string>
+    <string name="settings_profile_edit">프로필 편집</string>
+    <string name="settings_profile_edit_desc">이름·아이디·한줄 소개</string>
+    <string name="settings_youtube">YouTube 계정 연동</string>
+    <string name="settings_youtube_disconnected">연결 안 됨</string>
+    <string name="settings_my_activity">좋아요·댓글</string>
+    <string name="settings_my_activity_desc">내가 좋아요한 리뷰와 내가 쓴 댓글</string>
+    <string name="settings_visibility">공개 범위</string>
+    <string name="settings_visibility_desc">시청 기록·나중에 보기·구독 채널</string>
+    <string name="settings_blocked">차단한 사용자</string>
+    <string name="settings_blocked_count">%1$d명</string>
+    <string name="settings_terms">이용약관</string>
+    <string name="settings_privacy_policy">개인정보처리방침</string>
+    <string name="settings_app_version">앱 버전</string>
+    <string name="settings_logout">로그아웃</string>
+    <string name="settings_delete_account">회원 탈퇴</string>
+
+    <!-- 로그아웃·탈퇴 확인창과 결과 안내 -->
+    <string name="logout_dialog_title">로그아웃</string>
+    <string name="logout_dialog_message">로그아웃할까요?</string>
+    <string name="delete_dialog_title">회원 탈퇴</string>
+    <string name="delete_dialog_message">프로필과 아이디가 삭제되고 되돌릴 수 없어요. 탈퇴할까요?</string>
+    <string name="delete_dialog_confirm">탈퇴</string>
+    <string name="dialog_cancel">취소</string>
+    <string name="delete_account_done">탈퇴했어요. 그동안 이용해 주셔서 감사합니다</string>
+    <string name="delete_account_failed">탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요</string>
+    <string name="delete_account_relogin">보안을 위해 다시 로그인한 뒤 탈퇴해 주세요</string>
+
 </resources>
 

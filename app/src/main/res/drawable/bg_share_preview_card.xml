@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공유 미리보기 회색 카드 배경 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/action_soft" />
+    <corners android:radius="@dimen/radius_m" />
+</shape>

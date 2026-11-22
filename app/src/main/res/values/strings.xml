@@ -171,6 +171,8 @@
     <string name="delete_account_done">탈퇴했어요. 그동안 이용해 주셔서 감사합니다</string>
     <string name="delete_account_failed">탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요</string>
     <string name="delete_account_relogin">보안을 위해 다시 로그인한 뒤 탈퇴해 주세요</string>
+    <string name="delete_account_canceled">탈퇴를 취소했어요</string>
+    <string name="delete_account_wrong_account">지금 로그인한 Google 계정을 골라 주세요</string>
 
 </resources>
 

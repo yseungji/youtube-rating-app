@@ -100,8 +100,8 @@
 | 5.2 평가 작성 | 평균·평가 수·분포를 집계 쿼리로 조회·갱신 | 유승지 | 100% | 2026-11-18: 집계 쿼리 검증 완료. 2026-11-21: 카테고리 평점순용 `videos` 집계 필드(`ratingAverage`·`publicRatingCount`·`ratingSum`·`ratingDistribution`·`statsUpdatedAt`) 저장·수정·비공개 전환·삭제 시 트랜잭션 갱신 및 미초기화 문서 보정 기기 로그 검증 완료 |
 | 5.3 피드 | 최신순: 팔로우한 사람의 공개 평가를 최신순으로 20개씩 조회 | 유승지 | 100% | 2026-11-18: 30명 분할 whereIn 조회, 비공개/미팔로우 필터 및 병합 검증 완료 |
 | 5.3 피드 | 인기순: 전체 공개 평가를 좋아요 많은 순으로 선택 조회 | 유승지 | 100% | 2026-11-18: likeCount 내림차순 정렬, 동점 ID 비교 및 새로고침/페이징 검증 완료 |
-| 5.4 반응 | 좋아요, 댓글(목록·작성), 공유 | 유승지 | 75% | 2026-11-18: 피드 좋아요·댓글 1단 답글 바텀시트 구현. 2026-11-21: 공유 바텀시트(ShareRatingBottomSheetFragment·ShareChooserReceiver, 카카오톡·문자·YouTube 링크 복사·시스템 공유 창, setFragmentResult 및 회전 복원) 로컬 구현 완료, 기기 동작 검증 대기 |
-| 5.4 반응 | 나중에 보기 → 보관함에 담기 | 유승지 | 0% | |
+| 5.4 반응 | 좋아요, 댓글(목록·작성), 공유 | 유승지 | 100% | 2026-11-18: 피드 좋아요·댓글 1단 답글 바텀시트 구현. 2026-11-21: 공유 바텀시트(ShareRatingBottomSheetFragment·ShareChooserReceiver, 카카오톡·문자·YouTube 링크 복사·시스템 공유 창, setFragmentResult 및 회전 복원) 구현. 2026-11-22: 좋아요·댓글·공유 기기 동작 사용자 검증 완료 |
+| 5.4 반응 | 나중에 보기 → 보관함에 담기 | 유승지 | 100% | 2026-11-22: `WatchLaterBottomSheetFragment`·`WatchLaterRepository` 구현, 피드·영상 상세 나중에 보기 버튼 리스너 연결 및 `users/{uid}/watchLater/{videoId}` 저장/취소·`setFragmentResult` 북마크 아이콘 갱신 기기 검증 완료 (프로필 보관함 탭 목록 표시는 6.1 김도엽 담당 연계) |
 | 5.5 신고·숨김 | 리뷰·댓글 신고, 숨김 처리 | 유승지 | 0% | |
 
 ### 6. 프로필·설정

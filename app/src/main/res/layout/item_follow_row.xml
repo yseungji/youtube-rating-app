@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 팔로워·팔로잉 목록 한 줄 (Figma UI4/FollowRow): 아바타 + 이름 + "@아이디 · 평가 n개" + 새 평가 표시 + 팔로잉 버튼 + 더보기.
-     새 평가가 없으면 R.id.follow_row_new를 GONE으로 둔다. 팔로우 전이면 버튼을 Widget.Viewit.Button.Small 모양으로 바꾼다. -->
+<!-- 팔로워·팔로잉 목록 한 줄 (Figma UI4/FollowRow): 프로필 사진 + 이름 + "@아이디 · 평가 n개" + 새 평가 표시 + 팔로잉 버튼 + 더보기.
+     사진은 Glide로 넣고, 없으면 avatar_default. 새 평가가 없으면 R.id.follow_row_new를 GONE으로 둔다.
+     버튼 모양(검정 "맞팔로우·팔로우" / 회색 "팔로잉")은 FollowButtonStyle.apply(버튼, 팔로우 중인지)로 바꾼다. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -10,10 +11,12 @@
     android:orientation="horizontal"
     android:paddingVertical="@dimen/space_m">
 
-    <TextView
+    <ImageView
         android:id="@+id/follow_row_avatar"
-        style="@style/Widget.Viewit.Avatar"
-        tools:text="민" />
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/profile_avatar"
+        android:src="@drawable/avatar_default" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -42,7 +45,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <TextView
                 android:id="@+id/follow_row_new_count"

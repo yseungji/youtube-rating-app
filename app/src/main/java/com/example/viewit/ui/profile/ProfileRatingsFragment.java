@@ -31,12 +31,19 @@ public class ProfileRatingsFragment extends Fragment {
     private static final String TAG = "ProfileRatings";
 
     private static final String ARG_UID = "uid";
+    private static final String ARG_PUBLIC_ONLY = "publicOnly";   // 다른 사람 프로필이면 공개 평가만
 
+    private boolean publicOnly;
 
     static public ProfileRatingsFragment newInstance(String uid) {
+        return newInstance(uid, false);
+    }
+
+    static public ProfileRatingsFragment newInstance(String uid, boolean publicOnly) {
         Bundle args = new Bundle();
         ProfileRatingsFragment fragment = new ProfileRatingsFragment();
         args.putString(ARG_UID, uid);
+        args.putBoolean(ARG_PUBLIC_ONLY, publicOnly);
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,6 +59,7 @@ public class ProfileRatingsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         String uid = requireArguments().getString(ARG_UID);
+        publicOnly = requireArguments().getBoolean(ARG_PUBLIC_ONLY);
         adapter = new RatingTileAdapter(rating -> openVideo(rating));
         binding.profileRatingsList.setLayoutManager(
             new GridLayoutManager(requireContext(),3));
@@ -62,10 +70,14 @@ public class ProfileRatingsFragment extends Fragment {
         loadRatings(uid);
     }
     private void loadRatings(String uid){
-        FirebaseFirestore.getInstance()
+        Query query = FirebaseFirestore.getInstance()
             .collection(FirestorePaths.RATINGS)
-            .whereEqualTo("userId", uid)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .whereEqualTo("userId", uid);
+        if (publicOnly) {
+            // 다른 사람의 비공개 평가는 보이지 않는다 (인덱스: userId, visibility, createdAt↓)
+            query = query.whereEqualTo("visibility", Rating.VISIBILITY_PUBLIC);
+        }
+        query.orderBy("createdAt", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener(result -> {
                 if(binding == null)
@@ -77,6 +89,13 @@ public class ProfileRatingsFragment extends Fragment {
                 if (list.isEmpty()) {
                     binding.profileRatingsList.setVisibility(View.GONE);
                     binding.profileRatingsEmpty.getRoot().setVisibility(View.VISIBLE);
+                    if (publicOnly) {
+                        // 다른 사람 프로필: 안내만 보이고 "영상 평가하기" 버튼은 없다
+                        binding.profileRatingsEmpty.emptyTitle.setText(R.string.profile_empty_public_ratings_title);
+                        binding.profileRatingsEmpty.emptyMessage.setText(R.string.profile_empty_public_ratings_message);
+                        binding.profileRatingsEmpty.emptyAction.setVisibility(View.GONE);
+                        return;
+                    }
                     // 빈 화면 XML에는 tools:text(미리보기 전용)만 있어서 실제 글자는 여기서 넣는다. 아이콘은 XML 기본값(별)
                     binding.profileRatingsEmpty.emptyTitle.setText(R.string.profile_empty_ratings_title);
                     binding.profileRatingsEmpty.emptyMessage.setText(R.string.profile_empty_ratings_message);

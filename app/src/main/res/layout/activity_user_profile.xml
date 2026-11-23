@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 다른 사용자 프로필 (6.2). 화면 내용은 ProfileFragment(fragment_profile.xml)를 그대로 넣어 쓴다. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/user_profile_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface" />

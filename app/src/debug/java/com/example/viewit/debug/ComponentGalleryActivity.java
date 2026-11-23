@@ -94,7 +94,7 @@ public class ComponentGalleryActivity extends AppCompatActivity {
         binding.galleryUserResult.userResultName.setText(R.string.sample_user_seungji);
         binding.galleryUserResult.userResultMeta.setText(getString(R.string.user_public_rating_count, "seungji", 1));
 
-        binding.galleryFollowRow.followRowAvatar.setText(initial(getString(R.string.sample_user_minseo)));
+        binding.galleryFollowRow.followRowAvatar.setImageResource(R.drawable.avatar_default);
         binding.galleryFollowRow.followRowName.setText(R.string.sample_user_minseo);
         binding.galleryFollowRow.followRowMeta.setText(getString(R.string.user_rating_count, "minseo", 12));
         binding.galleryFollowRow.followRowNewCount.setText(getString(R.string.user_new_rating_count, 1));

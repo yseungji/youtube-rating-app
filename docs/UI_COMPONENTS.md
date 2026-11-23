@@ -103,7 +103,9 @@ Figma [00 · 디자인 시스템](https://www.figma.com/design/wEfyU89iY8HaVx42L
 | 한줄평 인용 (UI4/ReviewQuote) | `view_review_quote.xml` | `review_quote_title`("승지의 한줄평"), `review_quote_rating`, `review_quote_comment` |
 | 평가 한 개 (UI4/ReviewDetail) | `item_review_detail.xml` | `review_author`(작성자), `review_rating`, `review_comment`, `review_actions` |
 | 사용자 검색 결과 (UI4/UserResult) | `item_user_result.xml` | `user_result_avatar`, `_name`, `_meta`, `_follow` 버튼 |
-| 팔로우 목록 (UI4/FollowRow) | `item_follow_row.xml` | `follow_row_avatar`, `_name`, `_meta`, `_new`(새 평가, 없으면 GONE), `_button`, `_more` |
+| 팔로우 목록 (UI4/FollowRow) | `item_follow_row.xml` | `follow_row_avatar`(ImageView, Glide + `avatar_default`), `_name`, `_meta`, `_new`(새 평가, 기본 GONE), `_button`, `_more`. 버튼 모양은 `FollowButtonStyle.apply(버튼, 팔로우 중인지, 팔로우 전 글자)` → 회색 "팔로잉" / 검정 "팔로우"·"맞팔로우" |
+| 팔로워·팔로잉 화면 (6.2) | `FollowListActivity` + `activity_follow_list.xml` | 여는 쪽에서 `EXTRA_UID`, `EXTRA_TITLE`, `EXTRA_TAB`(`TAB_FOLLOWERS`/`TAB_FOLLOWING`) |
+| 다른 사용자 프로필 (6.2) | `UserProfileActivity` → `ProfileFragment.newInstance(uid)` | 여는 쪽에서 `EXTRA_UID`. 피드·검색에서 작성자를 눌렀을 때도 이걸로 연다 |
 | 보관함 행 (UI4/LibraryRow) | `item_library_row.xml` | `library_row_icon`, `library_row_label` |
 | 최근 검색어 (UI4/SearchHistoryRow) | `item_search_history.xml` | `search_history_text`, `search_history_delete` |
 

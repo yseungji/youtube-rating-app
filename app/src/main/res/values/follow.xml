@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 6.2 팔로우: 팔로워·팔로잉 목록과 다른 사용자 프로필 문구 -->
+<resources>
+    <string name="follow_back">맞팔로우</string>
+    <string name="follow_tab_followers">팔로워 %1$d</string>
+    <string name="follow_tab_following">팔로잉 %1$d</string>
+    <string name="follow_sort_recent">정렬 기준  최근 팔로우순</string>
+    <string name="follow_empty_followers">아직 팔로워가 없어요</string>
+    <string name="follow_empty_following">아직 팔로우한 사람이 없어요</string>
+    <string name="follow_search_hint">이름 또는 아이디 검색</string>
+    <string name="follow_search_empty">\'%1$s\'에 맞는 사람이 없어요</string>
+    <string name="follow_list_load_failed">목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요</string>
+    <string name="follow_failed">팔로우하지 못했어요. 잠시 후 다시 시도해 주세요</string>
+    <string name="unfollow_failed">팔로우를 취소하지 못했어요. 잠시 후 다시 시도해 주세요</string>
+    <string name="profile_empty_public_ratings_title">아직 공개한 평가가 없어요</string>
+    <string name="profile_empty_public_ratings_message">공개로 남긴 평가가 여기에 보여요</string>
+</resources>

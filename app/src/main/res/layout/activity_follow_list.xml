@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 팔로워·팔로잉 목록 (6.2, Figma "프로필 · 팔로워" / "프로필 · 팔로잉").
+     ← + 사용자 이름, 탭 "팔로워 N" / "팔로잉 N", 최근 팔로우순 목록(item_follow_row) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:orientation="vertical">
+
+    <!-- App bar: ← + 이름 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_bar_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_xs">
+
+        <include
+            android:id="@+id/follow_back"
+            layout="@layout/view_back_button" />
+
+        <TextView
+            android:id="@+id/follow_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Viewit.Heading"
+            tools:text="승지" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+
+    <!-- 탭 이름("팔로워 2" 등)은 Java에서 숫자를 센 뒤 넣는다 -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/follow_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/profile_tab_height"
+        android:background="@color/bg_surface"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/text_primary"
+        app:tabIndicatorFullWidth="true"
+        app:tabIndicatorHeight="2dp"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/tab_selected"
+        app:tabTextAppearance="@style/TextAppearance.Viewit.Body.Strong"
+        app:tabTextColor="@color/tab_unselected" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+
+    <!-- 이름·아이디로 목록 안에서 찾기 -->
+    <include
+        android:id="@+id/follow_search"
+        layout="@layout/view_search_field"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/search_field_height"
+        android:layout_marginHorizontal="@dimen/screen_padding"
+        android:layout_marginTop="@dimen/space_m" />
+
+    <!-- 정렬 기준 (이번에는 최근 팔로우순 고정) -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingTop="@dimen/space_m"
+        android:paddingBottom="@dimen/space_xs"
+        android:text="@string/follow_sort_recent"
+        android:textAppearance="@style/TextAppearance.Viewit.Caption"
+        android:textSize="12sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/follow_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_padding"
+            tools:listitem="@layout/item_follow_row" />
+
+        <!-- 목록이 비었을 때 -->
+        <TextView
+            android:id="@+id/follow_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/space_xxl"
+            android:paddingTop="56dp"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+            android:visibility="gone"
+            tools:text="@string/follow_empty_followers"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/follow_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="56dp"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

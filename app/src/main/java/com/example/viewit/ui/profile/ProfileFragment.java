@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.viewit.R;
 import com.example.viewit.SettingsActivity;
+import com.example.viewit.data.FollowRepository;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.User;
@@ -28,13 +29,31 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
+// 프로필 화면 (6.1 내 프로필 / 6.2 다른 사용자 프로필).
+// MainActivity의 프로필 탭은 new ProfileFragment()로 내 프로필을, UserProfileActivity는 newInstance(uid)로 다른 사람 프로필을 연다.
 public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
+    private static final String ARG_UID = "uid";
 
     private FragmentProfileBinding binding;
     private ListenerRegistration userListener;
-    private User myProfile;
+    private final FollowRepository followRepository = new FollowRepository();
+
+    private String myUid;          // 로그인한 사람
+    private String profileUid;     // 이 화면에 보여 주는 사람
+    private boolean isMine;        // 내 프로필인지
+    private User profile;          // 보여 주는 사람의 프로필 (아직 못 불러왔으면 null)
+    private boolean following;     // (다른 사람 프로필) 내가 팔로우 중인지
+
+    // 다른 사용자 프로필을 열 때
+    public static ProfileFragment newInstance(String uid) {
+        ProfileFragment fragment = new ProfileFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_UID, uid);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,8 +67,12 @@ public class ProfileFragment extends Fragment {
         if(currentUser == null){
                 return;
         }
-        String uid = currentUser.getUid();
-        binding.profilePager.setAdapter(new ProfilePagerAdapter(this, uid));
+        myUid = currentUser.getUid();
+        String argUid = getArguments() == null ? null : getArguments().getString(ARG_UID);
+        profileUid = TextUtils.isEmpty(argUid) ? myUid : argUid;
+        isMine = profileUid.equals(myUid);
+
+        binding.profilePager.setAdapter(new ProfilePagerAdapter(this, profileUid, isMine));
         new TabLayoutMediator(binding.profileTabs, binding.profilePager, (tab, position) -> {
             if(position == 0){ //평가 격자(기본 탭)
                 tab.setIcon(R.drawable.ic_grid);
@@ -64,8 +87,9 @@ public class ProfileFragment extends Fragment {
                 tab.setContentDescription(R.string.profile_tab_history);
             }
         }).attach();
-        listenMyProfile(uid);
-        loadMyRatingCount(uid);
+        listenProfile(profileUid);
+        loadRatingCount(profileUid);
+        loadFollowCounts(profileUid);
 
         binding.profileShareButton.setOnClickListener(v -> shareProfile());
         binding.profileEditButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());
@@ -76,23 +100,115 @@ public class ProfileFragment extends Fragment {
         // TODO: 배너 고르기 화면 (내 공개 평가 영상에서 선택)
         binding.profileBannerEditButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());
         binding.profileBannerAddButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());
+
+        // 팔로워·팔로잉 숫자를 누르면 목록 화면
+        binding.profileFollowerStat.setOnClickListener(v -> openFollowList(FollowListActivity.TAB_FOLLOWERS));
+        binding.profileFollowingStat.setOnClickListener(v -> openFollowList(FollowListActivity.TAB_FOLLOWING));
+
+        if (!isMine) {
+            setupOtherProfile();
+        }
     }
 
+    // 팔로워·팔로잉 목록 열기. 목록 화면 위 제목은 이 프로필 주인 이름 (아직 못 불러왔으면 빈칸)
+    private void openFollowList(int tab){
+        Intent intent = new Intent(requireContext(), FollowListActivity.class);
+        intent.putExtra(FollowListActivity.EXTRA_UID, profileUid);
+        String title = profile == null ? "" : profile.getDisplayName();
+        intent.putExtra(FollowListActivity.EXTRA_TITLE, title);
+        intent.putExtra(FollowListActivity.EXTRA_TAB, tab);
+        startActivity(intent);
+    }
+
+    // ---------- 다른 사람 프로필 (6.2) ----------
+
+    // ← 보이기, 설정·편집·배너 버튼 숨기기, 팔로우 버튼 보이기
+    private void setupOtherProfile() {
+        binding.profileBack.getRoot().setVisibility(View.VISIBLE);
+        binding.profileBack.getRoot().setOnClickListener(v -> requireActivity().finish());
+        binding.profileSettingsButton.setVisibility(View.GONE);
+        binding.profileEditButton.setVisibility(View.GONE);
+        binding.profileBannerEditButton.setVisibility(View.GONE);
+        binding.profileBannerAddButton.setVisibility(View.GONE);
+
+        binding.profileFollowButton.setVisibility(View.VISIBLE);
+        binding.profileFollowButton.setEnabled(false);   // 팔로우 여부를 확인할 때까지
+        followRepository.isFollowing(myUid, profileUid, new FollowRepository.Callback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                if (binding == null) return;
+                following = result;
+                showFollowButton();
+                binding.profileFollowButton.setEnabled(true);
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                Log.w(TAG, "follow state failed", error);
+            }
+        });
+        binding.profileFollowButton.setOnClickListener(v -> toggleFollow());
+    }
+
+    private void showFollowButton() {
+        FollowButtonStyle.apply(binding.profileFollowButton, following, R.string.follow);
+    }
+
+    // 팔로우 ↔ 언팔로우. 끝나면 버튼 모양과 팔로워 수를 다시 그린다.
+    private void toggleFollow() {
+        binding.profileFollowButton.setEnabled(false);
+        boolean wasFollowing = following;
+        FollowRepository.Callback<Void> done = new FollowRepository.Callback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                if (binding == null) return;
+                following = !wasFollowing;
+                showFollowButton();
+                binding.profileFollowButton.setEnabled(true);
+                loadFollowCounts(profileUid);
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                Log.w(TAG, "toggle follow failed", error);
+                if (binding == null) return;
+                binding.profileFollowButton.setEnabled(true);
+                Toast.makeText(requireContext(),
+                    wasFollowing ? R.string.unfollow_failed : R.string.follow_failed, Toast.LENGTH_SHORT).show();
+            }
+        };
+        if (wasFollowing) {
+            followRepository.unfollow(myUid, profileUid, done);
+        } else {
+            followRepository.follow(myUid, profileUid, done);
+        }
+    }
+
+    // ---------- 공통 ----------
+
     // MainActivity는 탭을 숨겼다 보여 주는 방식이라 onViewCreated가 다시 불리지 않는다.
-    // 다른 탭에서 평가를 남기거나 지우고 돌아왔을 때 평가 수와 배너를 새로 정한다.
+    // 다른 탭에서 평가를 남기거나 지우고 돌아왔을 때 평가 수·팔로우 수·배너를 새로 정한다.
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-        if (hidden) {
+        if (hidden || profileUid == null) {
             return;
         }
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            loadMyRatingCount(currentUser.getUid());
-            loadBanner(currentUser.getUid(), myProfile == null ? null : myProfile.getBannerVideoId());
+        loadRatingCount(profileUid);
+        loadFollowCounts(profileUid);
+        loadBanner(profileUid, profile == null ? null : profile.getBannerVideoId());
+    }
+
+    // 목록 화면에서 팔로우를 바꾸고 돌아왔을 때 숫자를 맞춘다
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (profileUid != null && !isHidden()) {
+            loadFollowCounts(profileUid);
         }
     }
-    private void listenMyProfile(String uid) {
+
+    private void listenProfile(String uid) {
         userListener = FirebaseFirestore.getInstance()
             .collection(FirestorePaths.USERS)
             .document(uid)
@@ -107,16 +223,21 @@ public class ProfileFragment extends Fragment {
                 if (snapshot == null || !snapshot.exists()) {
                     return;                               // 문서가 아직 없음
                 }
-                myProfile = snapshot.toObject(User.class);
-                showProfile(myProfile);
-                loadBanner(uid, myProfile.getBannerVideoId());
+                profile = snapshot.toObject(User.class);
+                showProfile(profile);
+                loadBanner(uid, profile.getBannerVideoId());
             });
     }
-    private void loadMyRatingCount(String uid){
-        FirebaseFirestore.getInstance()
+
+    // 내 프로필은 비공개 평가까지, 다른 사람 프로필은 공개 평가만 센다
+    private void loadRatingCount(String uid){
+        Query query = FirebaseFirestore.getInstance()
             .collection(FirestorePaths.RATINGS)
-            .whereEqualTo("userId",uid)
-            .count()
+            .whereEqualTo("userId",uid);
+        if (!isMine) {
+            query = query.whereEqualTo("visibility", Rating.VISIBILITY_PUBLIC);
+        }
+        query.count()
             .get(AggregateSource.SERVER)
             .addOnSuccessListener((result) -> {
                 if (binding == null) {
@@ -126,6 +247,33 @@ public class ProfileFragment extends Fragment {
             })
             .addOnFailureListener(e -> Log.w(TAG,"rating count failed", e));
     }
+
+    // 팔로워·팔로잉 수는 follows를 바로 센다 (users의 숫자 필드는 쓰지 않음)
+    private void loadFollowCounts(String uid) {
+        followRepository.countFollowers(uid, new FollowRepository.Callback<Long>() {
+            @Override
+            public void onSuccess(Long count) {
+                if (binding != null) binding.profileFollowerCount.setText(String.valueOf(count));
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                Log.w(TAG, "follower count failed", error);
+            }
+        });
+        followRepository.countFollowing(uid, new FollowRepository.Callback<Long>() {
+            @Override
+            public void onSuccess(Long count) {
+                if (binding != null) binding.profileFollowingCount.setText(String.valueOf(count));
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                Log.w(TAG, "following count failed", error);
+            }
+        });
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -138,8 +286,9 @@ public class ProfileFragment extends Fragment {
 
     private void showProfile(User user){
         binding.profileName.setText(user.getDisplayName());
-        binding.profileFollowerCount.setText(String.valueOf(user.getFollowerCount()));
-        binding.profileFollowingCount.setText(String.valueOf(user.getFollowingCount()));
+        if (!isMine) {
+            binding.profileTitle.setText(user.getDisplayName());   // 다른 사람 프로필은 앱바에 이름
+        }
         String intro = user.getIntroduction();
         if (TextUtils.isEmpty(intro)) {
             binding.profileHandle.setText(getString(R.string.profile_handle, user.getUsername()));
@@ -155,10 +304,10 @@ public class ProfileFragment extends Fragment {
             .into(binding.profileAvatar);
     }
     public void shareProfile(){
-       if(myProfile == null){
+       if(profile == null){
            return;
        }
-       String text = getString(R.string.profile_share_text, myProfile.getUsername());
+       String text = getString(R.string.profile_share_text, profile.getUsername());
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -212,6 +361,7 @@ public class ProfileFragment extends Fragment {
             });
     }
 
+    // 배너 위 버튼(연필·배너 추가)은 내 프로필에서만 보인다
     private void showPhotoBanner(String videoId){
         String url = "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg";
         Glide.with(this)
@@ -219,7 +369,7 @@ public class ProfileFragment extends Fragment {
             .centerCrop()
             .into(binding.profileBanner);
         binding.profileBannerVeil.setVisibility(View.VISIBLE);
-        binding.profileBannerEditButton.setVisibility(View.VISIBLE);
+        binding.profileBannerEditButton.setVisibility(isMine ? View.VISIBLE : View.GONE);
         binding.profileBannerAddButton.setVisibility(View.GONE);
     }
 
@@ -227,6 +377,6 @@ public class ProfileFragment extends Fragment {
         Glide.with(this).clear(binding.profileBanner);   // 이전 썸네일 지우기 → 바탕 그라데이션이 보임
         binding.profileBannerVeil.setVisibility(View.GONE);
         binding.profileBannerEditButton.setVisibility(View.GONE);
-        binding.profileBannerAddButton.setVisibility(View.VISIBLE);
+        binding.profileBannerAddButton.setVisibility(isMine ? View.VISIBLE : View.GONE);
     }
 }

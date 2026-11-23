@@ -32,6 +32,14 @@
             </intent-filter>
         </activity>
 
+        <!-- 6.2 팔로워·팔로잉 목록과 다른 사용자 프로필 -->
+        <activity
+            android:name=".ui.profile.FollowListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.UserProfileActivity"
+            android:exported="false" />
+
         <!-- 영상 상세의 평가 입력 화면 -->
         <activity
             android:name=".ui.videodetail.VideoDetailActivity"

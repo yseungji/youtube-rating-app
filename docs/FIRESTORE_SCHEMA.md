@@ -193,7 +193,8 @@ Storage
 | 나중에 보기 취소 | 해당 문서 삭제 |
 | 평가 좋아요 | `ratings/{ratingId}/likes/{uid}` 생성 |
 | 좋아요 취소 | 해당 좋아요 문서 삭제 |
-| 팔로우 | `follows` 문서 생성, 자기 자신 팔로우 금지 |
+| 팔로우 | `follows/{내 UID}_{상대 UID}` 생성 + `users/{내 UID}/ratingReadStates/{상대 UID}.lastCheckedAt` 초기화(한 batch). 자기 자신 팔로우 금지 |
+| 언팔로우 | 위 두 문서 삭제 |
 | 차단 | `blockedUsers/{상대 UID}` 생성 |
 | 차단 해제 | 해당 차단 문서 삭제 |
 
@@ -251,7 +252,9 @@ Storage
 | 카테고리 평점순 영상 | `videos.categoryId`, `ratingAverage` 내림차순 |
 | 최근 본 영상 | `watchHistory.lastWatchedAt` 내림차순 |
 | 나중에 보기 | `watchLater.createdAt` 내림차순 |
-| 팔로워·팔로잉 | 해당 관계 ID 조건, `follows.createdAt` 내림차순 |
+| 팔로워·팔로잉 | 해당 관계 ID 조건, `follows.createdAt` 내림차순, 최근 100명 (복합 인덱스 `firestore.indexes.json`) |
+| 팔로워·팔로잉 수 (6.2) | `follows`를 `followingId == uid` / `followerId == uid`로 count 조회. `users.followerCount`·`followingCount`는 쓰지 않음 (남의 users 문서를 고칠 권한을 열지 않기 위해) |
+| 다른 사용자 프로필 평가 (6.2) | `userId` + `visibility == public`, `createdAt` 내림차순. 평가 수도 공개 평가만 셈 |
 | 새 평가 개수 | 작성자 ID + 공개 + `createdAt > lastCheckedAt` |
 | 온보딩 추천 | 선택한 카테고리의 공개 평가 수 기준 |
 

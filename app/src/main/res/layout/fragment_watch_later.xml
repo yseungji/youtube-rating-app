@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 나중에 보기 저장 바텀시트 (Figma 01-E · 피드 / 나중에 보기 저장 다이얼로그) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/watch_later_sheet_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_share_sheet"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/screen_padding"
+    android:paddingTop="@dimen/space_m"
+    android:paddingBottom="@dimen/space_xl">
+
+    <!-- 상단 손잡이 막대 -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/space_m"
+        android:background="@drawable/bg_share_handle" />
+
+    <!-- 제목 -->
+    <TextView
+        android:id="@+id/watch_later_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/watch_later_sheet_title"
+        android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+    <!-- 영상 미리보기 카드 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
+        android:background="@drawable/bg_share_preview_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/space_m">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/watch_later_thumbnail"
+            android:layout_width="96dp"
+            android:layout_height="54dp"
+            android:contentDescription="@string/thumbnail_description"
+            android:scaleType="centerCrop"
+            android:src="@color/action_soft"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Viewit.Thumbnail.Small" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/watch_later_video_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAppearance="@style/TextAppearance.Viewit.Body.Strong"
+                tools:text="집에서 만드는 나폴리 피자, 오븐 없이 프라이팬으로 끝내기" />
+
+            <TextView
+                android:id="@+id/watch_later_video_meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Viewit.Meta"
+                tools:text="요리하는 사람들 · 12분 30초" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 클릭 가능한 나중에 보기 항목 (클릭 시 프로필 보관함 서버 데이터 저장/취소) -->
+    <LinearLayout
+        android:id="@+id/watch_later_action_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_l"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_xs"
+        android:paddingVertical="@dimen/space_m">
+
+        <ImageView
+            android:id="@+id/watch_later_action_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_bookmark_add"
+            app:tint="@color/text_primary" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_l"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/watch_later_action_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/review_watch_later"
+                android:textAppearance="@style/TextAppearance.Viewit.Name" />
+
+            <TextView
+                android:id="@+id/watch_later_action_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/watch_later_action_subtitle"
+                android:textAppearance="@style/TextAppearance.Viewit.Meta" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

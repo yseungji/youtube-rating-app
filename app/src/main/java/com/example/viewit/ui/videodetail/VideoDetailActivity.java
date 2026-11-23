@@ -40,8 +40,10 @@ import com.example.viewit.databinding.ActivityVideoDetailBinding;
 import com.example.viewit.databinding.DialogRatingDeleteBinding;
 import com.example.viewit.databinding.ItemVideoDetailHeaderBinding;
 import com.example.viewit.databinding.ItemVideoDetailStatusBinding;
+import com.example.viewit.ui.common.DurationFormat;
 import com.example.viewit.ui.common.YouTubeErrorMessage;
 import com.example.viewit.ui.common.YouTubeLinks;
+import com.example.viewit.ui.watchlater.WatchLaterBottomSheetFragment;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -68,6 +70,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private ItemVideoDetailStatusBinding statusBinding;
     private String videoId;
     private String categoryId;
+    private Video loadedVideo;
     private boolean ratingWriteInProgress;
     // 통계와 첫 페이지는 별도 요청이다. 둘 다 끝나야 당기기 로딩을 종료한다.
     private boolean publicStatisticsLoading;
@@ -173,6 +176,34 @@ public class VideoDetailActivity extends AppCompatActivity {
                 if (videoDetailAdapter != null) {
                     videoDetailAdapter.retry();
                 }
+            }
+        });
+        // 평가 패널의 '보관함에 담기' 버튼도 피드와 같은 나중에 보기 바텀시트를 연다.
+        headerBinding.ratingPanel.setOnWatchLaterClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                    //토스트는 재사용되니까, 함수로 사용한다.
+                    makeToast(R.string.reactions_login_required);
+                    return;
+                }
+                String title = loadedVideo != null && loadedVideo.getTitle() != null
+                        ? loadedVideo.getTitle()
+                        : headerBinding.videoTitle.getText().toString();
+                String meta = "";
+                String thumbUrl = "";
+                if (loadedVideo != null) {
+                    String duration = DurationFormat.format(loadedVideo.getDurationSeconds());
+                    String channel = loadedVideo.getChannelTitle();
+                    meta = channel == null || channel.isEmpty()
+                            ? duration
+                            : getString(R.string.video_meta, channel, duration);
+                    thumbUrl = loadedVideo.getThumbnailUrl() != null ? loadedVideo.getThumbnailUrl() : "";
+                }
+                Log.d(TAG, "영상 상세 나중에 보기 바텀시트 열기: videoId=" + videoId);
+                WatchLaterBottomSheetFragment sheet = WatchLaterBottomSheetFragment.newInstance(
+                        videoId, title, meta, thumbUrl, false);
+                sheet.show(getSupportFragmentManager(), "WatchLaterBottomSheet");
             }
         });
         // 패널 전체가 아니라 패널 안의 '평가 저장' 버튼에 리스너를 연결한다.
@@ -619,6 +650,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                 if (isDestroyed()) {
                     return;
                 }
+                loadedVideo = video;
                 categoryId = video.getCategoryId();
                 headerBinding.videoTitle.setText(video.getTitle());
                 headerBinding.videoChannel.setText(video.getChannelTitle());

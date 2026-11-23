@@ -256,7 +256,7 @@ Storage
 | 팔로워·팔로잉 수 (6.2) | `follows`를 `followingId == uid` / `followerId == uid`로 count 조회. `users.followerCount`·`followingCount`는 쓰지 않음 (남의 users 문서를 고칠 권한을 열지 않기 위해) |
 | 다른 사용자 프로필 평가 (6.2) | `userId` + `visibility == public`, `createdAt` 내림차순. 평가 수도 공개 평가만 셈 |
 | 새 평가 개수 | 작성자 ID + 공개 + `createdAt > lastCheckedAt` |
-| 온보딩 추천 | 선택한 카테고리의 공개 평가 수 기준 |
+| 온보딩 추천 | 선택한 카테고리의 공개 평가 수 기준. `ratings`를 `categoryId in [고른 ID]` + `visibility == public`으로 최대 300개 읽어 작성자별로 세고 많은 순 10명(나 제외). 관심 카테고리는 `users.categoryIds`에 저장(3.3) |
 
 위 조회에 필요한 복합 인덱스는 실제 쿼리 구현 시 `firestore.indexes.json`으로 관리합니다. 팔로잉 수 증가에 따른 조회 분할, 영상·사용자 검색 방식은 기능 구현 단계에서 결정합니다.
 

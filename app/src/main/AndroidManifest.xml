@@ -32,6 +32,14 @@
             </intent-filter>
         </activity>
 
+        <!-- 3.3·3.4 온보딩: 관심 주제 → 평가자 추천 -->
+        <activity
+            android:name=".ui.onboarding.TopicActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.onboarding.RecommendFollowActivity"
+            android:exported="false" />
+
         <!-- 6.2 팔로워·팔로잉 목록과 다른 사용자 프로필 -->
         <activity
             android:name=".ui.profile.FollowListActivity"

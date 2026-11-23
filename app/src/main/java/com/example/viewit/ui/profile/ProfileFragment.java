@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.viewit.R;
+import com.example.viewit.SettingsActivity;
 import com.example.viewit.data.FollowRepository;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
@@ -92,7 +93,10 @@ public class ProfileFragment extends Fragment {
 
         binding.profileShareButton.setOnClickListener(v -> shareProfile());
         binding.profileEditButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());
-        binding.profileSettingsButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());
+        binding.profileSettingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), SettingsActivity.class);
+            startActivity(intent);
+        });
         // TODO: 배너 고르기 화면 (내 공개 평가 영상에서 선택)
         binding.profileBannerEditButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());
         binding.profileBannerAddButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());

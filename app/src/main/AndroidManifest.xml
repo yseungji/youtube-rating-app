@@ -71,6 +71,10 @@
             android:name=".ProfileSetupActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <!-- 설정 (6.3). 프로필 탭의 설정 버튼에서 연다 -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
 
         <!-- 시스템 공유 창(Intent.createChooser)에서 선택된 앱 결과를 수신하는 리시버 -->
         <receiver

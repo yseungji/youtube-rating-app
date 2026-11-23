@@ -108,6 +108,35 @@
         <item name="drawableTint">@color/text_primary</item>
     </style>
 
+    <!-- 설정 화면 (6.3, Figma 10 · 설정) -->
+    <!-- 섹션 제목 ("계정", "정보" 등). 회색 작은 글자 -->
+    <style name="Viewit.SettingsSectionTitle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">@dimen/screen_padding</item>
+        <item name="android:paddingEnd">@dimen/screen_padding</item>
+        <item name="android:paddingTop">@dimen/space_l</item>
+        <item name="android:paddingBottom">@dimen/space_xs</item>
+        <item name="android:textAppearance">@style/TextAppearance.Viewit.Caption</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- 같은 섹션 안 줄 사이 얇은 선 (아이콘 칸 오른쪽부터) -->
+    <style name="Viewit.SettingsRowDivider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/divider</item>
+        <item name="android:layout_marginStart">@dimen/screen_padding</item>
+        <item name="android:layout_marginEnd">@dimen/screen_padding</item>
+        <item name="android:background">@color/border_default</item>
+    </style>
+
+    <!-- 섹션 사이 굵은 회색 띠 (Figma Section divider, 높이 8) -->
+    <style name="Viewit.SettingsSectionDivider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/space_s</item>
+        <item name="android:background">@color/action_soft</item>
+    </style>
+
     <!-- 썸네일 모서리 10 -->
     <style name="ShapeAppearance.Viewit.Thumbnail" parent="">
         <item name="cornerFamily">rounded</item>

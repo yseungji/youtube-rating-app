@@ -38,6 +38,8 @@ public class FollowRepository {
     private static final String TAG = "FollowRepository";
     private static final int MAX_IDS_PER_QUERY = 30;    // Firestore whereIn 한도
     private static final int MAX_LIST_SIZE = 100;       // 목록은 최근 100명까지 (시연 규모)
+    private static final int MAX_RECOMMEND = 10;        // 온보딩 추천 인원
+    private static final int MAX_RECOMMEND_SCAN = 300;  // 추천 계산에 읽는 공개 평가 수 (시연 규모)
 
     public interface Callback<T> {
         void onSuccess(T result);
@@ -177,18 +179,66 @@ public class FollowRepository {
             });
     }
 
+    // ---------- 온보딩 평가자 추천 (3.4) ----------
+
+    // 고른 카테고리의 공개 평가를 많이 쓴 사람 순으로 최대 10명 (나는 제외).
+    // 한 줄의 "평가 N개"는 고른 카테고리 안의 공개 평가 수다.
+    public void loadRecommended(@NonNull String myUid, @NonNull List<String> categoryIds,
+                                @NonNull Callback<List<FollowListItem>> callback) {
+        if (categoryIds.isEmpty()) {
+            callback.onSuccess(new ArrayList<>());
+            return;
+        }
+        List<String> ids = categoryIds.size() > MAX_IDS_PER_QUERY
+            ? new ArrayList<>(categoryIds.subList(0, MAX_IDS_PER_QUERY)) : categoryIds;
+        db.collection(FirestorePaths.RATINGS)
+            .whereIn("categoryId", ids)
+            .whereEqualTo("visibility", Rating.VISIBILITY_PUBLIC)
+            .limit(MAX_RECOMMEND_SCAN)
+            .get()
+            .continueWithTask(task -> {
+                Map<String, Long> counts = new HashMap<>();
+                for (DocumentSnapshot doc : task.getResult().getDocuments()) {
+                    String author = doc.getString("userId");
+                    if (author != null && !author.equals(myUid)) {
+                        Long current = counts.get(author);
+                        counts.put(author, current == null ? 1L : current + 1);
+                    }
+                }
+                List<String> top = new ArrayList<>(counts.keySet());
+                top.sort((a, b) -> Long.compare(counts.get(b), counts.get(a)));
+                if (top.size() > MAX_RECOMMEND) {
+                    top = new ArrayList<>(top.subList(0, MAX_RECOMMEND));
+                }
+                return buildItems(top, myUid, counts);
+            })
+            .addOnSuccessListener(callback::onSuccess)
+            .addOnFailureListener(e -> {
+                Log.w(TAG, "recommend failed", e);
+                callback.onError(e);
+            });
+    }
+
     private Task<List<FollowListItem>> buildItems(List<String> uids, String myUid) {
+        return buildItems(uids, myUid, null);
+    }
+
+    // knownCounts가 있으면 그 숫자를 "평가 N개"로 쓰고, 없으면 사람마다 공개 평가 수를 센다
+    private Task<List<FollowListItem>> buildItems(List<String> uids, String myUid,
+                                                 Map<String, Long> knownCounts) {
         if (uids.isEmpty()) {
             return Tasks.forResult(new ArrayList<>());
         }
         Task<Set<String>> myFollowingTask = loadFollowingIds(myUid);
         Task<Map<String, DocumentSnapshot>> usersTask = loadUsers(uids);
         List<Task<AggregateQuerySnapshot>> countTasks = new ArrayList<>();
-        for (String uid : uids) {
-            countTasks.add(db.collection(FirestorePaths.RATINGS)
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("visibility", Rating.VISIBILITY_PUBLIC)
-                .count().get(AggregateSource.SERVER));
+        if (knownCounts == null) {
+            for (String uid : uids) {
+                countTasks.add(db.collection(FirestorePaths.RATINGS)
+                    .whereEqualTo("userId", uid)
+                    .whereEqualTo("visibility", Rating.VISIBILITY_PUBLIC)
+                    .count().get(AggregateSource.SERVER));
+            }
         }
 
         List<Task<?>> all = new ArrayList<>(countTasks);
@@ -207,12 +257,15 @@ public class FollowRepository {
                 if (user == null || !user.exists()) {
                     continue;   // 탈퇴한 사용자
                 }
+                long ratingCount = knownCounts != null
+                    ? (knownCounts.containsKey(uid) ? knownCounts.get(uid) : 0L)
+                    : countTasks.get(i).getResult().getCount();
                 items.add(new FollowListItem(
                     uid,
                     user.getString("displayName"),
                     user.getString("username"),
                     user.getString("photoUrl"),
-                    countTasks.get(i).getResult().getCount(),
+                    ratingCount,
                     myFollowing.contains(uid)));
             }
             return items;

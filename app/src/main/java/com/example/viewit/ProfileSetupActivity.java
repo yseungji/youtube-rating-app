@@ -26,6 +26,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.User;
 import com.example.viewit.databinding.ActivityProfileSetupBinding;
+import com.example.viewit.ui.onboarding.TopicActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -222,7 +223,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
                 transaction.set(userRef, user);
                 return null;
             })
-            .addOnSuccessListener(unused -> openAndClear(MainActivity.class))
+            // 저장이 끝나면 온보딩 2단계(관심 주제)로
+            .addOnSuccessListener(unused -> openAndClear(TopicActivity.class))
             .addOnFailureListener(e -> {
                 binding.profileNextButton.setEnabled(true);
                 if (e instanceof FirebaseFirestoreException

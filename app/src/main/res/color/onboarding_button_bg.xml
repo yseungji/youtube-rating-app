@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 온보딩 주황 버튼 바탕: 누를 수 없으면 회색 (Figma C·D) -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/action_soft" android:state_enabled="false" />
+    <item android:color="@color/brand_orange" />
+</selector>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 인스타그램 스타일 댓글 등록 버튼 아이콘 (Viewit 브랜드 주황 원 바탕 + 흰색 위쪽 화살표) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 동그란 원 바탕 (Viewit 브랜드 주황 #FFFF7A1A) -->
+    <path
+        android:fillColor="#FFFF7A1A"
+        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2z" />
+    <!-- 흰색 위쪽 화살표 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,7l-4.5,4.5 1.41,1.41L11,10.83V17h2v-6.17l2.09,2.08L16.5,11.5 12,7z" />
+</vector>

@@ -5,6 +5,11 @@
     <!-- YouTube Data API 호출, 썸네일 이미지 불러오기 -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Android 11(API 30)+에서 카카오톡 패키지 공유 인텐트 조회 허용 -->
+    <queries>
+        <package android:name="com.kakao.talk" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -69,6 +74,11 @@
         <!-- 설정 (6.3). 프로필 탭의 설정 버튼에서 연다 -->
         <activity
             android:name=".SettingsActivity"
+            android:exported="false" />
+
+        <!-- 시스템 공유 창(Intent.createChooser)에서 선택된 앱 결과를 수신하는 리시버 -->
+        <receiver
+            android:name=".ui.share.ShareChooserReceiver"
             android:exported="false" />
     </application>
 

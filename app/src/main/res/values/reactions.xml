@@ -20,4 +20,25 @@
     <string name="comments_saved">댓글을 등록했어요.</string>
     <string name="comments_unknown_author">알 수 없는 작성자</string>
     <string name="comments_unknown_time">작성 시각 없음</string>
+
+    <!-- 공유 오버레이 (5.4 반응) -->
+    <string name="share_title">평가 공유하기</string>
+    <string name="share_preview_label">보내질 내용</string>
+    <string name="share_author_heading">%1$s님의 viewit 평가</string>
+    <string name="share_quote_format">“%1$s”</string>
+    <string name="share_action_messenger">메신저</string>
+    <string name="share_action_sms">문자</string>
+    <string name="share_action_copy_link">링크 복사</string>
+    <string name="share_action_more">더보기</string>
+    <string name="share_helper_note">Android 공유 창으로 글과 YouTube 링크를 보냅니다. 받는 사람에게 viewit이 없어도 영상은 열립니다.</string>
+    <string name="share_chooser_title">평가 공유하기</string>
+    <string name="share_clip_label">YouTube 링크</string>
+    <string name="share_copied_toast">YouTube 링크를 복사했어요.</string>
+    <string name="share_kakaotalk_opened_toast">카카오톡 공유 화면을 열었어요.</string>
+    <string name="share_sms_opened_toast">문자 공유 화면을 열었어요.</string>
+    <string name="share_more_opened_toast">공유할 앱을 선택해 주세요.</string>
+    <string name="share_kakaotalk_not_installed">카카오톡이 설치되어 있지 않아요.</string>
+    <string name="share_sms_unavailable">문자 앱을 열 수 없어요.</string>
+    <string name="share_chooser_unavailable">공유할 수 있는 앱이 없어요.</string>
+    <string name="share_no_video_link">공유할 영상 링크가 없어요.</string>
 </resources>

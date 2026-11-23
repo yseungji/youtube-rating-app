@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 공유 창 · 평가 보내기 바텀시트 (Figma) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/share_sheet_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_share_sheet"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/screen_padding"
+    android:paddingTop="@dimen/space_m"
+    android:paddingBottom="@dimen/space_xl">
+
+    <!-- 상단 손잡이 막대 -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/space_l"
+        android:background="@drawable/bg_share_handle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:overScrollMode="ifContentScrolls">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 제목: 평가 공유하기 -->
+            <TextView
+                android:id="@+id/share_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/share_title"
+                android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+            <!-- 보내질 내용 미리보기 카드 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:background="@drawable/bg_share_preview_card"
+                android:orientation="vertical"
+                android:padding="@dimen/space_l">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/share_preview_label"
+                    android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+
+                <TextView
+                    android:id="@+id/share_preview_author"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:textAppearance="@style/TextAppearance.Viewit.Name"
+                    tools:text="승지님의 viewit 평가" />
+
+                <TextView
+                    android:id="@+id/share_preview_rating"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:textAppearance="@style/TextAppearance.Viewit.Rating"
+                    tools:text="★★★★☆ 4점" />
+
+                <TextView
+                    android:id="@+id/share_preview_comment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:textAppearance="@style/TextAppearance.Viewit.Body.Strong"
+                    tools:text="“설명이 깔끔해서 처음 해보는 사람도 따라 하기 쉬워요.”" />
+
+                <TextView
+                    android:id="@+id/share_preview_video_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textAppearance="@style/TextAppearance.Viewit.Meta"
+                    tools:text="집에서 만드는 나폴리 피자, 오븐 없이 프라이팬으로 끝내기" />
+
+                <TextView
+                    android:id="@+id/share_preview_link"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Viewit.Label"
+                    tools:text="youtube.com/watch?v=..." />
+            </LinearLayout>
+
+            <!-- 4개 공유 버튼 줄: 메신저 · 문자 · 링크 복사 · 더보기 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <!-- 1. 메신저 (카카오톡) -->
+                <LinearLayout
+                    android:id="@+id/share_action_messenger"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/space_xs">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_share_action_circle">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/share_action_messenger"
+                            android:src="@drawable/ic_share_messenger" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:text="@string/share_action_messenger"
+                        android:textAppearance="@style/TextAppearance.Viewit.Label" />
+                </LinearLayout>
+
+                <!-- 2. 문자 -->
+                <LinearLayout
+                    android:id="@+id/share_action_sms"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/space_xs">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_share_action_circle">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/share_action_sms"
+                            android:src="@drawable/ic_share_sms" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:text="@string/share_action_sms"
+                        android:textAppearance="@style/TextAppearance.Viewit.Label" />
+                </LinearLayout>
+
+                <!-- 3. 링크 복사 -->
+                <LinearLayout
+                    android:id="@+id/share_action_copy_link"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/space_xs">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_share_action_circle">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/share_action_copy_link"
+                            android:src="@drawable/ic_share_link" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:text="@string/share_action_copy_link"
+                        android:textAppearance="@style/TextAppearance.Viewit.Label" />
+                </LinearLayout>
+
+                <!-- 4. 더보기 -->
+                <LinearLayout
+                    android:id="@+id/share_action_more"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/space_xs">
+
+                    <FrameLayout
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_share_action_circle">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/share_action_more"
+                            android:src="@drawable/ic_share_more" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:text="@string/share_action_more"
+                        android:textAppearance="@style/TextAppearance.Viewit.Label" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 하단 안내 문구 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/share_helper_note"
+                android:textAppearance="@style/TextAppearance.Viewit.Caption"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

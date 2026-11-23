@@ -29,6 +29,7 @@ import com.example.viewit.R;
 import com.example.viewit.ui.comment.CommentBottomSheetFragment;
 import com.example.viewit.ui.share.ShareRatingBottomSheetFragment;
 import com.example.viewit.ui.videodetail.VideoDetailActivity;
+import com.example.viewit.ui.watchlater.WatchLaterBottomSheetFragment;
 import com.example.viewit.data.FeedRepository;
 import com.example.viewit.data.FeedPagingSamples;
 import com.example.viewit.data.FollowingFeedSamples;
@@ -179,6 +180,29 @@ public class FeedFragment extends Fragment {
                     rating.getVideoId());
             sheet.show(getChildFragmentManager(), "ShareRatingBottomSheet");
         }
+
+        // 나중에 보기 버튼 눌렀을 때 바텀시트 열기
+        @Override
+        public void onWatchLaterClick(Rating rating, String videoTitle, String videoMeta,
+                                      String thumbnailUrl, boolean alreadySaved) {
+            if (rating == null || rating.getVideoId() == null) {
+                return;
+            }
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                makeToast(R.string.reactions_login_required);
+                return;
+            }
+            logDebug("나중에 보기 바텀시트 열기: videoId=" + rating.getVideoId()
+                    + ", alreadySaved=" + alreadySaved);
+            WatchLaterBottomSheetFragment sheet = WatchLaterBottomSheetFragment.newInstance(
+                    rating.getVideoId(),
+                    videoTitle,
+                    videoMeta,
+                    thumbnailUrl,
+                    alreadySaved);
+            sheet.show(getChildFragmentManager(), "WatchLaterBottomSheet");
+        }
     };
 
     @Nullable
@@ -230,6 +254,23 @@ public class FeedFragment extends Fragment {
             }
 
         );
+
+        //getChildFragmentManager 사용-> 자식뷰니까
+        // 나중에 보기 바텀시트(WatchLaterBottomSheetFragment)에서 저장·취소 결과를 수신해 북마크 아이콘을 갱신한다.
+        getChildFragmentManager().setFragmentResultListener(//setFragmentResultListener로 매니저와 연결을 시작한다.
+                WatchLaterBottomSheetFragment.REQUEST_KEY,
+                getViewLifecycleOwner(),
+                new FragmentResultListener() {
+                    @Override
+                    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) { //result 매개변수를 이용해 데이터를 전달받는다.
+                        String videoId = result.getString(WatchLaterBottomSheetFragment.RESULT_VIDEO_ID, "");
+                        boolean saved = result.getBoolean(WatchLaterBottomSheetFragment.RESULT_SAVED, false);
+                        logDebug("나중에 보기 결과 수신(setFragmentResult): videoId=" + videoId + ", saved=" + saved);
+                        if (adapter != null) {
+                            adapter.setVideoWatchLater(videoId, saved);
+                        }
+                    }
+                });
 
         //인기순 , 최신순을 변경하는 리스너
         binding.feedOrder.setOnClickListener(new View.OnClickListener() {

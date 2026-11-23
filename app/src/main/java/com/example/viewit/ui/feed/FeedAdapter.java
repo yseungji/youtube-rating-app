@@ -33,25 +33,32 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // 1. 수업 실습 형태: ViewHolder 클래스를 위에 먼저 배치한다.
 class FeedViewHolder extends RecyclerView.ViewHolder {
     private final ItemFeedPostBinding itemBinding;
     private final VideoRepository videoRepository;
     private final FeedAdapter.OnItemClickListener itemClickListener;
+    private final Set<String> watchLaterVideoIds;
     int bindingGeneration;
     private String boundAuthorName = "";
     private String boundVideoTitle = "";
+    private String boundVideoMeta = "";
+    private String boundThumbnailUrl = "";
 
     //생성자 호출
     public FeedViewHolder(@NonNull ItemFeedPostBinding itemBinding,
                           @NonNull VideoRepository videoRepository,
-                          @Nullable FeedAdapter.OnItemClickListener itemClickListener) {
+                          @Nullable FeedAdapter.OnItemClickListener itemClickListener,
+                          @NonNull Set<String> watchLaterVideoIds) {
         super(itemBinding.getRoot());
         this.itemBinding = itemBinding;
         this.videoRepository = videoRepository;
         this.itemClickListener = itemClickListener;
+        this.watchLaterVideoIds = watchLaterVideoIds;
     }
 
     // 카드 1개 뷰에 데이터를 연결(바인딩)하는 메서드
@@ -71,13 +78,17 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
                 comment == null || comment.trim().isEmpty()
                         ? context.getString(R.string.feed_no_comment) : comment);
         updateLike(rating);
+        updateWatchLater(rating);
         itemBinding.feedActions.reviewActionComment.setText(context.getString(
                 R.string.feed_comment_count, rating.getCommentCount()));
         loadLikeStatus(rating, generation);
+        loadWatchLaterStatus(rating, generation);
 
         // 2) 비동기 조회 전 기본 뷰 초기화 (재사용 찌꺼기 방지)
         boundAuthorName = "";
         boundVideoTitle = "";
+        boundVideoMeta = "";
+        boundThumbnailUrl = "";
         showAuthor(null, timeText);
         itemBinding.feedVideoTitle.setText(R.string.feed_video_loading);
         itemBinding.feedVideoMetadata.setText("");
@@ -145,6 +156,23 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
                 }
             }
         });
+        // 4) 나중에 보기 버튼 클릭
+        itemBinding.feedActions.reviewActionWatchLater.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (pagingSample) return;
+                if (itemClickListener != null) {
+                    boolean alreadySaved = rating.getVideoId() != null
+                            && watchLaterVideoIds.contains(rating.getVideoId());
+                    itemClickListener.onWatchLaterClick(
+                            rating,
+                            boundVideoTitle,
+                            boundVideoMeta,
+                            boundThumbnailUrl,
+                            alreadySaved);
+                }
+            }
+        });
     }
 
     // 💡 부분 업데이트(Payload): 전체 재로딩 없이 좋아요 텍스트 및 빨간 하트 상태 변경
@@ -185,6 +213,52 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
                             rating.setLikedByCurrentUser(true);
                             updateLike(rating);
                         }
+                    }
+                });
+    }
+
+    // 부분 업데이트(Payload): 나중에 보기 아이콘(채움/테두리)만 갱신한다.
+    void updateWatchLater(Rating rating) {
+        Context context = itemBinding.getRoot().getContext();
+        String videoId = rating != null ? rating.getVideoId() : null;
+        boolean saved = videoId != null && watchLaterVideoIds.contains(videoId);
+
+        int iconRes = saved ? R.drawable.ic_bookmark : R.drawable.ic_bookmark_outline;
+        int colorRes = saved ? R.color.text_primary : R.color.text_secondary;
+
+        itemBinding.feedActions.reviewActionWatchLater.setCompoundDrawablesWithIntrinsicBounds(
+                iconRes, 0, 0, 0);
+        TextViewCompat.setCompoundDrawableTintList(
+                itemBinding.feedActions.reviewActionWatchLater,
+                ColorStateList.valueOf(ContextCompat.getColor(context, colorRes)));
+    }
+
+    private void loadWatchLaterStatus(Rating rating, int generation) {
+        FirebaseUser current = FirebaseAuth.getInstance().getCurrentUser();
+        if (current == null || rating == null
+                || rating.getVideoId() == null || rating.getVideoId().isEmpty()
+                || rating.getVideoId().contains("/")) {
+            return;
+        }
+        final String videoId = rating.getVideoId();
+        FirebaseFirestore.getInstance()
+                .collection(FirestorePaths.USERS)
+                .document(current.getUid())
+                .collection(FirestorePaths.WATCH_LATER)
+                .document(videoId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot snapshot) {
+                        if (!isCurrentBinding(generation)) {
+                            return;
+                        }
+                        if (snapshot.exists()) {
+                            watchLaterVideoIds.add(videoId);
+                        } else {
+                            watchLaterVideoIds.remove(videoId);
+                        }
+                        updateWatchLater(rating);
                     }
                 });
     }
@@ -254,9 +328,11 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
                 boundVideoTitle = video.getTitle() != null ? video.getTitle() : "";
                 itemBinding.feedVideoTitle.setText(video.getTitle());
                 String channel = video.getChannelTitle();
-                itemBinding.feedVideoMetadata.setText(
-                        channel == null || channel.isEmpty() ? duration
-                                : context.getString(R.string.video_meta, channel, duration));
+                String metaText = channel == null || channel.isEmpty() ? duration
+                        : context.getString(R.string.video_meta, channel, duration);
+                boundVideoMeta = metaText;
+                boundThumbnailUrl = video.getThumbnailUrl() != null ? video.getThumbnailUrl() : "";
+                itemBinding.feedVideoMetadata.setText(metaText);
                 itemBinding.feedThumbnail.thumbnailDuration.setText(duration);
                 itemBinding.feedThumbnail.thumbnailDuration.setVisibility(View.VISIBLE);
                 ThumbnailLoader.load(
@@ -277,9 +353,13 @@ class FeedViewHolder extends RecyclerView.ViewHolder {
 // 2. 수업 실습 형태: ViewHolder 다음에 Adapter 클래스를 배치한다.
 public class FeedAdapter extends RecyclerView.Adapter<FeedViewHolder> {
 
+    public static final String PAYLOAD_LIKE_CHANGED = "LIKE_CHANGED";
+    public static final String PAYLOAD_WATCH_LATER_CHANGED = "WATCH_LATER_CHANGED";
+
     private final List<Rating> ratings;
     private final VideoRepository videoRepository;
     private final OnItemClickListener itemClickListener;
+    private final Set<String> watchLaterVideoIds = new HashSet<>();
 
     //생성자
     public FeedAdapter(List<Rating> ratings, VideoRepository videoRepository, OnItemClickListener itemClickListener) {
@@ -293,7 +373,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedViewHolder> {
     public FeedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemFeedPostBinding itemBinding = ItemFeedPostBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
-        return new FeedViewHolder(itemBinding, videoRepository, itemClickListener);
+        return new FeedViewHolder(itemBinding, videoRepository, itemClickListener, watchLaterVideoIds);
     }
 
     @Override
@@ -305,8 +385,14 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull FeedViewHolder holder, int position, @NonNull List<Object> payloads) {
         if (!payloads.isEmpty()) {
-            // 페이로드(부분 갱신)인 경우 프로필/썸네일 재로딩 없이 좋아요 숫자만 갱신
-            holder.updateLike(ratings.get(position));
+            // 페이로드(부분 갱신)인 경우 프로필/썸네일 재로딩 없이 해당 반응 버튼만 갱신
+            Rating rating = ratings.get(position);
+            if (payloads.contains(PAYLOAD_WATCH_LATER_CHANGED)) {
+                holder.updateWatchLater(rating);
+            }
+            if (payloads.contains(PAYLOAD_LIKE_CHANGED)) {
+                holder.updateLike(rating);
+            }
         } else {
             super.onBindViewHolder(holder, position, payloads);
         }
@@ -322,11 +408,32 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedViewHolder> {
         void onLikeClick(Rating rating);         // 좋아요 클릭 (좋아요 수 토글/증가)
         void onCommentClick(Rating rating);      // 댓글 버튼 클릭 (댓글 바텀시트/화면 이동)
         void onShareClick(Rating rating, String authorName, String videoTitle); // 공유 버튼 클릭 (공유 바텀시트 열기)
+        void onWatchLaterClick(Rating rating, String videoTitle, String videoMeta,
+                               String thumbnailUrl, boolean alreadySaved); // 나중에 보기 클릭 (저장 바텀시트 열기)
+    }
+
+    // 바텀시트에서 나중에 보기 상태가 바뀌었을 때 같은 영상을 참조하는 피드 카드들의 북마크 아이콘을 갱신한다.
+    public void setVideoWatchLater(@Nullable String videoId, boolean saved) {
+        if (videoId == null || videoId.isEmpty()) {
+            return;
+        }
+        if (saved) {
+            watchLaterVideoIds.add(videoId);
+        } else {
+            watchLaterVideoIds.remove(videoId);
+        }
+        for (int i = 0; i < ratings.size(); i++) {
+            Rating rating = ratings.get(i);
+            if (videoId.equals(rating.getVideoId())) {
+                notifyItemChanged(i, PAYLOAD_WATCH_LATER_CHANGED);
+            }
+        }
     }
 
     public void clear() {
         int size = ratings.size();
         ratings.clear();
+        watchLaterVideoIds.clear();
         if (size > 0) {
             notifyItemRangeRemoved(0, size);
         }

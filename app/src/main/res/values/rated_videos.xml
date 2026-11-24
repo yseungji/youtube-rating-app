@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 6.1 평가한 영상 목록 -->
+<resources>
+    <string name="rated_title">평가한 영상 %1$d개</string>
+    <string name="rated_sort_recent">최신순</string>
+    <string name="rated_sort_score">별점 높은순</string>
+    <string name="rated_empty">아직 평가한 영상이 없어요</string>
+    <string name="rated_load_failed">평가 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요</string>
+    <string name="rated_meta">%1$s %2$d점 · %3$s</string>
+    <string name="rated_meta_private">%1$s %2$d점 · 나만 보기 · %3$s</string>
+    <string name="rated_unknown_video">영상 정보를 불러오지 못했어요</string>
+</resources>

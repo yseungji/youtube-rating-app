@@ -124,11 +124,13 @@
                         android:layout_marginTop="@dimen/space_s"
                         android:orientation="horizontal">
 
-                        <!-- 평가 -->
+                        <!-- 평가 (누르면 평가한 영상 목록) -->
                         <LinearLayout
+                            android:id="@+id/profile_rating_stat"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
                             android:orientation="vertical">
 
                             <TextView

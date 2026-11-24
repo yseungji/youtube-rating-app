@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 3.3 관심 주제 · 3.4 평가자 추천 (온보딩 2·3단계) -->
+<resources>
+    <string name="onboarding_step_2">2 / 3</string>
+    <string name="onboarding_step_3">3 / 3</string>
+
+    <!-- 3.3 관심 주제 -->
+    <string name="topic_title">어떤 영상을 좋아하세요?</string>
+    <string name="topic_subtitle">3개 이상 고르면 취향이 비슷한 평가자를 찾아드려요</string>
+    <string name="topic_footnote">YouTube 영상 카테고리 기준 · 나중에 설정에서 바꿀 수 있어요</string>
+    <string name="topic_next">다음</string>
+    <string name="topic_next_count">다음 (%1$d개 선택)</string>
+    <string name="topic_save_failed">관심 주제를 저장하지 못했어요. 다시 시도해 주세요</string>
+    <string name="topic_travel">여행·이벤트</string>
+    <string name="topic_people">인물·블로그</string>
+    <string name="topic_education">교육</string>
+
+    <!-- 3.4 평가자 추천 -->
+    <string name="recommend_title">이런 분들을 팔로우해 보세요</string>
+    <string name="recommend_subtitle">고른 주제를 자주 평가하는 사람들이에요. 피드에 이분들의 새 평가가 보여요</string>
+    <string name="recommend_following_count">%1$d명 팔로우 중</string>
+    <string name="recommend_follow_all">모두 팔로우</string>
+    <string name="recommend_start">viewit 시작하기</string>
+    <string name="recommend_later">나중에 할게요</string>
+    <string name="recommend_empty">아직 추천할 평가자가 없어요</string>
+    <string name="recommend_load_failed">추천 목록을 불러오지 못했어요</string>
+</resources>

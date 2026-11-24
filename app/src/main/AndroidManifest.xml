@@ -32,6 +32,14 @@
             </intent-filter>
         </activity>
 
+        <!-- 3.3·3.4 온보딩: 관심 주제 → 평가자 추천 -->
+        <activity
+            android:name=".ui.onboarding.TopicActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.onboarding.RecommendFollowActivity"
+            android:exported="false" />
+
         <!-- 6.3 프로필 편집 (프로필 탭·설정에서 연다) -->
         <activity
             android:name=".ui.profile.ProfileEditActivity"

@@ -52,7 +52,8 @@
         <activity
             android:name=".ui.videodetail.VideoDetailActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize">
         </activity>
 
         <!-- 개발용 Firebase 테스트 메뉴. 디버그 빌드에서만 src/debug/AndroidManifest.xml로 아이콘이 생긴다 -->

@@ -7,11 +7,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragment_container"
+    <!-- 좌우 스와이프로 5탭을 전환하는 ViewPager2. 안쪽 가로 스크롤(카테고리 칩·프로필 내부 탭)과 충돌을 막아 준다 -->
+    <com.example.viewit.ui.common.SwipeablePagerContainer
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/main_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.example.viewit.ui.common.SwipeablePagerContainer>
 
     <View
         android:layout_width="match_parent"

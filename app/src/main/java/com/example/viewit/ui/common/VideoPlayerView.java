@@ -25,9 +25,17 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFram
 //   binding.videoPlayer.setThumbnailUrl(video.getThumbnailUrl()); // 재생 불가 안내 뒤에 깔 썸네일 (선택)
 public class VideoPlayerView extends FrameLayout {
 
+    // 영상 재생이 실제로 시작되었을 때(또는 퍼가기 불가 영상에서 YouTube 열기를 눌렀을 때) 알린다.
+    public interface OnPlaybackStartedListener {
+        void onPlaybackStarted(@NonNull String videoId);
+    }
+
     private final ViewVideoPlayerBinding binding;
     private String videoId;
     private boolean initialized;
+    private boolean playbackNotified;
+    @Nullable
+    private OnPlaybackStartedListener playbackStartedListener;
 
     public VideoPlayerView(@NonNull Context context) {
         this(context, null);
@@ -36,11 +44,19 @@ public class VideoPlayerView extends FrameLayout {
     public VideoPlayerView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         binding = ViewVideoPlayerBinding.inflate(LayoutInflater.from(context), this);
-        binding.playerOpenYoutube.setOnClickListener(v -> {
-            if (videoId != null) {
-                YouTubeLinks.open(getContext(), videoId);
+        binding.playerOpenYoutube.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (videoId != null) {
+                    notifyPlaybackStarted();
+                    YouTubeLinks.open(getContext(), videoId);
+                }
             }
         });
+    }
+
+    public void setOnPlaybackStartedListener(@Nullable OnPlaybackStartedListener listener) {
+        this.playbackStartedListener = listener;
     }
 
     // 영상을 재생 대기 상태로 준비한다(자동 재생 안 함). 한 화면에서 한 번만 부른다.
@@ -65,11 +81,38 @@ public class VideoPlayerView extends FrameLayout {
             }
 
             @Override
+            public void onStateChange(@NonNull YouTubePlayer player,
+                                      @NonNull PlayerConstants.PlayerState state) {
+                if (state == PlayerConstants.PlayerState.PLAYING) {
+                    notifyPlaybackStarted();
+                }
+            }
+
+            @Override
             public void onError(@NonNull YouTubePlayer player, @NonNull PlayerConstants.PlayerError error) {
                 showFallback(error == PlayerConstants.PlayerError.VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER
                         ? R.string.video_player_blocked : R.string.video_player_error);
             }
         }, options);
+    }
+
+    private void notifyPlaybackStarted() {
+        if (playbackNotified || videoId == null) {
+            return;
+        }
+        playbackNotified = true;
+        if (playbackStartedListener != null) {
+            playbackStartedListener.onPlaybackStarted(videoId);
+        }
+    }
+
+    // 가로 전체화면 여부에 맞춰 내부 YouTubePlayerView 높이를 화면 가득(matchParent) / 16:9(wrapContent)로 전환한다.
+    public void setFullscreen(boolean fullscreen) {
+        if (fullscreen) {
+            binding.playerYoutube.matchParent();
+        } else {
+            binding.playerYoutube.wrapContent();
+        }
     }
 
     // 재생할 수 없을 때 안내 뒤에 흐리게 깔 썸네일

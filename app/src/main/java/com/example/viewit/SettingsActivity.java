@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.viewit.data.AccountRepository;
 import com.example.viewit.databinding.ActivitySettingsBinding;
 import com.example.viewit.databinding.ViewSettingsRowBinding;
+import com.example.viewit.ui.profile.ProfileEditActivity;
 
 // 설정 화면 (6.3, Figma 10 · 설정). 지금 동작하는 것은 로그아웃·회원 탈퇴이고, 나머지 줄은 "준비 중" 안내.
 public class SettingsActivity extends AppCompatActivity {
@@ -116,7 +117,11 @@ public class SettingsActivity extends AppCompatActivity {
         // 아직 만들지 않은 기능 (프로필 편집·YouTube 연동·내 활동·공개 범위·차단·약관은 6.3 후속)
         View.OnClickListener comingSoon = v ->
             Toast.makeText(this, R.string.profile_coming_soon, Toast.LENGTH_SHORT).show();
-        binding.settingsProfileEdit.getRoot().setOnClickListener(comingSoon);
+        // 프로필 편집 화면 열기
+        binding.settingsProfileEdit.getRoot().setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileEditActivity.class);
+            startActivity(intent);
+        });
         binding.settingsYoutube.getRoot().setOnClickListener(comingSoon);
         binding.settingsMyActivity.getRoot().setOnClickListener(comingSoon);
         binding.settingsVisibility.getRoot().setOnClickListener(comingSoon);

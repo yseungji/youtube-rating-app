@@ -40,6 +40,12 @@
             android:name=".ui.onboarding.RecommendFollowActivity"
             android:exported="false" />
 
+        <!-- 6.3 프로필 편집 (프로필 탭·설정에서 연다) -->
+        <activity
+            android:name=".ui.profile.ProfileEditActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- 6.2 팔로워·팔로잉 목록과 다른 사용자 프로필 -->
         <activity
             android:name=".ui.profile.FollowListActivity"

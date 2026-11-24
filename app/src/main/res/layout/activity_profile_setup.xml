@@ -63,13 +63,16 @@
             android:paddingTop="@dimen/space_l"
             android:paddingBottom="@dimen/space_xl">
 
+            <!-- 제목·부제목: 프로필 편집(ProfileEditActivity)에서는 코드로 글자를 바꾼다 -->
             <TextView
+                android:id="@+id/setup_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_setup_title"
                 android:textAppearance="@style/TextAppearance.Viewit.Display" />
 
             <TextView
+                android:id="@+id/setup_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_s"

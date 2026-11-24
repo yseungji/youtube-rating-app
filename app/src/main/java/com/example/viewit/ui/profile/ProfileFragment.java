@@ -103,6 +103,13 @@ public class ProfileFragment extends Fragment {
         binding.profileBannerEditButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());
         binding.profileBannerAddButton.setOnClickListener(v -> Toast.makeText(requireContext(), R.string.profile_coming_soon, Toast.LENGTH_SHORT).show());
 
+        // 평가 숫자를 누르면 이 프로필 주인의 평가한 영상 목록
+        binding.profileRatingStat.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), RatedVideosActivity.class);
+            intent.putExtra(RatedVideosActivity.EXTRA_UID, profileUid);
+            startActivity(intent);
+        });
+
         // 팔로워·팔로잉 숫자를 누르면 목록 화면
         binding.profileFollowerStat.setOnClickListener(v -> openFollowList(FollowListActivity.TAB_FOLLOWERS));
         binding.profileFollowingStat.setOnClickListener(v -> openFollowList(FollowListActivity.TAB_FOLLOWING));

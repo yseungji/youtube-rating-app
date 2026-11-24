@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 평가한 영상 목록 (6.1). ← + "평가한 영상 N개", 정렬 칩, 영상 한 줄(item_video_row) 목록 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_bar_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_xs">
+
+        <include
+            android:id="@+id/rated_back"
+            layout="@layout/view_back_button" />
+
+        <TextView
+            android:id="@+id/rated_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Viewit.Heading"
+            tools:text="평가한 영상 12개" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+
+    <!-- 정렬 -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/rated_sort_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingVertical="@dimen/space_s"
+        app:chipSpacingHorizontal="@dimen/space_s"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/rated_sort_recent"
+            style="@style/Widget.Viewit.Chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/rated_sort_recent" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/rated_sort_score"
+            style="@style/Widget.Viewit.Chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rated_sort_score" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rated_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_padding"
+            tools:listitem="@layout/item_video_row" />
+
+        <TextView
+            android:id="@+id/rated_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="56dp"
+            android:text="@string/rated_empty"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/rated_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="56dp"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

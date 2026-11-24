@@ -54,6 +54,11 @@
             android:name=".ui.profile.UserProfileActivity"
             android:exported="false" />
 
+        <!-- 6.1 평가한 영상 목록 (프로필의 평가 숫자에서 연다) -->
+        <activity
+            android:name=".ui.profile.RatedVideosActivity"
+            android:exported="false" />
+
         <!-- 영상 상세의 평가 입력 화면 -->
         <activity
             android:name=".ui.videodetail.VideoDetailActivity"

@@ -12,6 +12,7 @@
     tools:context=".VideoDetailActivity">
 
     <LinearLayout
+        android:id="@+id/video_app_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/app_bar_height"
         android:gravity="center_vertical"
@@ -36,6 +37,7 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/video_divider"
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />

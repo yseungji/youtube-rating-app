@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.paging.CombinedLoadStates;
 import androidx.paging.LoadState;
 import androidx.paging.PagingConfig;
@@ -34,6 +36,7 @@ import com.example.viewit.MainActivity;
 import com.example.viewit.R;
 import com.example.viewit.data.RatingRepository;
 import com.example.viewit.data.VideoRepository;
+import com.example.viewit.data.WatchHistoryRepository;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.Video;
 import com.example.viewit.databinding.ActivityVideoDetailBinding;
@@ -41,6 +44,7 @@ import com.example.viewit.databinding.DialogRatingDeleteBinding;
 import com.example.viewit.databinding.ItemVideoDetailHeaderBinding;
 import com.example.viewit.databinding.ItemVideoDetailStatusBinding;
 import com.example.viewit.ui.common.DurationFormat;
+import com.example.viewit.ui.common.VideoPlayerView;
 import com.example.viewit.ui.common.YouTubeErrorMessage;
 import com.example.viewit.ui.common.YouTubeLinks;
 import com.example.viewit.ui.watchlater.WatchLaterBottomSheetFragment;
@@ -79,6 +83,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     private VideoDetailAdapter videoDetailAdapter;
     // 나중에 보낸 요청보다 먼저 보낸 요청이 늦게 도착해 화면을 덮는 것을 막는다.
     private int publicStatisticsRequest;
+    private boolean fullscreenMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +120,10 @@ public class VideoDetailActivity extends AppCompatActivity {
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (view, insets) -> {
+            if (fullscreenMode) {
+                view.setPadding(0, 0, 0, 0);
+                return insets;
+            }
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             view.setPadding(bars.left, bars.top, bars.right, Math.max(bars.bottom, ime.bottom));
@@ -146,8 +155,18 @@ public class VideoDetailActivity extends AppCompatActivity {
         videoId = videoId.trim();
         headerBinding.videoId.setText(getString(R.string.video_detail_video_id, videoId));
         headerBinding.videoOpenYoutube.setOnClickListener(v -> YouTubeLinks.open(this, videoId));
-        // 앱 안 플레이어(4.2): 화면이 멈추면 일시정지, 화면이 끝나면 정리된다
+        // 앱 안 플레이어(4.2): 재생 시작 시 앱 시청 기록(5.1)을 users/{uid}/watchHistory/{videoId}에 기록한다.
+        final WatchHistoryRepository watchHistoryRepository = new WatchHistoryRepository();
+        binding.videoPlayer.setOnPlaybackStartedListener(new VideoPlayerView.OnPlaybackStartedListener() {
+            @Override
+            public void onPlaybackStarted(@NonNull String startedVideoId) {
+                Log.d(TAG, "재생 시작 감지: 시청 기록 저장 요청, videoId=" + startedVideoId);
+                watchHistoryRepository.recordWatch(startedVideoId);
+            }
+        });
         binding.videoPlayer.load(this, videoId);
+        // 가로 상태로 진입했을 때도 즉시 전체화면 레이아웃을 적용한다.
+        applyFullscreenForOrientation(getResources().getConfiguration().orientation);
         loadVideoInfo();
         RatingRepository repository = new RatingRepository();
 
@@ -743,11 +762,45 @@ public class VideoDetailActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // Manifest에 configChanges를 지정한 비교 버전에서 호출된다.
-        // 현재 XML은 세로·가로에 공통이며 시스템 바 여백만 다시 적용한다.
+        // 가로 회전 시 영상 전체화면 모드로 전환하고, 세로로 돌리면 앱바와 평가 목록을 다시 보여 준다.
+        applyFullscreenForOrientation(newConfig.orientation);
+        Log.d(TAG, "onConfigurationChanged: orientation=" + newConfig.orientation
+                + ", fullscreenMode=" + fullscreenMode);
+    }
+
+    // 가로 모드에서는 상단 앱바·목록·시스템 바를 숨기고 영상을 화면에 꽉 채운다.
+    private void applyFullscreenForOrientation(int orientation) {
+        if (binding == null) {
+            return;
+        }
+        boolean landscape = orientation == Configuration.ORIENTATION_LANDSCAPE;
+        fullscreenMode = landscape;
+
+        int chromeVisibility = landscape ? View.GONE : View.VISIBLE;
+        binding.videoAppBar.setVisibility(chromeVisibility);
+        binding.videoDivider.setVisibility(chromeVisibility);
+        binding.publicRatingSwipeRefresh.setVisibility(chromeVisibility);
+
+        ViewGroup.LayoutParams playerParams = binding.videoPlayer.getLayoutParams();
+        playerParams.height = landscape
+                ? ViewGroup.LayoutParams.MATCH_PARENT
+                : ViewGroup.LayoutParams.WRAP_CONTENT;
+        binding.videoPlayer.setLayoutParams(playerParams);
+        binding.videoPlayer.setFullscreen(landscape);
+
+        binding.getRoot().setBackgroundColor(ContextCompat.getColor(
+                this, landscape ? R.color.accent_deep : R.color.bg_surface));
+
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        if (landscape) {
+            controller.setSystemBarsBehavior(
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            controller.hide(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+        } else {
+            controller.show(WindowInsetsCompat.Type.systemBars());
+        }
         ViewCompat.requestApplyInsets(binding.getRoot());
-        Log.d(TAG, "onConfigurationChanged: orientation="
-                + newConfig.orientation);
     }
 
     private void makeToast(@StringRes int messageResId) {

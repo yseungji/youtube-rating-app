@@ -43,7 +43,6 @@ public class VideoRepository {
     private static final String TAG = "VideoRepository";
     private static final int MAX_IDS_PER_QUERY = 30;   // Firestore whereIn 한도
     private static final int MAX_WRITES_PER_BATCH = 450; // Firestore 한 번에 쓰기 한도(500)보다 여유 있게
-    private static final int TOP_RATED_LIMIT = 50;     // 카테고리 평점순에 보여 줄 최대 개수 (4.3)
 
     public interface Callback<T> {
         void onSuccess(T result);
@@ -127,14 +126,14 @@ public class VideoRepository {
         readSaved(ids, callback);
     }
 
-    // 공개 평가가 있는 영상을 우리 앱 평균 별점이 높은 순으로 (4.3 카테고리 평점순).
+    // 공개 평가가 있는 영상을 모두, 우리 앱 평균 별점이 높은 순으로 (4.3 카테고리 평점순).
     // categoryId가 null이면 전체. 평가 수 가중치는 아직 없음(평균이 같으면 평가 수가 많은 쪽이 위).
     // 순서만 videos의 집계값으로 정하고, 영상 정보는 getVideos로 받아 30일 규칙을 그대로 따른다
     public void getTopRatedVideos(@Nullable String categoryId, @NonNull Callback<List<Video>> callback) {
-        // 전체: 평균 내림차순 단일 필드 정렬. 카테고리: categoryId 같음만 조회하고 정렬은 앱에서 한다
-        // (categoryId + ratingAverage 복합 색인을 따로 만들지 않기 위해. 과제 규모에서는 카테고리당 문서 수가 적다)
+        // 전체: 공개 평가 수 > 0인 문서 전부. 카테고리: categoryId 같음만 조회하고 평가 수는 앱에서 거른다.
+        // 정렬은 둘 다 앱에서 한다 (복합 색인을 따로 만들지 않기 위해. 과제 규모에서는 평가된 영상 수가 적다)
         Query query = categoryId == null
-                ? videos.orderBy("ratingAverage", Query.Direction.DESCENDING).limit(TOP_RATED_LIMIT)
+                ? videos.whereGreaterThan("publicRatingCount", 0)
                 : videos.whereEqualTo("categoryId", categoryId);
         query.get()
                 .addOnSuccessListener(snapshot -> {
@@ -151,8 +150,8 @@ public class VideoRepository {
                                 : Long.compare(b.getPublicRatingCount(), a.getPublicRatingCount());
                     });
                     List<String> ids = new ArrayList<>();
-                    for (int i = 0; i < rated.size() && i < TOP_RATED_LIMIT; i++) {
-                        ids.add(rated.get(i).getVideoId());
+                    for (Video video : rated) {
+                        ids.add(video.getVideoId());
                     }
                     getVideos(ids, callback);
                 })

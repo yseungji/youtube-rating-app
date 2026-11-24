@@ -3,6 +3,7 @@ package com.example.viewit.data;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Video;
@@ -15,11 +16,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -94,6 +97,69 @@ public class VideoRepository {
             return;
         }
 
+        readSaved(ids, new Callback<Map<String, Video>>() {
+            @Override
+            public void onSuccess(Map<String, Video> saved) {
+                useSavedOrFetch(ids, saved, callback);
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                callback.onError(error);
+            }
+        });
+    }
+
+    // videos에 저장된 문서만 읽는다. YouTube를 부르지도, 저장하지도 않는다.
+    // 카테고리 인기순 목록에 우리 앱 평균 별점을 붙일 때 쓴다 (4.3). 결과는 영상ID → 저장된 Video
+    public void getSavedVideos(@NonNull List<String> videoIds, @NonNull Callback<Map<String, Video>> callback) {
+        List<String> ids = new ArrayList<>();
+        for (String id : new LinkedHashSet<>(videoIds)) {
+            if (VideoCachePolicy.isValidVideoId(id)) {
+                ids.add(id);
+            }
+        }
+        if (ids.isEmpty()) {
+            callback.onSuccess(new HashMap<>());
+            return;
+        }
+        readSaved(ids, callback);
+    }
+
+    // 공개 평가가 있는 영상을 모두, 우리 앱 평균 별점이 높은 순으로 (4.3 카테고리 평점순).
+    // categoryId가 null이면 전체. 평가 수 가중치는 아직 없음(평균이 같으면 평가 수가 많은 쪽이 위).
+    // 순서만 videos의 집계값으로 정하고, 영상 정보는 getVideos로 받아 30일 규칙을 그대로 따른다
+    public void getTopRatedVideos(@Nullable String categoryId, @NonNull Callback<List<Video>> callback) {
+        // 전체: 공개 평가 수 > 0인 문서 전부. 카테고리: categoryId 같음만 조회하고 평가 수는 앱에서 거른다.
+        // 정렬은 둘 다 앱에서 한다 (복합 색인을 따로 만들지 않기 위해. 과제 규모에서는 평가된 영상 수가 적다)
+        Query query = categoryId == null
+                ? videos.whereGreaterThan("publicRatingCount", 0)
+                : videos.whereEqualTo("categoryId", categoryId);
+        query.get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Video> rated = new ArrayList<>();
+                    for (DocumentSnapshot document : snapshot.getDocuments()) {
+                        Video video = document.toObject(Video.class);
+                        if (video != null && video.getPublicRatingCount() > 0) {
+                            rated.add(video);
+                        }
+                    }
+                    Collections.sort(rated, (a, b) -> {
+                        int byAverage = Double.compare(b.getRatingAverage(), a.getRatingAverage());
+                        return byAverage != 0 ? byAverage
+                                : Long.compare(b.getPublicRatingCount(), a.getPublicRatingCount());
+                    });
+                    List<String> ids = new ArrayList<>();
+                    for (Video video : rated) {
+                        ids.add(video.getVideoId());
+                    }
+                    getVideos(ids, callback);
+                })
+                .addOnFailureListener(callback::onError);
+    }
+
+    // 저장된 문서를 whereIn으로 30개씩 나눠 읽는다
+    private void readSaved(List<String> ids, Callback<Map<String, Video>> callback) {
         List<Task<QuerySnapshot>> reads = new ArrayList<>();
         for (int start = 0; start < ids.size(); start += MAX_IDS_PER_QUERY) {
             List<String> chunk = ids.subList(start, Math.min(start + MAX_IDS_PER_QUERY, ids.size()));
@@ -110,7 +176,7 @@ public class VideoRepository {
                             }
                         }
                     }
-                    useSavedOrFetch(ids, saved, callback);
+                    callback.onSuccess(saved);
                 })
                 .addOnFailureListener(callback::onError);
     }

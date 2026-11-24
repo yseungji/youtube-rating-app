@@ -11,6 +11,7 @@ import com.example.viewit.R;
 import com.example.viewit.data.model.Video;
 import com.example.viewit.databinding.ItemCategoryVideoBinding;
 import com.example.viewit.ui.common.DurationFormat;
+import com.example.viewit.ui.common.RatingFormat;
 import com.example.viewit.ui.common.ThumbnailLoader;
 import com.example.viewit.ui.videodetail.VideoDetailActivity;
 
@@ -32,8 +33,16 @@ class CategoryVideoViewHolder extends RecyclerView.ViewHolder {
         itemBinding.categoryVideoDuration.setText(DurationFormat.format(video.getDurationSeconds()));
         itemBinding.categoryVideoTitle.setText(video.getTitle());
         itemBinding.categoryVideoChannel.setText(video.getChannelTitle());
-        itemBinding.categoryVideoRating.setText(R.string.category_no_rating);
-
+        //평가의 유무에 따라 출력 메세지를 다르게 했다.
+        long count = video.getPublicRatingCount();
+        if (count > 0) {
+            String average = RatingFormat.averageText(video.getRatingAverage(), count);
+            itemBinding.categoryVideoRating.setText(
+                itemBinding.getRoot().getContext().getString(R.string.category_rating, average, count));
+        } else {
+            itemBinding.categoryVideoRating.setText(R.string.category_no_rating);
+        }
+        //카테고리 fragement에서 영상 상세로 넘어갈 수 있다
         itemBinding.getRoot().setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), VideoDetailActivity.class);
             intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, video.getVideoId());

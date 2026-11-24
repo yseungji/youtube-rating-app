@@ -102,32 +102,52 @@ public final class YouTubeApi {
         });
     }
 
-    // 한국 YouTube 인기 차트를 받는다(4.3 카테고리 인기순). 요청 1번 = 1유닛.
-    // categoryId가 null이면 전체 인기 차트, 있으면 그 카테고리의 인기 차트
-    public void fetchPopularVideos(@Nullable String categoryId, @NonNull Callback<List<Video>> callback) {
+    // 인기 차트 한 페이지. nextPageToken이 null이면 차트의 끝 (KR 기준 전체 200개, 카테고리마다 더 적음)
+    public static final class PopularPage {
+        public final List<Video> videos;
+        @Nullable
+        public final String nextPageToken;
+
+        PopularPage(List<Video> videos, @Nullable String nextPageToken) {
+            this.videos = videos;
+            this.nextPageToken = nextPageToken;
+        }
+    }
+
+    // 한국 YouTube 인기 차트를 한 페이지(30개)씩 받는다(4.3 카테고리 인기순). 요청 1번 = 1유닛.
+    // categoryId가 null이면 전체 인기 차트, pageToken이 null이면 첫 페이지
+    public void fetchPopularVideos(@Nullable String categoryId, @Nullable String pageToken,
+                                   @NonNull Callback<PopularPage> callback) {
         executor.execute(() -> {
             try {
-                List<Video> videos = fetchPopularVideosBlocking(categoryId);
-                mainHandler.post(() -> callback.onSuccess(videos));
+                PopularPage page = fetchPopularPageBlocking(categoryId, pageToken);
+                mainHandler.post(() -> callback.onSuccess(page));
             } catch (YouTubeException e) {
                 mainHandler.post(() -> callback.onError(e));
             }
         });
     }
 
-    private List<Video> fetchPopularVideosBlocking(@Nullable String categoryId) throws YouTubeException {
+    private PopularPage fetchPopularPageBlocking(@Nullable String categoryId, @Nullable String pageToken)
+            throws YouTubeException {
         requireApiKey();
         Uri.Builder url = Uri.parse(VIDEOS_URL).buildUpon()
                 .appendQueryParameter("part", "snippet,contentDetails")
                 .appendQueryParameter("chart", "mostPopular")
                 .appendQueryParameter("regionCode", POPULAR_REGION)
                 .appendQueryParameter("maxResults", String.valueOf(POPULAR_MAX_RESULTS))
-                .appendQueryParameter("fields", VIDEO_FIELDS);
+                .appendQueryParameter("fields", "nextPageToken," + VIDEO_FIELDS);
         if (!TextUtils.isEmpty(categoryId)) {
             url.appendQueryParameter("videoCategoryId", categoryId);
         }
+        if (!TextUtils.isEmpty(pageToken)) {
+            url.appendQueryParameter("pageToken", pageToken);
+        }
         url.appendQueryParameter("key", apiKey);
-        return YouTubeVideoParser.parse(get(url.build().toString()), Timestamp.now());
+        JSONObject response = get(url.build().toString());
+        String next = response.optString("nextPageToken", "");
+        return new PopularPage(YouTubeVideoParser.parse(response, Timestamp.now()),
+                next.isEmpty() ? null : next);
     }
 
     private void requireApiKey() throws YouTubeException {

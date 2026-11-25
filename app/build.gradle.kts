@@ -79,6 +79,9 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    // YouTube 계정 연동 (6.3). youtube.readonly 권한을 받는 Authorization API.
+    // 위 credentials-play-services-auth가 이미 같은 버전을 끌어오므로, 직접 쓰는 만큼 버전만 명시한다
+    implementation("com.google.android.gms:play-services-auth:21.1.1")
 
     // 썸네일 이미지 불러오기·캐시 (4.1)
     implementation("com.github.bumptech.glide:glide:5.0.9")

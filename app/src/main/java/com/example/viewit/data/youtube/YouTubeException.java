@@ -9,6 +9,7 @@ public class YouTubeException extends Exception {
         QUOTA_EXCEEDED,    // 하루 사용량(기본 10,000유닛)을 다 씀
         NOT_FOUND,         // 없는 영상이거나 비공개·삭제된 영상
         NETWORK,           // 인터넷 연결 문제
+        AUTH_REQUIRED,     // YouTube 계정 연동이 필요함 (연동 안 함, 권한 만료·취소)
         UNKNOWN            // 그 밖의 서버 응답·형식 오류
     }
 

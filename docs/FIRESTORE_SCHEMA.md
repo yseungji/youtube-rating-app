@@ -219,6 +219,34 @@ Storage
 - 비공개 평가와 그 하위 좋아요·댓글은 평가 작성자에게만 읽기를 허용합니다.
 - 프로필의 공개 문서에는 이메일·비밀번호·OAuth 토큰을 넣지 않습니다.
 - 실제 접근 제어는 Security Rules와 필요한 서버 처리로 구현합니다. 문서 경로만으로 보호되지는 않습니다.
+
+### 보안 규칙 (6.4)
+
+규칙 파일은 저장소 루트의 `firestore.rules`, `storage.rules`이고 `firebase.json`이 위치를 가리킵니다.
+
+| 경로 | 읽기 | 쓰기 |
+|---|---|---|
+| `users/{uid}` | 로그인한 사람 | 본인만 |
+| `users/{uid}/…` (settings, watchLater, watchHistory, ratingReadStates 등) | 본인만 | 본인만 |
+| `usernames/{username}` | 로그인한 사람 | 본인 uid로만 만들기·지우기, 아이디 형식 검사 |
+| `follows/{followerId}_{followingId}` | 로그인한 사람 | 팔로우한 본인만 만들기·지우기, 자기 자신 금지 |
+| `ratings/{uid}_{videoId}` | 공개이거나 내 평가 (없는 문서는 "없음"으로 읽힘) | 작성자만. 별점 1~5 정수, 공개 범위 public·private. **누구나 공개 평가의 `likeCount`·`commentCount`만 ±1** |
+| `ratings/…/likes/{uid}`, `…/comments/…/likes/{uid}` | 로그인한 사람 | 본인 uid 문서만 |
+| `ratings/…/comments/{id}` | 평가가 공개이거나 내 평가 | 본인 이름으로만 쓰기(1~1000자), 삭제는 작성자. **누구나 `likeCount`만 ±1** |
+| `videos/{videoId}` | 로그인한 사람 | 로그인한 사람, 영상 정보 8개 + 집계 5개 필드만. 삭제 금지 |
+| `categories` | 로그인한 사람 | 막음 |
+| Storage `profileImages/{uid}.jpg` | 로그인한 사람 | 본인만, 이미지, 2MB 미만 |
+
+- **다른 사람 평가를 조회할 때는 반드시 `visibility == public` 조건을 넣어야** 합니다. 조건이 없으면 비공개 평가가 섞일 수 있어서 조회 전체가 거절됩니다.
+- 디버그용 샘플 생성기(`FollowingFeedSamples`)는 다른 uid의 문서를 쓰므로 규칙 적용 후에는 막힙니다.
+
+**테스트 (에뮬레이터, 실제 프로젝트에는 접속하지 않음)**: `firestore-tests` 폴더에서 `npm install` 한 번, 이후 `npm test`. Java 11 이상이 필요합니다.
+
+**콘솔 적용 순서 (팀이 정한 날)**
+1. 콘솔 → Firestore Database → 규칙, Storage → 규칙에서 지금 규칙을 복사해 백업
+2. `firestore.rules`, `storage.rules` 내용을 붙여 넣고 게시 (또는 `firebase deploy --only firestore:rules,storage`)
+3. 각자 자기 기능(평가 저장·수정·삭제, 좋아요, 댓글, 나중에 보기, 팔로우, 프로필 만들기·편집, 탈퇴) 확인
+4. 막히는 기능이 있으면 Logcat의 `PERMISSION_DENIED`를 공유하고, 급하면 1번의 백업으로 되돌리기
 - 탈퇴·평가 삭제 시 하위 컬렉션과 연결 데이터도 정리해야 합니다. 부모 문서 삭제만으로 하위 문서가 자동 삭제되지는 않습니다.
 - 내 활동(내가 좋아요한 리뷰·내가 쓴 댓글 목록)은 본인 전용입니다.
 - Storage `profileImages/{uid}.jpg`는 로그인한 사용자만 읽고, 본인만 올리거나 바꿉니다. 이미지 형식과 크기(2MB 미만)도 Storage 규칙으로 제한합니다.

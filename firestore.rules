@@ -1,0 +1,166 @@
+rules_version = '2';
+
+// Viewit Firestore 보안 규칙 (6.4).
+// 기준: docs/FIRESTORE_SCHEMA.md "접근 범위", 팀원별 쓰기 경로 (2026-11-24 승지·주원 답변).
+// 테스트: firestore-tests/ (에뮬레이터). 콘솔 적용은 팀이 정한 날 함께 한다.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- 공통 ----------
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // 이번 수정에서 바뀐 필드가 keys 안에만 있는지
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    // 다른 사람 문서의 숫자 필드 하나만 +1 또는 -1 (좋아요 수, 댓글 수)
+    function counterStep(field) {
+      return onlyChanges([field])
+        && request.resource.data[field] is int
+        && (request.resource.data[field] - resource.data.get(field, 0)) in [-1, 1];
+    }
+
+    // ---------- 사용자 ----------
+
+    // users/{uid}: 공개 프로필. 읽기는 로그인한 사람, 쓰기는 본인만 (프로필 편집, bannerVideoId 포함)
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create, update, delete: if isUser(uid);
+
+      // settings, integrations, watchHistory, watchLater, blockedUsers, ratingReadStates: 본인 전용
+      match /{collection}/{docId} {
+        allow read, write: if isUser(uid);
+      }
+    }
+
+    // usernames/{username}: 아이디 예약. 본인 uid로만 만들고 지운다 (3.2 프로필 만들기, 6.3 프로필 편집·탈퇴)
+    match /usernames/{username} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && username.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if signedIn()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // follows/{followerId}_{followingId}: "내가 상대를 팔로우" 문서만 만들고 지운다. 자기 자신은 금지 (6.2)
+    match /follows/{followId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.followerId == request.auth.uid
+        && request.resource.data.followingId is string
+        && request.resource.data.followingId != request.auth.uid
+        && followId == request.auth.uid + '_' + request.resource.data.followingId;
+      allow update: if signedIn()
+        && resource.data.followerId == request.auth.uid
+        && request.resource.data.followerId == request.auth.uid
+        && request.resource.data.followingId == resource.data.followingId;
+      allow delete: if signedIn() && resource.data.followerId == request.auth.uid;
+    }
+
+    // categories: 읽기만
+    match /categories/{categoryId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ---------- 영상 ----------
+
+    // videos/{videoId}: 주인이 없는 문서. 영상 정보(4.1, 주원)와 평점 집계(5.2, 승지) 필드만 쓸 수 있고 삭제는 막는다.
+    // fetchedAt은 앱 시각이라 request.time과 비교하지 않는다.
+    function videoFields() {
+      return ['title', 'channelId', 'channelTitle', 'thumbnailUrl', 'categoryId',
+              'durationSeconds', 'publishedAt', 'fetchedAt',
+              'publicRatingCount', 'ratingSum', 'ratingAverage', 'ratingDistribution', 'statsUpdatedAt'];
+    }
+
+    match /videos/{videoId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(videoFields());
+      allow update: if signedIn() && onlyChanges(videoFields());
+      allow delete: if false;
+    }
+
+    // ---------- 평가 ----------
+
+    function validScore(score) {
+      return score is int && score >= 1 && score <= 5;
+    }
+
+    function validVisibility(visibility) {
+      return visibility in ['public', 'private'];
+    }
+
+    // ratings/{uid}_{videoId}: 공개 평가는 로그인한 사람 모두, 비공개 평가는 작성자만 읽는다.
+    // 쓰기는 작성자만. 다만 누구나 공개 평가의 likeCount·commentCount를 1씩만 바꿀 수 있다 (좋아요·댓글).
+    match /ratings/{ratingId} {
+      function isAuthor() {
+        return signedIn() && resource.data.userId == request.auth.uid;
+      }
+
+      function canSeeRating() {
+        return signedIn() && (resource.data.visibility == 'public' || resource.data.userId == request.auth.uid);
+      }
+
+      // 아직 없는 문서(예: 아직 평가하지 않은 영상의 내 평가)는 "없음"을 알 수 있게 읽기를 허용한다
+      allow read: if (signedIn() && resource == null) || canSeeRating();
+
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && ratingId == request.auth.uid + '_' + request.resource.data.videoId
+        && validScore(request.resource.data.score)
+        && validVisibility(request.resource.data.visibility)
+        && request.resource.data.get('likeCount', 0) == 0
+        && request.resource.data.get('commentCount', 0) == 0;
+
+      allow update: if (isAuthor()
+          && onlyChanges(['score', 'comment', 'visibility', 'categoryId', 'updatedAt'])
+          && validScore(request.resource.data.score)
+          && validVisibility(request.resource.data.visibility))
+        || (canSeeRating() && (counterStep('likeCount') || counterStep('commentCount')));
+
+      allow delete: if isAuthor();
+
+      // 평가 좋아요: 본인 uid 문서만
+      match /likes/{uid} {
+        allow read: if signedIn();
+        allow create, update, delete: if isUser(uid);
+      }
+
+      // 댓글·답글: 평가가 보이는 사람만 읽고 쓴다. 본인 이름으로만 쓰고, 지우기는 작성자만.
+      // 누구나 likeCount만 1씩 바꿀 수 있다 (댓글 좋아요)
+      match /comments/{commentId} {
+        function ratingVisible() {
+          let rating = get(/databases/$(database)/documents/ratings/$(ratingId)).data;
+          return rating.visibility == 'public' || rating.userId == request.auth.uid;
+        }
+
+        allow read: if signedIn() && ratingVisible();
+        allow create: if signedIn() && ratingVisible()
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.get('likeCount', 0) == 0
+          && request.resource.data.content is string
+          && request.resource.data.content.size() > 0
+          && request.resource.data.content.size() <= 1000;
+        allow update: if signedIn() && ratingVisible() && counterStep('likeCount');
+        allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+
+        // 댓글 좋아요: 본인 uid 문서만
+        match /likes/{uid} {
+          allow read: if signedIn();
+          allow create, update, delete: if isUser(uid);
+        }
+      }
+    }
+  }
+}

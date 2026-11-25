@@ -24,11 +24,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.paging.CombinedLoadStates;
 import androidx.paging.LoadState;
 import androidx.paging.PagingConfig;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.viewit.BuildConfig;
@@ -37,12 +40,14 @@ import com.example.viewit.R;
 import com.example.viewit.data.RatingRepository;
 import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.WatchHistoryRepository;
+import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.Video;
 import com.example.viewit.databinding.ActivityVideoDetailBinding;
 import com.example.viewit.databinding.DialogRatingDeleteBinding;
 import com.example.viewit.databinding.ItemVideoDetailHeaderBinding;
 import com.example.viewit.databinding.ItemVideoDetailStatusBinding;
+import com.example.viewit.ui.comment.CommentBottomSheetFragment;
 import com.example.viewit.ui.common.DurationFormat;
 import com.example.viewit.ui.common.VideoPlayerView;
 import com.example.viewit.ui.common.YouTubeErrorMessage;
@@ -54,8 +59,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 // Figma 06 영상 상세: 공통 평가 패널을 표시하는 화면.
 public class VideoDetailActivity extends AppCompatActivity {
@@ -84,6 +98,32 @@ public class VideoDetailActivity extends AppCompatActivity {
     // 나중에 보낸 요청보다 먼저 보낸 요청이 늦게 도착해 화면을 덮는 것을 막는다.
     private int publicStatisticsRequest;
     private boolean fullscreenMode;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final Set<String> likeRequestsInFlight = new HashSet<>();
+
+    // 공개 평가 목록의 좋아요·댓글 클릭 리스너
+    private final VideoDetailAdapter.OnReviewActionListener reviewActionListener =
+            new VideoDetailAdapter.OnReviewActionListener() {
+                @Override
+                public void onLikeClick(@NonNull String ratingId, @NonNull Rating rating, long currentLikeCount) {
+                    toggleReviewLike(ratingId, currentLikeCount);
+                }
+
+                @Override
+                public void onCommentClick(@NonNull String ratingId,
+                                           @NonNull Rating rating,
+                                           @NonNull String authorName,
+                                           @NonNull String authorMeta) {
+                    Log.d(TAG, "댓글 바텀시트 열기: ratingId=" + ratingId);
+                    CommentBottomSheetFragment sheet = CommentBottomSheetFragment.newInstance(
+                            ratingId,
+                            authorName,
+                            authorMeta,
+                            rating.getScore(),
+                            rating.getComment());
+                    sheet.show(getSupportFragmentManager(), "CommentBottomSheet");
+                }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -519,7 +559,11 @@ public class VideoDetailActivity extends AppCompatActivity {
     //화면 설정 → ViewHolder → Adapter.
     private void setupPublicRatingsList() {
         binding.publicRatingList.setLayoutManager(new LinearLayoutManager(this));
-        videoDetailAdapter = new VideoDetailAdapter(publicRatingOptions());
+        RecyclerView.ItemAnimator animator = binding.publicRatingList.getItemAnimator();
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
+        videoDetailAdapter = new VideoDetailAdapter(publicRatingOptions(), reviewActionListener);
         // ConcatAdapter는 순서만 연결하며, 평가의 조회·페이지 관리는 FirebaseUI가 담당한다.
         // 기본 viewType 분리로 정보용 Holder와 평가용 Holder가 섞이지 않는다.
         ConcatAdapter detailAdapter = new ConcatAdapter(
@@ -532,6 +576,96 @@ public class VideoDetailActivity extends AppCompatActivity {
             renderPublicRatingsLoadState(states);
             return null;
         });
+
+        // 댓글 바텀시트에서 댓글·답글을 등록하면 해당 리뷰 행의 댓글 수를 즉시 +1 반영한다.
+        getSupportFragmentManager().setFragmentResultListener(
+                CommentBottomSheetFragment.REQUEST_KEY,
+                this,
+                new FragmentResultListener() {
+                    @Override
+                    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                        String ratingId = result.getString(CommentBottomSheetFragment.RESULT_RATING_ID, "");
+                        boolean added = result.getBoolean(CommentBottomSheetFragment.RESULT_COMMENT_ADDED, false);
+                        Log.d(TAG, "댓글 결과 수신(setFragmentResult): ratingId=" + ratingId + ", added=" + added);
+                        if (added && !ratingId.isEmpty() && videoDetailAdapter != null) {
+                            videoDetailAdapter.incrementCommentCount(ratingId);
+                        }
+                    }
+                });
+    }
+
+    // 공개 평가 카드의 좋아요 토글: ratings/{ratingId}/likes/{uid} 와 likeCount ±1을 한 번에 반영한다.
+    private void toggleReviewLike(@NonNull final String ratingId, final long currentLikeCount) {
+        if (ratingId.isEmpty() || ratingId.contains("/")) {
+            return;
+        }
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            makeToast(R.string.reactions_login_required);
+            return;
+        }
+        if (!likeRequestsInFlight.add(ratingId)) {
+            return;
+        }
+
+        final String uid = user.getUid();
+        final DocumentReference ratingRef = db.collection(FirestorePaths.RATINGS).document(ratingId);
+        final DocumentReference likeRef = ratingRef.collection(FirestorePaths.LIKES).document(uid);
+
+        likeRef.get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot snapshot) {
+                        final boolean currentlyLiked = snapshot.exists();
+                        WriteBatch batch = db.batch();
+                        if (currentlyLiked) {
+                            batch.delete(likeRef);
+                            batch.update(ratingRef, "likeCount", FieldValue.increment(-1));
+                        } else {
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("createdAt", FieldValue.serverTimestamp());
+                            batch.set(likeRef, data);
+                            batch.update(ratingRef, "likeCount", FieldValue.increment(1));
+                        }
+                        batch.commit()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        likeRequestsInFlight.remove(ratingId);
+                                        if (isFinishing() || isDestroyed() || videoDetailAdapter == null) {
+                                            return;
+                                        }
+                                        boolean nextLiked = !currentlyLiked;
+                                        long nextCount = nextLiked
+                                                ? currentLikeCount + 1L
+                                                : Math.max(0L, currentLikeCount - 1L);
+                                        videoDetailAdapter.updateLikeState(ratingId, nextLiked, nextCount);
+                                        Log.d(TAG, "리뷰 좋아요 토글 성공: ratingId=" + ratingId
+                                                + ", liked=" + nextLiked + ", count=" + nextCount);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception error) {
+                                        likeRequestsInFlight.remove(ratingId);
+                                        Log.e(TAG, "리뷰 좋아요 저장 실패: ratingId=" + ratingId, error);
+                                        if (!isFinishing() && !isDestroyed()) {
+                                            makeToast(R.string.reactions_save_error);
+                                        }
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception error) {
+                        likeRequestsInFlight.remove(ratingId);
+                        Log.e(TAG, "리뷰 좋아요 상태 조회 실패: ratingId=" + ratingId, error);
+                        if (!isFinishing() && !isDestroyed()) {
+                            makeToast(R.string.reactions_save_error);
+                        }
+                    }
+                });
     }
 
     // FirebaseUI가 사용할 조회 설정만 준비한다. 생명주기에 맞춘 시작·정지는 FirebaseUI가 관리한다.

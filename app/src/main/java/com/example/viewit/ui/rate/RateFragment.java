@@ -23,8 +23,13 @@ import com.example.viewit.R;
 import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.WatchHistoryRepository;
 import com.example.viewit.data.model.Video;
+import com.example.viewit.data.youtube.YouTubeAccountRepository;
+import com.example.viewit.data.youtube.YouTubeApi;
+import com.example.viewit.data.youtube.YouTubeException;
 import com.example.viewit.databinding.FragmentRateBinding;
+import com.example.viewit.ui.common.DurationFormat;
 import com.example.viewit.ui.common.TimeAgoFormat;
+import com.example.viewit.ui.common.YouTubeErrorMessage;
 import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -54,6 +59,7 @@ public class RateFragment extends Fragment {
     private final List<RateVideoAdapter.RateVideoItem> videoItems = new ArrayList<>();
     private final WatchHistoryRepository watchHistoryRepository = new WatchHistoryRepository();
     private final VideoRepository videoRepository = new VideoRepository();
+    private final YouTubeAccountRepository youTubeAccountRepository = new YouTubeAccountRepository();
 
     private int selectedTab = TAB_WATCHED;
     private int requestNumber;
@@ -77,7 +83,7 @@ public class RateFragment extends Fragment {
                                     && binding != null) {
                                 Log.d(TAG, "평가 변경 결과로 현재 탭 목록 갱신: tab=" + selectedTab);
                                 reloadedFromResult = true;
-                                loadCurrentTab();
+                                loadCurrentTab(false);
                             }
                         }
                     });
@@ -138,21 +144,22 @@ public class RateFragment extends Fragment {
                 selectedTab = nextTab;
                 Log.d(TAG, "평가하기 필터 칩 전환: tab=" + selectedTab);
                 updateSectionHeader(selectedTab);
-                loadCurrentTab();
+                loadCurrentTab(false);
             }
         });
 
-        // 4) 당겨서 새로고침 리스너 연결 (3개 탭 공통)
+        // 4) 당겨서 새로고침 리스너 연결 (3개 탭 공통).
+        // 좋아요·구독 채널 탭은 당겨서 새로고침일 때만 forceRefresh=true로 호출해 30분 캐시를 갱신한다.
         binding.rateRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 Log.d(TAG, "평가하기 당겨서 새로고침: tab=" + selectedTab);
-                loadCurrentTab();
+                loadCurrentTab(true);
             }
         });
 
         skipInitialResumeReload = true;
-        loadCurrentTab();
+        loadCurrentTab(false);
     }
 
     @Override
@@ -166,10 +173,11 @@ public class RateFragment extends Fragment {
             reloadedFromResult = false;
             return;
         }
-        // ViewPager2 스와이프로 다른 탭에서 영상을 보고 돌아왔을 때 최근 시청 목록을 반영한다.
-        if (selectedTab == TAB_WATCHED && binding != null) {
-            Log.d(TAG, "onResume: 앱에서 본 목록 새로고침");
-            loadCurrentTab();
+        // 다른 탭에서 영상을 보거나 설정에서 YouTube 연동 상태를 바꾸고 돌아왔을 때 현재 탭을 갱신한다.
+        // 좋아요·구독 채널 탭은 forceRefresh=false이므로 기존 연동 상태에서는 30분 메모리 캐시를 재사용한다.
+        if (binding != null) {
+            Log.d(TAG, "onResume: 현재 탭 목록 갱신(tab=" + selectedTab + ")");
+            loadCurrentTab(false);
         }
     }
 
@@ -217,8 +225,8 @@ public class RateFragment extends Fragment {
         }
     }
 
-    // 현재 선택된 탭의 목록을 조회한다.
-    private void loadCurrentTab() {
+    // 현재 선택된 탭의 목록을 조회한다. forceRefresh는 당겨서 새로고침일 때만 true.
+    private void loadCurrentTab(boolean forceRefresh) {
         if (binding == null) {
             return;
         }
@@ -237,9 +245,9 @@ public class RateFragment extends Fragment {
         if (selectedTab == TAB_WATCHED) {
             loadWatchedVideos(request);
         } else if (selectedTab == TAB_LIKED) {
-            loadOAuthTabVideos(request, R.string.rate_liked_connect_required);
+            loadOAuthTabVideos(request, TAB_LIKED, forceRefresh);
         } else {
-            loadOAuthTabVideos(request, R.string.rate_subscribed_connect_required);
+            loadOAuthTabVideos(request, TAB_SUBSCRIBED, forceRefresh);
         }
     }
 
@@ -329,22 +337,96 @@ public class RateFragment extends Fragment {
     }
 
     // 2·3) "좋아요" / "구독 채널" 탭:
-    // 6.3 YouTube 계정 연동(OAuth) 완료 시 같은 RateVideoItem 목록으로 showVideoItems()에 연결한다.
-    private void loadOAuthTabVideos(final int request, final int connectMessageRes) {
-        watchHistoryRepository.isYouTubeConnected()
+    // 6.3 YouTubeAccountRepository로 OAuth 영상 목록을 불러와 같은 RateVideoItem 목록으로 표시한다.
+    private void loadOAuthTabVideos(final int request, final int tab, final boolean forceRefresh) {
+        final int connectMessageRes = tab == TAB_LIKED
+                ? R.string.rate_liked_connect_required
+                : R.string.rate_subscribed_connect_required;
+        final int emptyMessageRes = tab == TAB_LIKED
+                ? R.string.rate_liked_empty
+                : R.string.rate_subscribed_empty;
+
+        youTubeAccountRepository.isConnected()
                 .addOnSuccessListener(new OnSuccessListener<Boolean>() {
                     @Override
                     public void onSuccess(Boolean connected) {
                         if (binding == null || request != requestNumber) {
                             return;
                         }
-                        hideLoading();
-                        if (Boolean.TRUE.equals(connected)) {
-                            Log.d(TAG, "YouTube 연동됨(OAuth 목록 연결 대기): tab=" + selectedTab);
-                            showStatus(R.string.rate_oauth_connected_preparing);
-                        } else {
-                            Log.d(TAG, "YouTube 미연동 안내 표시: tab=" + selectedTab);
+                        if (!Boolean.TRUE.equals(connected)) {
+                            hideLoading();
+                            Log.d(TAG, "YouTube 미연동 안내 표시: tab=" + tab);
                             showStatus(connectMessageRes);
+                            return;
+                        }
+
+                        Context context = getContext();
+                        if (context == null) {
+                            hideLoading();
+                            return;
+                        }
+
+                        Log.d(TAG, "YouTube OAuth 영상 조회 시작: tab=" + tab
+                                + ", forceRefresh=" + forceRefresh);
+                        YouTubeApi.Callback<List<Video>> callback = new YouTubeApi.Callback<List<Video>>() {
+                            @Override
+                            public void onSuccess(List<Video> videos) {
+                                if (binding == null || request != requestNumber) {
+                                    return;
+                                }
+                                hideLoading();
+                                Context currentContext = getContext();
+                                if (currentContext == null) {
+                                    return;
+                                }
+                                Date now = new Date();
+                                List<RateVideoAdapter.RateVideoItem> items = new ArrayList<>();
+                                for (Video video : videos) {
+                                    String videoId = video.getVideoId();
+                                    if (videoId == null || videoId.isEmpty()) {
+                                        continue;
+                                    }
+                                    String title = video.getTitle() != null
+                                            ? video.getTitle()
+                                            : currentContext.getString(R.string.feed_video_unavailable);
+                                    String metadata = buildYouTubeVideoMetadata(
+                                            currentContext, video, tab, now);
+                                    items.add(new RateVideoAdapter.RateVideoItem(
+                                            videoId,
+                                            video.getCategoryId(),
+                                            title,
+                                            metadata,
+                                            video.getThumbnailUrl()));
+                                }
+                                showVideoItems(items, emptyMessageRes);
+                                Log.d(TAG, "YouTube OAuth 영상 표시 완료: tab=" + tab
+                                        + ", count=" + items.size());
+                            }
+
+                            @Override
+                            public void onError(YouTubeException error) {
+                                if (binding == null || request != requestNumber) {
+                                    return;
+                                }
+                                hideLoading();
+                                Context currentContext = getContext();
+                                if (currentContext == null) {
+                                    return;
+                                }
+                                Log.w(TAG, "YouTube OAuth 영상 조회 실패: tab=" + tab
+                                        + ", reason=" + error.getReason());
+                                if (error.getReason() == YouTubeException.Reason.AUTH_REQUIRED) {
+                                    showStatus(R.string.youtube_error_auth_required);
+                                } else {
+                                    showStatus(YouTubeErrorMessage.of(currentContext, error));
+                                }
+                            }
+                        };
+
+                        if (tab == TAB_LIKED) {
+                            youTubeAccountRepository.loadLikedVideos(context, forceRefresh, callback);
+                        } else {
+                            youTubeAccountRepository.loadSubscriptionVideos(context, forceRefresh, callback);
                         }
                     }
                 })
@@ -389,6 +471,26 @@ public class RateFragment extends Fragment {
         return channel;
     }
 
+    // 좋아요·구독 채널 탭의 보조 문구를 만든다 (채널명 · 업로드 시각 또는 재생 시간).
+    private String buildYouTubeVideoMetadata(@NonNull Context context,
+                                             @NonNull Video video,
+                                             int tab,
+                                             @NonNull Date now) {
+        String channel = video.getChannelTitle() == null ? "" : video.getChannelTitle().trim();
+        String subText = "";
+        if (tab == TAB_SUBSCRIBED && video.getPublishedAt() != null) {
+            subText = TimeAgoFormat.format(context, video.getPublishedAt().toDate(), now);
+        } else if (video.getDurationSeconds() > 0) {
+            subText = DurationFormat.format(video.getDurationSeconds());
+        } else if (video.getPublishedAt() != null) {
+            subText = TimeAgoFormat.format(context, video.getPublishedAt().toDate(), now);
+        }
+        if (!channel.isEmpty() && !subText.isEmpty()) {
+            return context.getString(R.string.rate_video_meta, channel, subText);
+        }
+        return !channel.isEmpty() ? channel : subText;
+    }
+
     private void showLoading() {
         if (binding == null) {
             return;
@@ -411,6 +513,14 @@ public class RateFragment extends Fragment {
             return;
         }
         binding.rateStatus.setText(messageRes);
+        binding.rateStatus.setVisibility(View.VISIBLE);
+    }
+
+    private void showStatus(@NonNull CharSequence message) {
+        if (binding == null) {
+            return;
+        }
+        binding.rateStatus.setText(message);
         binding.rateStatus.setVisibility(View.VISIBLE);
     }
 

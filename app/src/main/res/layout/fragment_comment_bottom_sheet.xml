@@ -32,6 +32,46 @@
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />
 
+    <!-- 원래 리뷰(원본 평가) 카드: 바텀시트 맨 위에 고정 표시 -->
+    <LinearLayout
+        android:id="@+id/comments_original_review"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
+        android:background="@drawable/bg_share_preview_card"
+        android:orientation="vertical"
+        android:padding="@dimen/space_m"
+        android:visibility="gone">
+
+        <include
+            android:id="@+id/comments_original_author"
+            layout="@layout/view_author" />
+
+        <TextView
+            android:id="@+id/comments_original_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:textAppearance="@style/TextAppearance.Viewit.Rating" />
+
+        <TextView
+            android:id="@+id/comments_original_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:maxLines="4"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Viewit.Body" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/comments_original_divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:layout_marginTop="@dimen/space_s"
+        android:background="@color/border_default"
+        android:visibility="gone" />
+
     <!-- 댓글 목록 상태 안내 (로딩 등) -->
     <TextView
         android:id="@+id/comments_status"
@@ -46,7 +86,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/comments_list"
         android:layout_width="match_parent"
-        android:layout_height="360dp"
+        android:layout_height="300dp"
         android:clipToPadding="false"
         android:paddingVertical="@dimen/space_s" />
 

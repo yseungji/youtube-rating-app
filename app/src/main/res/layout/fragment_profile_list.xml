@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 프로필 "보관함"·"최근 본 영상" 탭 (6.1). 두 탭이 같은 레이아웃을 쓴다.
-     저장하는 기능(5.4 나중에 보기, 5.1 앱에서 본 영상)이 생기기 전까지는 빈 화면만 보인다.
-     목록을 붙이면 profile_list에 item_video_row를 채운다 (Figma "05 · 프로필 – 보관함 탭"). -->
+     목록 한 줄은 item_video_row (Figma "05 · 프로필 – 보관함 탭"), 비었으면 빈 화면. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -15,4 +14,12 @@
     <include
         android:id="@+id/profile_list_empty"
         layout="@layout/view_profile_empty" />
+
+    <ProgressBar
+        android:id="@+id/profile_list_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="56dp"
+        android:visibility="gone" />
 </FrameLayout>

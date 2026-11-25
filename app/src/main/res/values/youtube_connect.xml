@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- YouTube 계정 연동 (6.3). 설정 화면과 평가하기 탭(5.1)에서 쓴다 -->
+<resources>
+    <string name="settings_youtube_connected">연결됨</string>
+
+    <string name="youtube_connect_done">YouTube 계정을 연동했어요.</string>
+    <string name="youtube_connect_cancelled">YouTube 연동을 취소했어요.</string>
+    <string name="youtube_connect_failed">YouTube 계정을 연동하지 못했어요. 잠시 후 다시 시도해 주세요.</string>
+
+    <string name="youtube_disconnect_dialog_title">YouTube 연동을 해제할까요?</string>
+    <string name="youtube_disconnect_dialog_message">구독 채널 영상과 좋아요 영상을 더 이상 불러오지 않아요. 언제든 다시 연동할 수 있어요.</string>
+    <string name="youtube_disconnect_confirm">해제</string>
+    <string name="youtube_disconnect_done">YouTube 연동을 해제했어요.</string>
+    <string name="youtube_disconnect_failed">연동을 해제하지 못했어요. 잠시 후 다시 시도해 주세요.</string>
+
+    <string name="youtube_error_auth_required">설정에서 YouTube 계정을 연동해 주세요.</string>
+</resources>

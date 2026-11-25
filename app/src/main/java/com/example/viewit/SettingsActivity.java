@@ -3,11 +3,16 @@ package com.example.viewit;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
@@ -17,15 +22,48 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.viewit.data.AccountRepository;
+import com.example.viewit.data.youtube.YouTubeAccountRepository;
 import com.example.viewit.databinding.ActivitySettingsBinding;
 import com.example.viewit.databinding.ViewSettingsRowBinding;
 import com.example.viewit.ui.profile.ProfileEditActivity;
 
-// 설정 화면 (6.3, Figma 10 · 설정). 지금 동작하는 것은 로그아웃·회원 탈퇴이고, 나머지 줄은 "준비 중" 안내.
+// 설정 화면 (6.3, Figma 10 · 설정). 지금 동작하는 것은 프로필 편집·YouTube 연동·로그아웃·회원 탈퇴이고, 나머지 줄은 "준비 중" 안내.
 public class SettingsActivity extends AppCompatActivity {
+
+    private static final String TAG = "SettingsActivity";
 
     private ActivitySettingsBinding binding;
     private final AccountRepository account = new AccountRepository();   // 로그아웃·탈퇴 처리
+
+    // ---------- YouTube 계정 연동 ----------
+    private final YouTubeAccountRepository youtubeAccount = new YouTubeAccountRepository();
+    private boolean youtubeConnected;   // 지금 연동되어 있는지 (화면 열 때 Firestore에서 읽음)
+
+    private final YouTubeAccountRepository.ConnectCallback youtubeConnectCallback =
+        new YouTubeAccountRepository.ConnectCallback() {
+            @Override
+            public void onConnected() {
+                youtubeConnected = true;
+                showYoutubeState();
+                Toast.makeText(SettingsActivity.this, R.string.youtube_connect_done, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled() {
+                Toast.makeText(SettingsActivity.this, R.string.youtube_connect_cancelled, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                Log.w(TAG, "YouTube 연동 실패", error);   // 원인은 Logcat에서 확인
+                Toast.makeText(SettingsActivity.this, R.string.youtube_connect_failed, Toast.LENGTH_SHORT).show();
+            }
+        };
+
+    // Google 권한 창. 닫히면 결과를 저장소에 넘기고, 결과는 youtubeConnectCallback으로 온다
+    private final ActivityResultLauncher<IntentSenderRequest> youtubeLauncher =
+        registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(),
+            result -> youtubeAccount.handleConnectResult(this, result, youtubeConnectCallback));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +75,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         applySystemBarPadding();   // 상태바·내비게이션 바만큼 여백
         setupRows();               // 설정 줄 아이콘·글자 채우기, 아직 없는 기능은 "준비 중"
+        loadYoutubeState();        // YouTube 연동 여부 읽어서 "연결됨/연결 안 됨" 표시
 
         binding.settingsBack.getRoot().setOnClickListener(v -> finish());
         binding.settingsLogout.setOnClickListener(v -> showLogoutDialog());
@@ -86,6 +125,65 @@ public class SettingsActivity extends AppCompatActivity {
         finish();
     }
 
+    // ---------- YouTube 계정 연동 (6.3) ----------
+
+    private void loadYoutubeState() {
+        youtubeAccount.isConnected().addOnSuccessListener(connected -> {
+            youtubeConnected = connected;
+            showYoutubeState();
+        });
+    }
+
+    // 연동 줄 오른쪽 값 글자 바꾸기
+    private void showYoutubeState() {
+        if(youtubeConnected)
+            binding.settingsYoutube.rowValue.setText(R.string.settings_youtube_connected);
+        else
+            binding.settingsYoutube.rowValue.setText(R.string.settings_youtube_disconnected);
+    }
+
+    // 연동 줄을 눌렀을 때
+    private void onYoutubeRowClick() {
+        if(youtubeConnected)
+            showYoutubeDisconnectDialog();
+        else
+            startYoutubeConnect();
+        //   - 연동 안 됨 → startYoutubeConnect()
+        //   - 연동됨 → showYoutubeDisconnectDialog()
+    }
+
+    // Google 권한 창 띄우기 (이미 허용했으면 창 없이 바로 youtubeConnectCallback.onConnected)
+    private void startYoutubeConnect() {
+        youtubeAccount.connect(this, youtubeLauncher, youtubeConnectCallback);
+    }
+
+    // 연동 해제 확인창
+    private void showYoutubeDisconnectDialog() {
+        new AlertDialog.Builder(this)
+            .setTitle(R.string.youtube_disconnect_dialog_title)
+            .setMessage(R.string.youtube_disconnect_dialog_message)
+            .setPositiveButton(R.string.youtube_disconnect_confirm, new DialogInterface.OnClickListener(){
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    disconnectYoutube();
+                }
+            })
+            .setNegativeButton(R.string.dialog_cancel, null)
+            .create()
+            .show();
+    }
+
+    private void disconnectYoutube() {
+        youtubeAccount.disconnect(this, () -> {
+            youtubeConnected = false;
+            showYoutubeState();
+            Toast.makeText(this, R.string.youtube_disconnect_done, Toast.LENGTH_SHORT).show();
+        }, error -> {
+            Log.w(TAG, "YouTube 연동 해제 실패", error);
+            Toast.makeText(this, R.string.youtube_disconnect_failed, Toast.LENGTH_SHORT).show();
+        });
+    }
+
     // ---------- 화면 채우기 ----------
 
     private void applySystemBarPadding() {
@@ -114,7 +212,7 @@ public class SettingsActivity extends AppCompatActivity {
         bindRow(binding.settingsAppVersion, R.drawable.ic_info_outline,
             R.string.settings_app_version, 0, BuildConfig.VERSION_NAME, false);
 
-        // 아직 만들지 않은 기능 (프로필 편집·YouTube 연동·내 활동·공개 범위·차단·약관은 6.3 후속)
+        // 아직 만들지 않은 기능 (내 활동·공개 범위·차단·약관은 6.3 후속)
         View.OnClickListener comingSoon = v ->
             Toast.makeText(this, R.string.profile_coming_soon, Toast.LENGTH_SHORT).show();
         // 프로필 편집 화면 열기
@@ -122,7 +220,7 @@ public class SettingsActivity extends AppCompatActivity {
             Intent intent = new Intent(this, ProfileEditActivity.class);
             startActivity(intent);
         });
-        binding.settingsYoutube.getRoot().setOnClickListener(comingSoon);
+        binding.settingsYoutube.getRoot().setOnClickListener(v -> onYoutubeRowClick());
         binding.settingsMyActivity.getRoot().setOnClickListener(comingSoon);
         binding.settingsVisibility.getRoot().setOnClickListener(comingSoon);
         binding.settingsBlocked.getRoot().setOnClickListener(comingSoon);

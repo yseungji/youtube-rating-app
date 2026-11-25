@@ -38,6 +38,9 @@ public final class YouTubeErrorMessage {
             case NETWORK:
                 res = R.string.youtube_error_network;
                 break;
+            case AUTH_REQUIRED:
+                res = R.string.youtube_error_auth_required;
+                break;
             default:
                 res = R.string.youtube_error_unknown;
                 break;

@@ -34,6 +34,7 @@ public class ProfileRatingsFragment extends Fragment {
     private static final String ARG_PUBLIC_ONLY = "publicOnly";   // 다른 사람 프로필이면 공개 평가만
 
     private boolean publicOnly;
+    private String uid;            // 누구의 평가 격자인지
 
     static public ProfileRatingsFragment newInstance(String uid) {
         return newInstance(uid, false);
@@ -58,7 +59,7 @@ public class ProfileRatingsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        String uid = requireArguments().getString(ARG_UID);
+        uid = requireArguments().getString(ARG_UID);
         publicOnly = requireArguments().getBoolean(ARG_PUBLIC_ONLY);
         adapter = new RatingTileAdapter(rating -> openVideo(rating));
         binding.profileRatingsList.setLayoutManager(
@@ -67,7 +68,20 @@ public class ProfileRatingsFragment extends Fragment {
         // 칸 사이 2dp 간격 (Figma Rated video grid). dimens의 dp 값을 코드에서는 px로 바꿔 받는다
         int spacing = getResources().getDimensionPixelSize(R.dimen.profile_grid_spacing);
         binding.profileRatingsList.addItemDecoration(new GridSpacingItemDecoration(3, spacing));
-        loadRatings(uid);
+    }
+
+    // 탭이 보일 때와 영상 상세에서 돌아올 때마다 새로 불러온다 (그사이 평가를 고쳤거나 지웠을 수 있음)
+    @Override
+    public void onResume() {
+        super.onResume();
+        reload();
+    }
+
+    // 프로필 화면을 당겨서 새로고침할 때도 부른다
+    public void reload() {
+        if (binding != null && uid != null) {
+            loadRatings(uid);
+        }
     }
     private void loadRatings(String uid){
         Query query = FirebaseFirestore.getInstance()

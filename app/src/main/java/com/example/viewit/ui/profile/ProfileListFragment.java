@@ -81,6 +81,11 @@ public class ProfileListFragment extends Fragment {
         loadItems();
     }
 
+    // 프로필 화면을 당겨서 새로고침할 때 부른다
+    public void reload() {
+        loadItems();
+    }
+
     // 줄을 누르면 영상 상세 열기
     private void openVideo(RatedVideoItem item) {
         // 돌아오면 onResume이 다시 불러온다

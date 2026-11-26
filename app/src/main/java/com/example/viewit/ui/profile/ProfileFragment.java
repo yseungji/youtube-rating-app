@@ -107,6 +107,8 @@ public class ProfileFragment extends Fragment {
             }
         }).attach();
         setupStatusBarArea();
+        // 아래로 당기면 새로고침
+        binding.profileRefresh.setOnRefreshListener(() -> refreshAll());
         listenProfile(profileUid);
         loadRatingCount(profileUid);
         loadFollowCounts(profileUid);
@@ -341,12 +343,14 @@ public class ProfileFragment extends Fragment {
         loadBanner(profileUid, profile == null ? null : profile.getBannerVideoId());
     }
 
-    // 목록 화면에서 팔로우를 바꾸고 돌아왔을 때 숫자를 맞춘다
     @Override
     public void onResume() {
         super.onResume();
         if (profileUid != null && !isHidden()) {
+            // 영상 상세에서 평가를 고치거나 목록에서 팔로우를 바꾸고 돌아왔을 때 숫자·배너를 맞춘다
+            loadRatingCount(profileUid);
             loadFollowCounts(profileUid);
+            loadBanner(profileUid, profile == null ? null : profile.getBannerVideoId());
         }
         applyStatusBarIcons();
     }
@@ -374,6 +378,7 @@ public class ProfileFragment extends Fragment {
         // 아래로 스크롤해 상단이 다 접히면 상태바 뒤를 흰 가림막으로 덮고 글씨는 검정으로
         binding.profileAppBar.addOnOffsetChangedListener((appBar, offset) -> {
             if (binding == null) return;
+            binding.profileRefresh.setEnabled(offset == 0);   // 상단이 다 펼쳐졌을 때만 당겨서 새로고침
             int range = appBar.getTotalScrollRange();
             float fraction = range == 0 ? 0f : -offset / (float) range;
             binding.profileStatusScrim.setAlpha(Math.max(0f, (fraction - 0.85f) / 0.15f));
@@ -408,6 +413,10 @@ public class ProfileFragment extends Fragment {
         // 다 접혀도 상태바 높이만큼은 남아서 탭 줄이 상태바 아래에 붙는다. 그 자리는 흰 가림막이 덮는다
         binding.profileHeader.setMinimumHeight(statusBarHeight);
         setHeight(binding.profileStatusScrim, statusBarHeight);
+
+        // 새로고침 동그라미도 상태바 아래에서 내려오게
+        int pull = getResources().getDimensionPixelSize(R.dimen.app_bar_height);
+        binding.profileRefresh.setProgressViewOffset(false, statusBarHeight, statusBarHeight + pull);
     }
 
     private static void setHeight(View view, int height) {
@@ -466,7 +475,34 @@ public class ProfileFragment extends Fragment {
     }
 
     // 내 프로필은 비공개 평가까지, 다른 사람 프로필은 공개 평가만 센다
-    private void loadRatingCount(String uid){
+    // 당겨서 새로고침: 숫자·배너와 지금 만들어져 있는 탭 목록을 다시 불러온다.
+    // 동그라미는 평가 수를 받으면 끈다 (탭 목록은 각자 로딩 표시가 있다)
+    private void refreshAll() {
+        if (profileUid == null) {
+            binding.profileRefresh.setRefreshing(false);
+            return;
+        }
+        loadFollowCounts(profileUid);
+        loadBanner(profileUid, profile == null ? null : profile.getBannerVideoId());
+        for (Fragment child : getChildFragmentManager().getFragments()) {
+            if (child instanceof ProfileRatingsFragment) {
+                ((ProfileRatingsFragment) child).reload();
+            } else if (child instanceof ProfileListFragment) {
+                ((ProfileListFragment) child).reload();
+            }
+        }
+        loadRatingCount(profileUid, () -> {
+            if (binding != null) {
+                binding.profileRefresh.setRefreshing(false);
+            }
+        });
+    }
+
+    private void loadRatingCount(String uid) {
+        loadRatingCount(uid, null);
+    }
+
+    private void loadRatingCount(String uid, @Nullable Runnable onDone){
         Query query = FirebaseFirestore.getInstance()
             .collection(FirestorePaths.RATINGS)
             .whereEqualTo("userId",uid);
@@ -480,8 +516,12 @@ public class ProfileFragment extends Fragment {
                     return;                               // 화면이 이미 없어짐
                 }
                 binding.profileRatingCount.setText(String.valueOf(result.getCount()));
+                if (onDone != null) onDone.run();
             })
-            .addOnFailureListener(e -> Log.w(TAG,"rating count failed", e));
+            .addOnFailureListener(e -> {
+                Log.w(TAG,"rating count failed", e);
+                if (onDone != null) onDone.run();
+            });
     }
 
     // 팔로워·팔로잉 수는 follows를 바로 센다 (users의 숫자 필드는 쓰지 않음)

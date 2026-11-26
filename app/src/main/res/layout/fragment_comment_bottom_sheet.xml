@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/comments_sheet_root"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:layout_height="match_parent"
     android:background="@drawable/bg_rating_delete_dialog"
-    android:paddingTop="@dimen/space_s"
-    android:paddingHorizontal="@dimen/screen_padding">
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/screen_padding"
+    android:paddingTop="@dimen/space_s">
 
     <!-- 피그마 상단 손잡이 (끌어서 닫기) -->
     <View
@@ -23,9 +24,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingBottom="@dimen/space_m"
         android:text="@string/comments_title"
-        android:textAppearance="@style/TextAppearance.Viewit.Title"
-        android:paddingBottom="@dimen/space_m" />
+        android:textAppearance="@style/TextAppearance.Viewit.Title" />
 
     <View
         android:layout_width="match_parent"
@@ -40,7 +41,7 @@
         android:layout_marginTop="@dimen/space_s"
         android:background="@drawable/bg_share_preview_card"
         android:orientation="vertical"
-        android:padding="@dimen/space_m"
+        android:padding="@dimen/space_s"
         android:visibility="gone">
 
         <include
@@ -51,7 +52,7 @@
             android:id="@+id/comments_original_rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_s"
+            android:layout_marginTop="@dimen/space_xs"
             android:textAppearance="@style/TextAppearance.Viewit.Rating" />
 
         <TextView
@@ -59,8 +60,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_xs"
-            android:maxLines="4"
             android:ellipsize="end"
+            android:maxLines="3"
             android:textAppearance="@style/TextAppearance.Viewit.Body" />
     </LinearLayout>
 
@@ -72,57 +73,67 @@
         android:background="@color/border_default"
         android:visibility="gone" />
 
-    <!-- 댓글 목록 상태 안내 (로딩 등) -->
-    <TextView
-        android:id="@+id/comments_status"
+    <!-- 가운데 가변 영역: 화면 크기·키보드 높이에 맞춰 남은 공간만 댓글 목록/빈 안내가 차지한다. -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingVertical="@dimen/space_s"
-        android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
-        android:text="@string/comments_loading"
-        android:visibility="gone" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <!-- 댓글 목록 (최대 높이 제한 등 리사이클러뷰) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/comments_list"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:clipToPadding="false"
-        android:paddingVertical="@dimen/space_s" />
+        <!-- 댓글 목록 리사이클러뷰 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/comments_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingVertical="@dimen/space_s" />
 
-    <!-- 04. 첫 댓글 빈 상태 안내 (댓글 없을 때) -->
-    <LinearLayout
-        android:id="@+id/comments_empty"
-        android:layout_width="match_parent"
-        android:layout_height="240dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
+        <!-- 첫 댓글 빈 상태 안내 (댓글 없을 때) -->
+        <LinearLayout
+            android:id="@+id/comments_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingVertical="@dimen/space_l"
+            android:visibility="gone">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="아직 댓글이 없어요"
+                android:textAppearance="@style/TextAppearance.Viewit.Title" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:text="이 평가에 대한 생각을 남겨보세요."
+                android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary" />
+        </LinearLayout>
+
+        <!-- 댓글 목록 상태 안내 (로딩·오류 등) -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/comments_status"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="아직 댓글이 없어요"
-            android:textAppearance="@style/TextAppearance.Viewit.Title" />
+            android:layout_gravity="top|center_horizontal"
+            android:gravity="center"
+            android:paddingVertical="@dimen/space_m"
+            android:text="@string/comments_loading"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+            android:visibility="gone" />
+    </FrameLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xs"
-            android:text="이 평가에 대한 생각을 남겨보세요."
-            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary" />
-    </LinearLayout>
-
-    <!-- 03. 답글 남기는 중 안내 바 (기본: gone, X버튼으로 취소) -->
+    <!-- 답글 남기는 중 안내 바 (기본: gone, X버튼으로 취소) -->
     <LinearLayout
         android:id="@+id/reply_target_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:background="@color/action_soft"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="@dimen/space_m"
         android:paddingVertical="@dimen/space_xs"
-        android:background="@color/action_soft"
         android:visibility="gone">
 
         <TextView
@@ -138,17 +149,23 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            android:contentDescription="답글 취소" />
+            android:contentDescription="답글 취소"
+            android:src="@drawable/ic_close" />
     </LinearLayout>
 
-    <!-- 하단 댓글 작성 컴포저 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+
+    <!-- 하단 댓글 작성 컴포저 (항상 바닥에 고정) -->
     <LinearLayout
+        android:id="@+id/comments_composer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingVertical="@dimen/space_m">
+        android:paddingVertical="@dimen/space_s">
 
         <!-- 내 프로필 아바타 (댓글 입력창 왼쪽) -->
         <TextView
@@ -166,7 +183,7 @@
             android:layout_weight="1"
             android:background="@drawable/bg_input"
             android:gravity="center_vertical"
-            android:hint="회원님의 생각을 남겨주세요…"
+            android:hint="@string/comments_input_hint"
             android:inputType="textCapSentences|textMultiLine"
             android:maxLength="500"
             android:maxLines="4"
@@ -180,7 +197,7 @@
             android:layout_height="36dp"
             android:layout_marginStart="@dimen/space_s"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_send"
-            android:contentDescription="@string/comments_send" />
+            android:contentDescription="@string/comments_send"
+            android:src="@drawable/ic_send" />
     </LinearLayout>
 </LinearLayout>

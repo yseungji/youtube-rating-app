@@ -102,6 +102,7 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
     private static final String TAG = "VideoDetailAdapter";
     public static final String PAYLOAD_LIKE_CHANGED = "LIKE_CHANGED";
     public static final String PAYLOAD_COMMENT_CHANGED = "COMMENT_CHANGED";
+    public static final String PAYLOAD_WATCH_LATER_CHANGED = "WATCH_LATER_CHANGED";
 
     public interface OnReviewActionListener {
         void onLikeClick(@NonNull String ratingId, @NonNull Rating rating, long currentLikeCount);
@@ -110,6 +111,10 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
                             @NonNull Rating rating,
                             @NonNull String authorName,
                             @NonNull String authorMeta);
+
+        void onShareClick(@NonNull Rating rating, @NonNull String authorName);
+
+        void onWatchLaterClick(boolean alreadySaved);
     }
 
     // =========================================================================
@@ -120,6 +125,7 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
         String boundRatingId;
         Rating boundRating;
         long boundLikeCount;
+        boolean boundWatchLaterSaved;
         String boundUid;
         String boundAuthorName = "";
         String boundAuthorMeta = "";
@@ -136,6 +142,7 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
                          long likeCount,
                          boolean liked,
                          long commentCount,
+                         boolean watchLaterSaved,
                          @Nullable OnReviewActionListener listener) {
             bindingGeneration++;
             boundRatingId = ratingId;
@@ -153,6 +160,7 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
 
             updateLikeUi(likeCount, liked);
             updateCommentUi(commentCount);
+            updateWatchLaterUi(watchLaterSaved);
             showProfile(null);
 
             itemBinding.reviewActions.reviewActionLike.setOnClickListener(new View.OnClickListener() {
@@ -169,6 +177,24 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
                 public void onClick(View v) {
                     if (listener != null && boundRatingId != null && boundRating != null) {
                         listener.onCommentClick(boundRatingId, boundRating, boundAuthorName, boundAuthorMeta);
+                    }
+                }
+            });
+
+            itemBinding.reviewActions.reviewActionShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null && boundRating != null) {
+                        listener.onShareClick(boundRating, boundAuthorName);
+                    }
+                }
+            });
+
+            itemBinding.reviewActions.reviewActionWatchLater.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        listener.onWatchLaterClick(boundWatchLaterSaved);
                     }
                 }
             });
@@ -193,6 +219,18 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
             Context context = itemBinding.getRoot().getContext();
             itemBinding.reviewActions.reviewActionComment.setText(context.getString(
                     R.string.video_detail_review_comment_count, Math.max(0, commentCount)));
+        }
+
+        void updateWatchLaterUi(boolean saved) {
+            boundWatchLaterSaved = saved;
+            Context context = itemBinding.getRoot().getContext();
+            int iconRes = saved ? R.drawable.ic_bookmark : R.drawable.ic_bookmark_outline;
+            int colorRes = saved ? R.color.text_primary : R.color.text_secondary;
+            itemBinding.reviewActions.reviewActionWatchLater.setCompoundDrawablesWithIntrinsicBounds(
+                    iconRes, 0, 0, 0);
+            TextViewCompat.setCompoundDrawableTintList(
+                    itemBinding.reviewActions.reviewActionWatchLater,
+                    ColorStateList.valueOf(ContextCompat.getColor(context, colorRes)));
         }
 
         void showProfile(User profile) {
@@ -225,6 +263,7 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
     private final Map<String, Boolean> likedByMeCache = new HashMap<>();
     private final Map<String, Long> likeCountOverrides = new HashMap<>();
     private final Map<String, Long> commentCountOverrides = new HashMap<>();
+    private boolean watchLaterSaved;
     @Nullable
     private final OnReviewActionListener actionListener;
 
@@ -240,6 +279,18 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
         likedByMeCache.clear();
         likeCountOverrides.clear();
         commentCountOverrides.clear();
+    }
+
+    // 영상 상세 화면은 모두 같은 영상의 평가이므로, 나중에 보기 저장·취소 시 전체 행의 북마크 아이콘만 부분 갱신한다.
+    public void setWatchLaterSaved(boolean saved) {
+        if (this.watchLaterSaved == saved) {
+            return;
+        }
+        this.watchLaterSaved = saved;
+        int count = getItemCount();
+        if (count > 0) {
+            notifyItemRangeChanged(0, count, PAYLOAD_WATCH_LATER_CHANGED);
+        }
     }
 
     // 좋아요 토글 성공 후 해당 평가 행만 부분 갱신한다.
@@ -301,6 +352,9 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
                 long commentCount = resolveCommentCount(ratingId, model != null ? model.getCommentCount() : 0L);
                 holder.updateCommentUi(commentCount);
             }
+            if (payloads.contains(PAYLOAD_WATCH_LATER_CHANGED)) {
+                holder.updateWatchLaterUi(watchLaterSaved);
+            }
             return;
         }
         super.onBindViewHolder(holder, position, payloads);
@@ -313,7 +367,7 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
         boolean liked = Boolean.TRUE.equals(likedByMeCache.get(ratingId));
         long commentCount = resolveCommentCount(ratingId, model.getCommentCount());
 
-        holder.bind(ratingId, model, likeCount, liked, commentCount, actionListener);
+        holder.bind(ratingId, model, likeCount, liked, commentCount, watchLaterSaved, actionListener);
 
         final int generation = holder.bindingGeneration;
         bindAuthorProfile(holder, model.getUserId(), generation);
@@ -429,6 +483,7 @@ public class VideoDetailAdapter extends FirestorePagingAdapter<Rating, VideoDeta
         holder.boundRatingId = null;
         holder.boundRating = null;
         holder.boundLikeCount = 0L;
+        holder.boundWatchLaterSaved = false;
         holder.boundUid = null;
         super.onViewRecycled(holder);
     }

@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 탐색 탭 화면 뼈대. 내용: 최근 검색어·영상/사용자 검색 (4.4 장주원) -->
+<!-- 탐색 탭 (4.4 장주원, Figma 02 탐색 · 07 영상 검색 결과 · 08 사용자 검색 결과).
+     위에서부터 앱 바 → 검색창 → [검색 전] 최근 검색어 / [검색 후] 영상·사용자 칩 + 결과.
+     영상 결과는 "서비스에 등록된 영상"(우리 앱에서 평가된 영상) 아래에 "YouTube에서 더 찾기" 상자를 둔다.
+     YouTube 검색은 100유닛이라 버튼을 눌렀을 때만 하고, 그 결과는 상자 아래에 붙는다.
+     [영상]/[사용자]는 칩을 누르거나 좌우로 밀어서 넘긴다 (ViewPager2, 메인 5탭 스와이프와는 SwipeablePagerContainer가 조율).
+     영상 한 줄은 카테고리 탭과 같은 item_category_video, 사용자 한 줄은 item_user_result, 최근 검색어는 item_search_history. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -20,10 +27,127 @@
         android:layout_height="@dimen/divider"
         android:background="@color/border_default" />
 
-    <!-- 담당자가 화면 내용을 넣을 영역 -->
+    <!-- 검색창 (공통 view_search_field). 입력칸은 binding.searchField.searchInput -->
+    <include
+        android:id="@+id/search_field"
+        layout="@layout/view_search_field"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/search_field_height"
+        android:layout_marginHorizontal="@dimen/screen_padding"
+        android:layout_marginTop="@dimen/space_l" />
+
     <FrameLayout
-        android:id="@+id/search_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <!-- [검색 전] 최근 검색어 -->
+        <LinearLayout
+            android:id="@+id/search_history_section"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_padding">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/search_recent_title"
+                    android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+                <TextView
+                    android:id="@+id/search_history_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="@dimen/space_xs"
+                    android:text="@string/search_recent_clear"
+                    android:textAppearance="@style/TextAppearance.Viewit.Caption" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/search_history_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="@dimen/space_xl"
+                android:text="@string/search_recent_empty"
+                android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/search_history_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/space_s"
+                android:clipToPadding="false"
+                android:paddingHorizontal="@dimen/space_xs"
+                tools:itemCount="4"
+                tools:listitem="@layout/item_search_history" />
+        </LinearLayout>
+
+        <!-- [검색 후] 영상·사용자 칩 + 결과 -->
+        <LinearLayout
+            android:id="@+id/search_result_section"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/search_tab_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:paddingHorizontal="@dimen/screen_padding"
+                app:checkedChip="@id/search_tab_video"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/search_tab_video"
+                    style="@style/Widget.Viewit.Chip.Segment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_tab_video" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/search_tab_user"
+                    style="@style/Widget.Viewit.Chip.Segment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_tab_user" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <!-- 영상(0)·사용자(1) 페이지. 칩을 누르거나 좌우로 밀어서 넘긴다.
+                     페이지 내용은 page_search_videos.xml, page_search_users.xml -->
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/search_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ProgressBar
+                    android:id="@+id/search_loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

@@ -51,6 +51,7 @@ public final class YouTubeApi {
     }
 
     private static final String VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos";
+    private static final String SEARCH_URL = "https://www.googleapis.com/youtube/v3/search";
     private static final String SUBSCRIPTIONS_URL = "https://www.googleapis.com/youtube/v3/subscriptions";
     private static final String CHANNELS_URL = "https://www.googleapis.com/youtube/v3/channels";
     private static final String PLAYLIST_ITEMS_URL = "https://www.googleapis.com/youtube/v3/playlistItems";
@@ -61,6 +62,7 @@ public final class YouTubeApi {
     private static final int MAX_IDS_PER_REQUEST = 50;
     private static final String POPULAR_REGION = "KR";
     private static final int POPULAR_MAX_RESULTS = 30;
+    private static final int SEARCH_MAX_RESULTS = 50; // search.list 한 번의 최대치. 개수와 상관없이 100유닛
     private static final int TIMEOUT_MS = 10_000;
 
     private static YouTubeApi instance;
@@ -160,6 +162,64 @@ public final class YouTubeApi {
         String next = response.optString("nextPageToken", "");
         return new PopularPage(YouTubeVideoParser.parse(response, Timestamp.now()),
                 next.isEmpty() ? null : next);
+    }
+
+    // YouTube에서 영상을 검색한다(4.4 탐색 "YouTube에서 더 찾기"). 한국어·한국 기준 관련성 순 최대 50개.
+    // 검색(search.list)은 요청 1번에 100유닛이라 비싸다 → 사용자가 버튼을 눌렀을 때만 부른다.
+    // 검색 결과에는 재생 시간이 없어서 영상 정보(videos.list, 1유닛)를 한 번 더 받는다. 결과는 검색 순서 그대로
+    public void searchVideos(@NonNull String query, @NonNull Callback<List<Video>> callback) {
+        executor.execute(() -> {
+            try {
+                List<Video> videos = searchVideosBlocking(query);
+                mainHandler.post(() -> callback.onSuccess(videos));
+            } catch (YouTubeException e) {
+                mainHandler.post(() -> callback.onError(e));
+            }
+        });
+    }
+
+    private List<Video> searchVideosBlocking(String query) throws YouTubeException {
+        requireApiKey();
+        String url = Uri.parse(SEARCH_URL).buildUpon()
+                .appendQueryParameter("part", "id")
+                .appendQueryParameter("type", "video")
+                .appendQueryParameter("q", query)
+                .appendQueryParameter("regionCode", POPULAR_REGION)
+                .appendQueryParameter("relevanceLanguage", "ko")
+                .appendQueryParameter("safeSearch", "moderate")
+                .appendQueryParameter("maxResults", String.valueOf(SEARCH_MAX_RESULTS))
+                .appendQueryParameter("fields", "items(id/videoId)")
+                .appendQueryParameter("key", apiKey)
+                .build()
+                .toString();
+        JSONArray items = get(url).optJSONArray("items");
+        List<String> ids = new ArrayList<>();
+        if (items != null) {
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject item = items.optJSONObject(i);
+                JSONObject id = item == null ? null : item.optJSONObject("id");
+                String videoId = id == null ? "" : id.optString("videoId");
+                if (!videoId.isEmpty()) {
+                    ids.add(videoId);
+                }
+            }
+        }
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // videos.list는 순서를 보장하지 않으므로 검색 순서대로 다시 맞춘다
+        Map<String, Video> byId = new HashMap<>();
+        for (Video video : fetchVideosBlocking(ids)) {
+            byId.put(video.getVideoId(), video);
+        }
+        List<Video> ordered = new ArrayList<>();
+        for (String id : ids) {
+            Video video = byId.get(id);
+            if (video != null) {
+                ordered.add(video);
+            }
+        }
+        return ordered;
     }
 
     // ---------- YouTube 계정 연동(OAuth)이 필요한 호출 (6.3) ----------

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 탐색 검색 결과의 [사용자] 페이지 (fragment_search.xml의 search_pager 1번) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/search_user_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_l"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:text="@string/search_user_title"
+        android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+    <TextView
+        android:id="@+id/search_user_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingVertical="@dimen/space_l"
+        android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+        android:visibility="gone"
+        tools:text="@string/search_user_empty" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_user_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/space_s"
+        android:clipToPadding="false"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingBottom="@dimen/space_xl"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_user_result" />
+</LinearLayout>

@@ -1,6 +1,10 @@
 package com.example.viewit.ui.profile;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,9 +17,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.viewit.R;
 import com.example.viewit.SettingsActivity;
 import com.example.viewit.data.BlockRepository;
@@ -24,6 +34,7 @@ import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.User;
 import com.example.viewit.databinding.FragmentProfileBinding;
+import com.example.viewit.ui.common.SystemBarInsets;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,6 +61,9 @@ public class ProfileFragment extends Fragment {
     private User profile;          // 보여 주는 사람의 프로필 (아직 못 불러왔으면 null)
     private boolean following;     // (다른 사람 프로필) 내가 팔로우 중인지
     private boolean blocked;       // (다른 사람 프로필) 내가 차단했는지 (6.3)
+    private int statusBarHeight;   // 상태바 높이. 배너를 그만큼 위로 늘려 상태바 뒤까지 깐다 (Figma 05-D)
+    private boolean bannerDark;    // 배너 맨 위가 어두운지 → 상태바 글씨를 흰색으로
+    private boolean headerCollapsed;   // 프로필 상단이 다 접혀서 상태바 뒤가 흰 가림막인지
 
     // 다른 사용자 프로필을 열 때
     public static ProfileFragment newInstance(String uid) {
@@ -92,6 +106,7 @@ public class ProfileFragment extends Fragment {
                 tab.setContentDescription(R.string.profile_tab_history);
             }
         }).attach();
+        setupStatusBarArea();
         listenProfile(profileUid);
         loadRatingCount(profileUid);
         loadFollowCounts(profileUid);
@@ -333,6 +348,100 @@ public class ProfileFragment extends Fragment {
         if (profileUid != null && !isHidden()) {
             loadFollowCounts(profileUid);
         }
+        applyStatusBarIcons();
+    }
+
+    // 다른 탭·화면으로 가면 상태바 글씨를 앱 기본(검정)으로 돌려놓는다
+    @Override
+    public void onPause() {
+        super.onPause();
+        SystemBarInsets.setDarkStatusBarBackground(requireActivity(), false);
+    }
+
+    // ---------- 상태바 영역 (Figma 05-D: 배너가 상태바 뒤까지) ----------
+
+    private void setupStatusBarArea() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.profileHeader, (v, insets) -> {
+            int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+            if (top != statusBarHeight) {
+                statusBarHeight = top;
+                layoutUnderStatusBar();
+            }
+            return insets;
+        });
+        SystemBarInsets.requestWhenAttached(binding.profileHeader);
+
+        // 아래로 스크롤해 상단이 다 접히면 상태바 뒤를 흰 가림막으로 덮고 글씨는 검정으로
+        binding.profileAppBar.addOnOffsetChangedListener((appBar, offset) -> {
+            if (binding == null) return;
+            int range = appBar.getTotalScrollRange();
+            float fraction = range == 0 ? 0f : -offset / (float) range;
+            binding.profileStatusScrim.setAlpha(Math.max(0f, (fraction - 0.85f) / 0.15f));
+            boolean collapsed = fraction > 0.95f;
+            if (collapsed != headerCollapsed) {
+                headerCollapsed = collapsed;
+                applyStatusBarIcons();
+            }
+        });
+    }
+
+    // 배너·흰 막 높이, 사진·이름 위 여백, 배너 위 버튼 위치에 상태바 높이를 더한다
+    private void layoutUnderStatusBar() {
+        int bannerHeight = getResources().getDimensionPixelSize(R.dimen.profile_banner_height) + statusBarHeight;
+        setHeight(binding.profileBanner, bannerHeight);
+        setHeight(binding.profileBannerVeil, bannerHeight);
+
+        View content = binding.profileHeaderContent;
+        content.setPadding(content.getPaddingLeft(),
+            getResources().getDimensionPixelSize(R.dimen.profile_header_top_padding) + statusBarHeight,
+            content.getPaddingRight(), content.getPaddingBottom());
+
+        int buttonTop = getResources().getDimensionPixelSize(R.dimen.space_m) + statusBarHeight;
+        View[] buttons = { binding.profileBack, binding.profileSettingsButton, binding.profileMoreButton,
+            binding.profileBannerEditButton, binding.profileBannerAddButton };
+        for (View button : buttons) {
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) button.getLayoutParams();
+            lp.topMargin = buttonTop;
+            button.setLayoutParams(lp);
+        }
+
+        // 다 접혀도 상태바 높이만큼은 남아서 탭 줄이 상태바 아래에 붙는다. 그 자리는 흰 가림막이 덮는다
+        binding.profileHeader.setMinimumHeight(statusBarHeight);
+        setHeight(binding.profileStatusScrim, statusBarHeight);
+    }
+
+    private static void setHeight(View view, int height) {
+        ViewGroup.LayoutParams lp = view.getLayoutParams();
+        lp.height = height;
+        view.setLayoutParams(lp);
+    }
+
+    // 지금 보이는 화면일 때만 상태바 글씨 색을 정한다: 배너가 어둡고 상단이 펼쳐져 있으면 흰색
+    private void applyStatusBarIcons() {
+        if (!isResumed() || binding == null) return;
+        SystemBarInsets.setDarkStatusBarBackground(requireActivity(), bannerDark && !headerCollapsed);
+    }
+
+    // 배너 그림에서 상태바 뒤에 오는 맨 위 줄의 밝기. 흰 막(위쪽 흰색 45%)을 덮은 뒤의 밝기로 판단한다
+    private boolean isTopDark(Bitmap bitmap) {
+        int viewHeight = binding.profileBanner.getHeight() > 0
+            ? binding.profileBanner.getHeight() : binding.profileBanner.getLayoutParams().height;
+        int rows = bitmap.getHeight() * Math.max(statusBarHeight, 1) / Math.max(viewHeight, 1);
+        rows = Math.max(1, Math.min(bitmap.getHeight(), rows));
+        int stepX = Math.max(1, bitmap.getWidth() / 24);
+        int stepY = Math.max(1, rows / 6);
+        double sum = 0;
+        int count = 0;
+        for (int y = 0; y < rows; y += stepY) {
+            for (int x = 0; x < bitmap.getWidth(); x += stepX) {
+                int c = bitmap.getPixel(x, y);
+                sum += (0.2126 * Color.red(c) + 0.7152 * Color.green(c) + 0.0722 * Color.blue(c)) / 255.0;
+                count++;
+            }
+        }
+        double photo = count == 0 ? 1 : sum / count;
+        double withVeil = 0.45 + 0.55 * photo;
+        return withVeil < 0.55;
     }
 
     private void listenProfile(String uid) {
@@ -491,6 +600,25 @@ public class ProfileFragment extends Fragment {
         Glide.with(this)
             .load(url)
             .centerCrop()
+            .disallowHardwareConfig()   // 밝기를 재려면 픽셀을 읽을 수 있어야 한다
+            .listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model,
+                                            @NonNull Target<Drawable> target, boolean isFirstResource) {
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model,
+                                               Target<Drawable> target, @NonNull DataSource dataSource,
+                                               boolean isFirstResource) {
+                    if (binding != null && resource instanceof BitmapDrawable) {
+                        bannerDark = isTopDark(((BitmapDrawable) resource).getBitmap());
+                        applyStatusBarIcons();
+                    }
+                    return false;
+                }
+            })
             .into(binding.profileBanner);
         binding.profileBannerVeil.setVisibility(View.VISIBLE);
         binding.profileBannerEditButton.setVisibility(isMine ? View.VISIBLE : View.GONE);
@@ -499,6 +627,8 @@ public class ProfileFragment extends Fragment {
 
     private void showDefaultBanner() {
         Glide.with(this).clear(binding.profileBanner);   // 이전 썸네일 지우기 → 바탕 그라데이션이 보임
+        bannerDark = false;                              // 기본 배너는 연주황이라 글씨는 검정
+        applyStatusBarIcons();
         binding.profileBannerVeil.setVisibility(View.GONE);
         binding.profileBannerEditButton.setVisibility(View.GONE);
         binding.profileBannerAddButton.setVisibility(isMine ? View.VISIBLE : View.GONE);

@@ -27,7 +27,7 @@
         android:id="@+id/profile_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_scrollFlags="scroll">
+        app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
         <!-- 배너 (폭 전체 × 112dp). 바탕은 기본 그라데이션, 사진 배너면 그 위에 썸네일을 넣는다 -->
         <ImageView
@@ -46,8 +46,10 @@
             android:background="@drawable/bg_profile_banner_veil"
             android:visibility="gone" />
 
-        <!-- 사진 + 이름·숫자 + 소개 + 버튼. 위 72dp를 비워 사진 80dp 중 40dp가 배너에 걸치게 한다 -->
+        <!-- 사진 + 이름·숫자 + 소개 + 버튼. 위 72dp를 비워 사진 80dp 중 40dp가 배너에 걸치게 한다
+             (상태바 높이만큼은 ProfileFragment가 더한다) -->
         <LinearLayout
+            android:id="@+id/profile_header_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -340,5 +342,14 @@
             android:id="@+id/profile_blocked_notice"
             layout="@layout/view_profile_empty" />
     </FrameLayout>
+
+    <!-- 상태바 가림막: 프로필 상단이 다 접히면 상태바 뒤를 흰색으로 덮는다. 높이·투명도는 ProfileFragment가 정한다 -->
+    <View
+        android:id="@+id/profile_status_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="top"
+        android:alpha="0"
+        android:background="@color/bg_surface" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>       <!-- 맨 바깥 끝 -->

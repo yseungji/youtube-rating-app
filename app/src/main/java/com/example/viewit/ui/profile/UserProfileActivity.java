@@ -41,7 +41,8 @@ public class UserProfileActivity extends AppCompatActivity {
     private void applySystemBarPadding() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            // 위쪽은 비우지 않는다: 프로필 배너가 상태바 뒤까지 깔린다 (ProfileFragment가 처리)
+            v.setPadding(bars.left, 0, bars.right, bars.bottom);
             return insets;
         });
     }

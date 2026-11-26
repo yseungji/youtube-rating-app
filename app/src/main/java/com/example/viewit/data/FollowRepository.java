@@ -48,6 +48,7 @@ public class FollowRepository {
     }
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final BlockRepository blockRepository = new BlockRepository();
 
     // ---------- 팔로우 / 언팔로우 ----------
 
@@ -223,12 +224,14 @@ public class FollowRepository {
         return buildItems(uids, myUid, null);
     }
 
-    // knownCounts가 있으면 그 숫자를 "평가 N개"로 쓰고, 없으면 사람마다 공개 평가 수를 센다
+    // knownCounts가 있으면 그 숫자를 "평가 N개"로 쓰고, 없으면 사람마다 공개 평가 수를 센다.
+    // 내가 차단한 사람(6.3)은 목록에서 뺀다.
     private Task<List<FollowListItem>> buildItems(List<String> uids, String myUid,
                                                  Map<String, Long> knownCounts) {
         if (uids.isEmpty()) {
             return Tasks.forResult(new ArrayList<>());
         }
+        Task<Set<String>> blockedTask = blockRepository.blockedIdsTask(myUid);
         Task<Set<String>> myFollowingTask = loadFollowingIds(myUid);
         Task<Map<String, DocumentSnapshot>> usersTask = loadUsers(uids);
         List<Task<AggregateQuerySnapshot>> countTasks = new ArrayList<>();
@@ -242,17 +245,22 @@ public class FollowRepository {
         }
 
         List<Task<?>> all = new ArrayList<>(countTasks);
+        all.add(blockedTask);
         all.add(myFollowingTask);
         all.add(usersTask);
         return Tasks.whenAll(all).continueWith(done -> {
             if (!done.isSuccessful()) {
                 throw done.getException() != null ? done.getException() : new IllegalStateException("load failed");
             }
+            Set<String> blocked = blockedTask.getResult();
             Set<String> myFollowing = myFollowingTask.getResult();
             Map<String, DocumentSnapshot> users = usersTask.getResult();
             List<FollowListItem> items = new ArrayList<>();
             for (int i = 0; i < uids.size(); i++) {
                 String uid = uids.get(i);
+                if (blocked.contains(uid)) {
+                    continue;   // 내가 차단한 사람
+                }
                 DocumentSnapshot user = users.get(uid);
                 if (user == null || !user.exists()) {
                     continue;   // 탈퇴한 사용자

@@ -199,7 +199,13 @@ Storage
 | 차단 | `blockedUsers/{상대 UID}` 생성 |
 | 차단 해제 | 해당 차단 문서 삭제 |
 
-사용자 차단은 포함하되, 차단 시 기존 팔로우·댓글을 어떻게 처리하고 상대의 접근을 어디까지 제한할지는 추가 합의가 필요합니다. 차단 문서를 생성하는 것만으로 접근 제한이 자동 적용되지는 않습니다.
+차단 처리 기준 (2026-11-26, `BlockRepository`):
+
+- 차단하면 `blockedUsers/{상대 UID}` 생성과 함께 서로의 팔로우 문서(내 팔로우와 내 `ratingReadStates/{상대 UID}`, 상대가 나를 팔로우한 문서)를 한 batch로 지웁니다. 차단을 해제해도 끊긴 팔로우는 되살리지 않습니다.
+- 차단당한 사람은 나를 다시 팔로우할 수 없습니다 (Security Rules `follows` create).
+- 내 화면에서 차단한 사람을 숨깁니다: 상대 프로필은 차단 안내만, 팔로워·팔로잉 목록과 온보딩 추천에서 제외.
+- 피드·영상 상세·댓글에서는 `BlockRepository.loadBlockedIds(myUid, …)`로 받은 UID의 평가·댓글을 화면에서 거릅니다 (해당 화면 담당자 연계).
+- 한계: 차단 목록은 본인만 읽으므로, 차단당한 사람이 내 공개 평가·공개 프로필을 읽는 것은 규칙으로 막지 않습니다. 기존 댓글도 지우지 않습니다.
 
 ### 새 평가 개수
 
@@ -229,7 +235,7 @@ Storage
 | `users/{uid}` | 로그인한 사람 | 본인만 |
 | `users/{uid}/…` (settings, watchLater, watchHistory, ratingReadStates 등) | 본인만 | 본인만 |
 | `usernames/{username}` | 로그인한 사람 | 본인 uid로만 만들기·지우기, 아이디 형식 검사 |
-| `follows/{followerId}_{followingId}` | 로그인한 사람 | 팔로우한 본인만 만들기·지우기, 자기 자신 금지 |
+| `follows/{followerId}_{followingId}` | 로그인한 사람 | 팔로우한 본인만 만들기, 자기 자신 금지, 상대가 나를 차단했으면 금지. 지우기는 팔로우한 사람·팔로우당한 사람 |
 | `ratings/{uid}_{videoId}` | 공개이거나 내 평가 (없는 문서는 "없음"으로 읽힘) | 작성자만. 별점 1~5 정수, 공개 범위 public·private. **누구나 공개 평가의 `likeCount`·`commentCount`만 ±1** |
 | `ratings/…/likes/{uid}`, `…/comments/…/likes/{uid}` | 로그인한 사람 | 본인 uid 문서만 |
 | `ratings/…/comments/{id}` | 평가가 공개이거나 내 평가 | 본인 이름으로만 쓰기(1~1000자), 삭제는 작성자. **누구나 `likeCount`만 ±1** |

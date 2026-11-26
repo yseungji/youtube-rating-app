@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 사용자 차단 (6.3). 프로필 ⋮ 메뉴, 차단 안내, 설정 → 차단한 사용자 목록 -->
+<resources>
+    <!-- 프로필 ⋮ 메뉴 -->
+    <string name="block_menu_block">차단하기</string>
+    <string name="block_menu_unblock">차단 해제</string>
+
+    <!-- 차단 확인창 -->
+    <string name="block_dialog_title">%1$s 님을 차단할까요?</string>
+    <string name="block_dialog_message">서로의 팔로우가 끊기고, 상대는 회원님을 다시 팔로우할 수 없어요. 상대에게 알림은 가지 않아요.</string>
+    <string name="block_dialog_confirm">차단</string>
+    <string name="block_done">차단했어요</string>
+    <string name="block_failed">차단하지 못했어요. 잠시 후 다시 시도해 주세요</string>
+
+    <!-- 차단 해제 확인창 -->
+    <string name="unblock_dialog_title">%1$s 님의 차단을 해제할까요?</string>
+    <string name="unblock_dialog_message">다시 프로필과 평가를 볼 수 있어요. 끊긴 팔로우는 되돌아오지 않아요.</string>
+    <string name="unblock_dialog_confirm">해제</string>
+    <string name="unblock_done">차단을 해제했어요</string>
+    <string name="unblock_failed">차단을 해제하지 못했어요. 잠시 후 다시 시도해 주세요</string>
+
+    <!-- 차단한 사람 프로필 -->
+    <string name="profile_blocked_title">차단한 사용자예요</string>
+    <string name="profile_blocked_message">차단을 해제하면 프로필과 평가를 다시 볼 수 있어요.</string>
+
+    <!-- 설정 → 차단한 사용자 목록 -->
+    <string name="blocked_users_title">차단한 사용자</string>
+    <string name="blocked_users_empty_title">차단한 사용자가 없어요</string>
+    <string name="blocked_users_empty_message">다른 사람 프로필의 ⋮ 메뉴에서 차단할 수 있어요.</string>
+    <string name="blocked_users_load_failed">목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요</string>
+</resources>

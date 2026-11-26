@@ -53,6 +53,10 @@
         <activity
             android:name=".ui.profile.UserProfileActivity"
             android:exported="false" />
+        <!-- 6.3 설정 → 차단한 사용자 -->
+        <activity
+            android:name=".ui.profile.BlockedUsersActivity"
+            android:exported="false" />
 
         <!-- 6.1 평가한 영상 목록 (프로필의 평가 숫자에서 연다) -->
         <activity

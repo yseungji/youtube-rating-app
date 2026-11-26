@@ -31,4 +31,16 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.Viewit.Body"
         android:textColorHint="@color/text_secondary" />
+
+    <!-- 검색어 지우기(X). 기본은 숨김이라 이 검색창을 쓰는 다른 화면에는 영향이 없다.
+         쓰는 화면에서 입력이 있을 때만 보이고, 누르면 search_input을 비운다 (탐색 탭 SearchFragment) -->
+    <Button
+        android:id="@+id/search_clear"
+        style="@style/Widget.Viewit.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="-8dp"
+        android:contentDescription="@string/search_clear"
+        android:visibility="gone"
+        app:icon="@drawable/ic_close" />
 </LinearLayout>

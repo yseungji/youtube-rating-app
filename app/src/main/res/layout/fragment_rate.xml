@@ -9,21 +9,7 @@
     android:background="@color/bg_surface"
     android:orientation="vertical">
 
-    <!-- 상단 앱 바 -->
-    <TextView
-        android:id="@+id/rate_title"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/app_bar_height"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:text="@string/tab_rate"
-        android:textAppearance="@style/TextAppearance.Viewit.Display" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/divider"
-        android:background="@color/border_default" />
-
+    <!-- 제목 줄 없음 (Figma B · 인스타식): "본 영상에 나만의 평가를 남겨보세요"가 맨 위 -->
     <!-- 인트로 · 필터 칩 3개 · 섹션 제목 줄 -->
     <LinearLayout
         android:layout_width="match_parent"

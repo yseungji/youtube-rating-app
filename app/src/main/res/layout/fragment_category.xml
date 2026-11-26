@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 카테고리 탭 화면 (4.3 장주원). 위에서부터 앱 바 → 카테고리 칩 → 정렬 칩 → 영상 목록.
+<!-- 카테고리 탭 화면 (4.3 장주원). 위에서부터 안내 문구 → 카테고리 칩 → 정렬 칩 → 영상 목록.
      칩 두 줄은 목록을 올리면 같이 올라가 숨고, 내리면 바로 다시 나온다.
      카테고리 칩의 android:tag가 YouTube 카테고리 ID다("전체"는 tag 없음 = 카테고리 없이 한국 인기 차트).
      교육(27)·여행/이벤트(19)는 한국 인기 차트가 없어(notFound) 넣지 않았다.
@@ -11,21 +11,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- 상단 제목 (Figma App bar, 높이 64dp) -->
-    <TextView
-        android:id="@+id/category_title"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/app_bar_height"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:text="@string/tab_category"
-        android:textAppearance="@style/TextAppearance.Viewit.Display" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/divider"
-        android:background="@color/border_default" />
-
+    <!-- 제목 줄 없음 (Figma B · 인스타식): 안내 문구와 칩이 맨 위 -->
     <!-- 칩 두 줄(AppBarLayout) + 목록. 목록을 위로 올리면 칩도 같이 올라가 숨고, 조금만 내려도 바로 다시 보인다(enterAlways)
          (프로필 탭 fragment_profile.xml과 같은 방식) -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -46,11 +32,19 @@
                 android:orientation="vertical"
                 app:layout_scrollFlags="scroll|enterAlways">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:paddingHorizontal="@dimen/screen_padding"
+                    android:text="@string/category_intro"
+                    android:textAppearance="@style/TextAppearance.Viewit.Meta" />
+
                 <!-- 카테고리 칩: 가로로 넘겨 보는 한 줄. 하나만 선택되고 선택 해제는 안 된다 -->
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_l"
+                    android:layout_marginTop="@dimen/space_m"
                     android:clipToPadding="false"
                     android:paddingHorizontal="@dimen/screen_padding"
                     android:scrollbars="none">

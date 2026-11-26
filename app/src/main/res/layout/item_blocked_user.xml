@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 차단한 사용자 한 줄 (6.3): 프로필 사진 + 이름 + @아이디 + [차단 해제]. 모양은 item_follow_row와 같게 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingVertical="@dimen/space_m">
+
+    <ImageView
+        android:id="@+id/blocked_row_avatar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/profile_avatar"
+        android:src="@drawable/avatar_default" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/blocked_row_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Name"
+            tools:text="민서" />
+
+        <TextView
+            android:id="@+id/blocked_row_handle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Viewit.Caption"
+            android:textSize="12sp"
+            tools:text="\@minseo" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/blocked_row_unblock"
+        style="@style/Widget.Viewit.Button.Small.Tonal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_s"
+        android:text="@string/block_menu_unblock" />
+</LinearLayout>

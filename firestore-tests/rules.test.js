@@ -104,9 +104,35 @@ test('follows: 남 대신 팔로우·자기 자신 팔로우·ID 불일치는 �
   await assertFails(bob().doc('follows/bob_x').set({ followerId: 'bob', followingId: 'carol' }));
 });
 
-test('follows: 언팔로우는 팔로우한 본인만', async () => {
-  await assertFails(alice().doc('follows/bob_alice').delete());
-  await assertSucceeds(bob().doc('follows/bob_alice').delete());
+test('follows: 언팔로우는 팔로우한 본인, 팔로우 끊기는 팔로우당한 사람도 (6.3 차단)', async () => {
+  await assertSucceeds(alice().doc('follows/bob_alice').delete());
+});
+
+test('follows: 관계없는 사람은 팔로우를 못 지운다', async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await ctx.firestore().doc('follows/alice_carol').set({ followerId: 'alice', followingId: 'carol' });
+  });
+  await assertFails(bob().doc('follows/alice_carol').delete());
+  await assertSucceeds(alice().doc('follows/alice_carol').delete());
+});
+
+// ---------- blockedUsers (6.3) ----------
+
+test('blockedUsers: 본인 차단 목록만 만들고 읽는다', async () => {
+  await assertSucceeds(alice().doc('users/alice/blockedUsers/bob').set({ createdAt: 1 }));
+  await assertSucceeds(alice().doc('users/alice/blockedUsers/bob').get());
+  await assertFails(bob().doc('users/alice/blockedUsers/bob').get());
+  await assertFails(bob().doc('users/alice/blockedUsers/carol').set({ createdAt: 1 }));
+});
+
+test('blockedUsers: 나를 차단한 사람은 팔로우할 수 없다', async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await ctx.firestore().doc('users/carol/blockedUsers/bob').set({ createdAt: 1 });
+  });
+  await assertFails(bob().doc('follows/bob_carol').set({ followerId: 'bob', followingId: 'carol', createdAt: 1 }));
+  // 내가 차단한 쪽이어도 규칙은 막지 않는다 (앱 화면에서 팔로우 버튼을 숨김)
+  await assertSucceeds(env.authenticatedContext('carol').firestore()
+    .doc('follows/carol_bob').set({ followerId: 'carol', followingId: 'bob', createdAt: 1 }));
 });
 
 // ---------- ratings ----------

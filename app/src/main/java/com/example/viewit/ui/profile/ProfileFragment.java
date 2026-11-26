@@ -7,15 +7,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.viewit.R;
 import com.example.viewit.SettingsActivity;
+import com.example.viewit.data.BlockRepository;
 import com.example.viewit.data.FollowRepository;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
@@ -39,12 +42,14 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private ListenerRegistration userListener;
     private final FollowRepository followRepository = new FollowRepository();
+    private final BlockRepository blockRepository = new BlockRepository();
 
     private String myUid;          // 로그인한 사람
     private String profileUid;     // 이 화면에 보여 주는 사람
     private boolean isMine;        // 내 프로필인지
     private User profile;          // 보여 주는 사람의 프로필 (아직 못 불러왔으면 null)
     private boolean following;     // (다른 사람 프로필) 내가 팔로우 중인지
+    private boolean blocked;       // (다른 사람 프로필) 내가 차단했는지 (6.3)
 
     // 다른 사용자 프로필을 열 때
     public static ProfileFragment newInstance(String uid) {
@@ -105,6 +110,7 @@ public class ProfileFragment extends Fragment {
 
         // 평가 숫자를 누르면 이 프로필 주인의 평가한 영상 목록
         binding.profileRatingStat.setOnClickListener(v -> {
+            if (blocked) return;   // 차단한 사람의 목록은 열지 않는다
             Intent intent = new Intent(requireContext(), RatedVideosActivity.class);
             intent.putExtra(RatedVideosActivity.EXTRA_UID, profileUid);
             startActivity(intent);
@@ -121,6 +127,7 @@ public class ProfileFragment extends Fragment {
 
     // 팔로워·팔로잉 목록 열기. 목록 화면 위 제목은 이 프로필 주인 이름 (아직 못 불러왔으면 빈칸)
     private void openFollowList(int tab){
+        if (blocked) return;
         Intent intent = new Intent(requireContext(), FollowListActivity.class);
         intent.putExtra(FollowListActivity.EXTRA_UID, profileUid);
         String title = profile == null ? "" : profile.getDisplayName();
@@ -131,10 +138,10 @@ public class ProfileFragment extends Fragment {
 
     // ---------- 다른 사람 프로필 (6.2) ----------
 
-    // ← 보이기, 설정·편집·배너 버튼 숨기기, 팔로우 버튼 보이기
+    // 배너 위 ← 보이기, 설정·편집·배너 버튼 숨기기, 팔로우 버튼 보이기
     private void setupOtherProfile() {
-        binding.profileBack.getRoot().setVisibility(View.VISIBLE);
-        binding.profileBack.getRoot().setOnClickListener(v -> requireActivity().finish());
+        binding.profileBack.setVisibility(View.VISIBLE);
+        binding.profileBack.setOnClickListener(v -> requireActivity().finish());
         binding.profileSettingsButton.setVisibility(View.GONE);
         binding.profileEditButton.setVisibility(View.GONE);
         binding.profileBannerEditButton.setVisibility(View.GONE);
@@ -157,6 +164,117 @@ public class ProfileFragment extends Fragment {
             }
         });
         binding.profileFollowButton.setOnClickListener(v -> toggleFollow());
+
+        // ⋮ 메뉴와 차단 안내 (6.3)
+        binding.profileMoreButton.setVisibility(View.VISIBLE);
+        binding.profileMoreButton.setOnClickListener(v -> showMoreMenu());
+        binding.profileBlockedNotice.emptyIcon.setImageResource(R.drawable.ic_block);
+        binding.profileBlockedNotice.emptyTitle.setText(R.string.profile_blocked_title);
+        binding.profileBlockedNotice.emptyMessage.setText(R.string.profile_blocked_message);
+        binding.profileBlockedNotice.emptyAction.setText(R.string.block_menu_unblock);
+        binding.profileBlockedNotice.emptyAction.setVisibility(View.VISIBLE);
+        binding.profileBlockedNotice.emptyAction.setOnClickListener(v -> unblockUser());
+        loadBlockedState();
+    }
+
+    // ---------- 차단 (6.3) ----------
+
+    private void loadBlockedState() {
+        blockRepository.isBlocked(myUid, profileUid, new BlockRepository.Callback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                if (binding == null) return;
+                blocked = result;
+                showBlockedState(blocked);
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                Log.w(TAG, "block state failed", error);
+            }
+        });
+    }
+
+    // ⋮ → 차단하기 또는 차단 해제 (지금 상태에 따라 한 가지만)
+    private void showMoreMenu() {
+        PopupMenu menu = new PopupMenu(requireContext(), binding.profileMoreButton);
+        menu.getMenu().add(blocked ? R.string.block_menu_unblock : R.string.block_menu_block);
+        menu.setOnMenuItemClickListener(item -> {
+            if (blocked) {
+                unblockUser();
+            } else {
+                confirmBlock();
+            }
+            return true;
+        });
+        menu.show();
+    }
+
+    // 차단 확인창. "차단"을 누르면 blockUser()
+    private void confirmBlock() {
+        String name = profile == null ? "" : profile.getDisplayName();
+        new AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.block_dialog_title, name))
+            .setMessage(R.string.block_dialog_message)
+            .setPositiveButton(R.string.block_dialog_confirm, (diaglog, which)-> blockUser())
+            .setNegativeButton(R.string.dialog_cancel, null)
+            .show();
+    }
+
+    private void blockUser() {
+        blockRepository.block(myUid, profileUid, new BlockRepository.Callback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                if (binding == null) return;
+                blocked = true;
+                following = false;        // 차단하면 서로의 팔로우가 끊긴다
+                showFollowButton();
+                showBlockedState(true);
+                loadFollowCounts(profileUid);
+                Toast.makeText(requireContext(), R.string.block_done, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                if (binding == null) return;
+                Toast.makeText(requireContext(), R.string.block_failed, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // 차단 해제는 확인창 없이 바로 (끊긴 팔로우는 되돌리지 않음)
+    private void unblockUser() {
+        blockRepository.unblock(myUid, profileUid, new BlockRepository.Callback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                if (binding == null) return;
+                blocked = false;
+                showBlockedState(false);
+                Toast.makeText(requireContext(), R.string.unblock_done, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                if (binding == null) return;
+                Toast.makeText(requireContext(), R.string.unblock_failed, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // 차단했으면 탭·탭 화면·팔로우 버튼을 숨기고 차단 안내를 보인다. 해제하면 반대로.
+    private void showBlockedState(boolean isBlocked) {
+        if(isBlocked) {
+            binding.profileTabs.setVisibility(View.GONE);
+            binding.profilePager.setVisibility(View.GONE);
+            binding.profileFollowButton.setVisibility(View.GONE);
+            binding.profileBlocked.setVisibility(View.VISIBLE);
+        }
+        else {
+            binding.profileTabs.setVisibility(View.VISIBLE);
+            binding.profilePager.setVisibility(View.VISIBLE);
+            binding.profileFollowButton.setVisibility(View.VISIBLE);
+            binding.profileBlocked.setVisibility(View.GONE);
+        }
     }
 
     private void showFollowButton() {
@@ -295,9 +413,6 @@ public class ProfileFragment extends Fragment {
 
     private void showProfile(User user){
         binding.profileName.setText(user.getDisplayName());
-        if (!isMine) {
-            binding.profileTitle.setText(user.getDisplayName());   // 다른 사람 프로필은 앱바에 이름
-        }
         String intro = user.getIntroduction();
         if (TextUtils.isEmpty(intro)) {
             binding.profileHandle.setText(getString(R.string.profile_handle, user.getUsername()));

@@ -53,19 +53,23 @@ service cloud.firestore {
       allow delete: if signedIn() && resource.data.uid == request.auth.uid;
     }
 
-    // follows/{followerId}_{followingId}: "내가 상대를 팔로우" 문서만 만들고 지운다. 자기 자신은 금지 (6.2)
+    // follows/{followerId}_{followingId}: "내가 상대를 팔로우" 문서만 만든다. 자기 자신은 금지 (6.2)
+    // 상대가 나를 차단했으면 팔로우할 수 없다 (6.3). 지우기는 팔로우한 사람과 팔로우당한 사람 둘 다
+    // (차단할 때 상대가 나를 팔로우한 문서도 끊는다).
     match /follows/{followId} {
       allow read: if signedIn();
       allow create: if signedIn()
         && request.resource.data.followerId == request.auth.uid
         && request.resource.data.followingId is string
         && request.resource.data.followingId != request.auth.uid
-        && followId == request.auth.uid + '_' + request.resource.data.followingId;
+        && followId == request.auth.uid + '_' + request.resource.data.followingId
+        && !exists(/databases/$(database)/documents/users/$(request.resource.data.followingId)/blockedUsers/$(request.auth.uid));
       allow update: if signedIn()
         && resource.data.followerId == request.auth.uid
         && request.resource.data.followerId == request.auth.uid
         && request.resource.data.followingId == resource.data.followingId;
-      allow delete: if signedIn() && resource.data.followerId == request.auth.uid;
+      allow delete: if signedIn()
+        && (resource.data.followerId == request.auth.uid || resource.data.followingId == request.auth.uid);
     }
 
     // categories: 읽기만

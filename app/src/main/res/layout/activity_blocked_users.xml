@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 설정 → 차단한 사용자 (6.3). ← + 제목, 최근 차단순 목록(item_blocked_user), 비었으면 빈 화면 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:orientation="vertical">
+
+    <!-- App bar: ← + 제목 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_bar_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_xs">
+
+        <include
+            android:id="@+id/blocked_back"
+            layout="@layout/view_back_button" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:layout_weight="1"
+            android:text="@string/blocked_users_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Heading" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/blocked_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:visibility="gone"
+            tools:listitem="@layout/item_blocked_user" />
+
+        <!-- 목록이 비었을 때 (아이콘·글자는 Java에서) -->
+        <include
+            android:id="@+id/blocked_empty"
+            layout="@layout/view_profile_empty"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/blocked_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="56dp"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

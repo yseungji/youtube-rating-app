@@ -22,10 +22,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.viewit.data.AccountRepository;
+import com.example.viewit.data.BlockRepository;
 import com.example.viewit.data.youtube.YouTubeAccountRepository;
 import com.example.viewit.databinding.ActivitySettingsBinding;
 import com.example.viewit.databinding.ViewSettingsRowBinding;
+import com.example.viewit.ui.profile.BlockedUsersActivity;
 import com.example.viewit.ui.profile.ProfileEditActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 // 설정 화면 (6.3, Figma 10 · 설정). 지금 동작하는 것은 프로필 편집·YouTube 연동·로그아웃·회원 탈퇴이고, 나머지 줄은 "준비 중" 안내.
 public class SettingsActivity extends AppCompatActivity {
@@ -37,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     // ---------- YouTube 계정 연동 ----------
     private final YouTubeAccountRepository youtubeAccount = new YouTubeAccountRepository();
+    private final BlockRepository blockRepository = new BlockRepository();   // 차단한 사용자 수 (6.3)
     private boolean youtubeConnected;   // 지금 연동되어 있는지 (화면 열 때 Firestore에서 읽음)
 
     private final YouTubeAccountRepository.ConnectCallback youtubeConnectCallback =
@@ -80,6 +85,32 @@ public class SettingsActivity extends AppCompatActivity {
         binding.settingsBack.getRoot().setOnClickListener(v -> finish());
         binding.settingsLogout.setOnClickListener(v -> showLogoutDialog());
         binding.settingsDeleteAccount.setOnClickListener(v -> showDeleteDialog());
+    }
+
+    // 차단 목록에서 해제하고 돌아왔을 때 "N명"을 맞춘다
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadBlockedCount();
+    }
+
+    private void loadBlockedCount() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        blockRepository.countBlocked(user.getUid(), new BlockRepository.Callback<Long>() {
+            @Override
+            public void onSuccess(Long count) {
+                binding.settingsBlocked.rowValue.setText(
+                    getString(R.string.settings_blocked_count, count.intValue()));
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                Log.w(TAG, "blocked count failed", error);
+            }
+        });
     }
 
     // 로그아웃 확인창. 확인하면 로그아웃하고 로그인 화면으로 간다.
@@ -212,7 +243,7 @@ public class SettingsActivity extends AppCompatActivity {
         bindRow(binding.settingsAppVersion, R.drawable.ic_info_outline,
             R.string.settings_app_version, 0, BuildConfig.VERSION_NAME, false);
 
-        // 아직 만들지 않은 기능 (내 활동·공개 범위·차단·약관은 6.3 후속)
+        // 아직 만들지 않은 기능 (내 활동·공개 범위·약관은 6.3 후속)
         View.OnClickListener comingSoon = v ->
             Toast.makeText(this, R.string.profile_coming_soon, Toast.LENGTH_SHORT).show();
         // 프로필 편집 화면 열기
@@ -223,7 +254,11 @@ public class SettingsActivity extends AppCompatActivity {
         binding.settingsYoutube.getRoot().setOnClickListener(v -> onYoutubeRowClick());
         binding.settingsMyActivity.getRoot().setOnClickListener(comingSoon);
         binding.settingsVisibility.getRoot().setOnClickListener(comingSoon);
-        binding.settingsBlocked.getRoot().setOnClickListener(comingSoon);
+        // 차단한 사용자 목록 (6.3)
+        binding.settingsBlocked.getRoot().setOnClickListener(v->{
+            Intent intent = new Intent(this, BlockedUsersActivity.class);
+            startActivity(intent);
+        });
         binding.settingsTerms.getRoot().setOnClickListener(comingSoon);
         binding.settingsPrivacyPolicy.getRoot().setOnClickListener(comingSoon);
         binding.settingsAppVersion.getRoot().setClickable(false);   // 버전은 보기만

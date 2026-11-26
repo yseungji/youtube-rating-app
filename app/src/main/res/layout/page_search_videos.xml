@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 탐색 검색 결과의 [영상] 페이지 (fragment_search.xml의 search_pager 0번).
+     등록된 영상 → YouTube에서 더 찾기 상자 → YouTube 검색 결과를 한 번에 스크롤한다 -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/search_video_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingBottom="@dimen/space_xl">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_l"
+            android:text="@string/search_registered_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_video_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:nestedScrollingEnabled="false"
+            tools:itemCount="1"
+            tools:listitem="@layout/item_category_video" />
+
+        <TextView
+            android:id="@+id/search_video_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/space_l"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+            android:visibility="gone"
+            tools:text="@string/search_registered_empty" />
+
+        <!-- YouTube에서 더 찾기 (Figma 회색 상자) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_l"
+            android:background="@drawable/bg_icon_box"
+            android:orientation="vertical"
+            android:padding="@dimen/space_l">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search_youtube_title"
+                android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/search_youtube_desc"
+                android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary" />
+
+            <Button
+                android:id="@+id/search_youtube_button"
+                style="@style/Widget.Viewit.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/search_youtube_button" />
+        </LinearLayout>
+
+        <!-- 버튼을 누른 뒤에만 보인다 -->
+        <TextView
+            android:id="@+id/search_youtube_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:text="@string/search_youtube_result_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Section"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/search_youtube_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/space_l"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_youtube_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/search_youtube_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/space_l"
+            android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary"
+            android:visibility="gone" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

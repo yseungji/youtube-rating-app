@@ -94,6 +94,19 @@ test('privacy: 본인만 정해진 값으로 저장하고, 누구나 읽는다',
   await assertSucceeds(bob().doc('users/alice/settings/privacy').get());
 });
 
+test('privacy: 탈퇴 정리 때 본인만 지운다 (6.4)', async () => {
+  await setPrivacy({ watchLaterVisibility: 'private' });
+  await assertFails(bob().doc('users/alice/settings/privacy').delete());
+  await assertSucceeds(alice().doc('users/alice/settings/privacy').delete());
+});
+
+test('탈퇴 정리: 내 하위 문서·나를 팔로우한 문서·내 평가를 지운다 (6.4)', async () => {
+  await assertSucceeds(alice().doc('users/alice/watchLater/v1').delete());
+  await assertSucceeds(alice().doc('follows/bob_alice').delete());
+  await assertSucceeds(alice().doc('ratings/alice_v1').delete());
+  await assertSucceeds(alice().doc('ratings/alice_v2').delete());
+});
+
 test('privacy: 설정이 없으면 전체 공개라 다른 사람도 보관함을 읽는다', async () => {
   await assertSucceeds(bob().doc('users/alice/watchLater/v1').get());
   await assertSucceeds(bob().collection('users/alice/watchLater').orderBy('createdAt', 'desc').limit(50).get());

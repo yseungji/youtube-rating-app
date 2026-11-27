@@ -165,9 +165,10 @@
     <string name="logout_dialog_title">로그아웃</string>
     <string name="logout_dialog_message">로그아웃할까요?</string>
     <string name="delete_dialog_title">회원 탈퇴</string>
-    <string name="delete_dialog_message">프로필과 아이디가 삭제되고 되돌릴 수 없어요. 탈퇴할까요?</string>
+    <string name="delete_dialog_message">프로필과 아이디, 내 평가·팔로우·보관함·최근 본 영상이 모두 삭제되고 되돌릴 수 없어요. 탈퇴할까요?</string>
     <string name="delete_dialog_confirm">탈퇴</string>
     <string name="dialog_cancel">취소</string>
+    <string name="delete_account_progress">탈퇴 처리 중이에요. 잠시만 기다려 주세요</string>
     <string name="delete_account_done">탈퇴했어요. 그동안 이용해 주셔서 감사합니다</string>
     <string name="delete_account_failed">탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요</string>
     <string name="delete_account_relogin">보안을 위해 다시 로그인한 뒤 탈퇴해 주세요</string>

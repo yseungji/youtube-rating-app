@@ -257,6 +257,8 @@ Storage
 3. 각자 자기 기능(평가 저장·수정·삭제, 좋아요, 댓글, 나중에 보기, 팔로우, 프로필 만들기·편집, 탈퇴) 확인
 4. 막히는 기능이 있으면 Logcat의 `PERMISSION_DENIED`를 공유하고, 급하면 1번의 백업으로 되돌리기
 - 탈퇴·평가 삭제 시 하위 컬렉션과 연결 데이터도 정리해야 합니다. 부모 문서 삭제만으로 하위 문서가 자동 삭제되지는 않습니다.
+- 탈퇴 정리 순서 (2026-11-27, 앱 `AccountRepository`): ① `ratings`에서 내 평가를 `RatingRepository.deleteRating`으로 하나씩 삭제(영상 집계 함께 갱신) ② `follows` 양방향, `users/{uid}`의 `watchLater`·`watchHistory`·`blockedUsers`·`ratingReadStates`·`settings`·`integrations`, Storage `profileImages/{uid}.jpg` ③ `users/{uid}`·`usernames/{username}` ④ Firebase 계정. 실패하면 멈추고, 다시 탈퇴하면 남은 것부터 지웁니다.
+- 탈퇴해도 남는 것: 내가 다른 사람 평가에 남긴 좋아요·댓글(좋아요 문서에 작성자 필드가 없고, 댓글을 사람별로 찾으려면 컬렉션 그룹 색인이 필요), 다른 사람이 내 평가에 단 좋아요·댓글(평가가 없어져 규칙상 읽을 수 없음).
 - 내 활동(내가 좋아요한 리뷰·내가 쓴 댓글 목록)은 본인 전용입니다.
 - Storage `profileImages/{uid}.jpg`는 로그인한 사용자만 읽고, 본인만 올리거나 바꿉니다. 이미지 형식과 크기(2MB 미만)도 Storage 규칙으로 제한합니다.
 - 탈퇴 시 Storage의 프로필 사진도 지워야 합니다. Firestore 문서를 지워도 Storage 파일은 자동으로 삭제되지 않습니다.

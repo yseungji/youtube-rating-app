@@ -44,7 +44,8 @@ service cloud.firestore {
       // settings/privacy: 공개 범위 (6.3). 누구나 읽고(어떤 탭을 보여 줄지 정함), 본인만 정해진 값으로 쓴다
       match /settings/{docId} {
         allow read: if isUser(uid) || (signedIn() && docId == 'privacy');
-        allow write: if isUser(uid) && (docId != 'privacy' || validPrivacy());
+        allow create, update: if isUser(uid) && (docId != 'privacy' || validPrivacy());
+        allow delete: if isUser(uid);   // 탈퇴할 때 정리 (6.4)
       }
 
       // 보관함·최근 본 영상: 본인 말고도 공개 범위가 허용하면 읽는다 (쓰기는 위의 본인 규칙)

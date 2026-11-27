@@ -138,10 +138,16 @@ public class SettingsActivity extends AppCompatActivity {
             .setPositiveButton(R.string.delete_dialog_confirm, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    // 평가·팔로우·보관함 등을 지우는 동안(몇 초) 버튼을 막고 안내한다 (6.4)
+                    binding.settingsDeleteAccount.setEnabled(false);
+                    Toast.makeText(SettingsActivity.this, R.string.delete_account_progress, Toast.LENGTH_SHORT).show();
                     account.deleteAccount(SettingsActivity.this, ()-> {
                         Toast.makeText(SettingsActivity.this, R.string.delete_account_done, Toast.LENGTH_SHORT).show();
                         openLogin();
-                    }, messageRes -> Toast.makeText(SettingsActivity.this, messageRes, Toast.LENGTH_SHORT).show());
+                    }, messageRes -> {
+                        binding.settingsDeleteAccount.setEnabled(true);
+                        Toast.makeText(SettingsActivity.this, messageRes, Toast.LENGTH_SHORT).show();
+                    });
                 }
             })
             .setNegativeButton(R.string.dialog_cancel, null)

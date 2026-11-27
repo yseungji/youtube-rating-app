@@ -2,6 +2,7 @@ package com.example.viewit.ui.comment;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -10,11 +11,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.viewit.R;
@@ -127,20 +133,81 @@ public class CommentBottomSheetFragment extends BottomSheetDialogFragment {
 
     @NonNull
     @Override
+    @SuppressWarnings("deprecation")
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+        Window window = dialog.getWindow();
+        if (window != null) {
+            // API 29 이하에서도 키보드가 올라올 때 바텀시트가 리사이즈되어 하단 입력창이 가려지지 않게 한다.
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
         dialog.setOnShowListener(d -> {
             BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) d;
             FrameLayout bottomSheet = bottomSheetDialog.findViewById(
                     com.google.android.material.R.id.design_bottom_sheet);
             if (bottomSheet != null) {
                 bottomSheet.setBackgroundResource(android.R.color.transparent);
-                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
-                behavior.setSkipCollapsed(true);
-                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                applyBottomSheetHeight(bottomSheet, 0, 0, false);
             }
         });
         return dialog;
+    }
+
+    // BottomSheetBehavior는 topMargin을 주면 자체 오프셋과 더해져 시트 하단이 화면 밖으로 밀린다.
+    // 따라서 topMargin은 0으로 두고, 시트 높이 자체를 화면 비율에 맞춰 지정해 바닥에 딱 맞춘다.
+    private void applyBottomSheetHeight(@NonNull FrameLayout bottomSheet,
+                                        int statusBarTop,
+                                        int bottomInset,
+                                        boolean imeVisible) {
+        if (getContext() == null) {
+            return;
+        }
+        View parent = bottomSheet.getParent() instanceof View ? (View) bottomSheet.getParent() : null;
+        int parentHeight = parent != null && parent.getHeight() > 0
+                ? parent.getHeight()
+                : getResources().getDisplayMetrics().heightPixels;
+        if (parentHeight <= 0) {
+            return;
+        }
+
+        boolean isLandscape = getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE;
+        int usableHeight = Math.max(0, parentHeight - statusBarTop - bottomInset);
+        int targetHeight;
+        if (imeVisible || isLandscape) {
+            int topGap = Math.round(12 * getResources().getDisplayMetrics().density);
+            targetHeight = Math.max(0, usableHeight - topGap) + bottomInset;
+        } else {
+            // 세로 기본 상태에서는 사용 가능 높이의 85%를 차지해 상단 영상이 살짝 보이면서도
+            // 하단 입력창이 스크롤 없이 바로 화면 바닥에 표시되도록 한다.
+            targetHeight = Math.round(usableHeight * 0.85f) + bottomInset;
+        }
+        int maxAllowedHeight = Math.max(0, parentHeight - statusBarTop);
+        if (maxAllowedHeight > 0) {
+            targetHeight = Math.min(targetHeight, maxAllowedHeight);
+        }
+
+        ViewGroup.LayoutParams lp = bottomSheet.getLayoutParams();
+        if (lp != null) {
+            boolean changed = lp.height != targetHeight;
+            lp.height = targetHeight;
+            if (lp instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                if (mlp.topMargin != 0) {
+                    mlp.topMargin = 0;
+                    changed = true;
+                }
+            }
+            if (changed) {
+                bottomSheet.setLayoutParams(lp);
+            }
+        }
+
+        BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+        behavior.setFitToContents(true);
+        behavior.setSkipCollapsed(true);
+        behavior.setPeekHeight(targetHeight);
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     @Override
@@ -163,6 +230,31 @@ public class CommentBottomSheetFragment extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // 시스템 하단 내비게이션 바·키보드 인셋을 반영해 어떤 기기에서도 댓글 입력창이 바닥에 잘리지 않게 한다.
+        final int baseLeft = view.getPaddingLeft();
+        final int baseTop = view.getPaddingTop();
+        final int baseRight = view.getPaddingRight();
+        final int baseBottom = view.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            boolean imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+
+            int bottomInset = Math.max(bars.bottom, ime.bottom);
+            v.setPadding(baseLeft, baseTop, baseRight, baseBottom + bottomInset);
+
+            Dialog dialog = getDialog();
+            if (dialog instanceof BottomSheetDialog) {
+                FrameLayout bottomSheet = dialog.findViewById(
+                        com.google.android.material.R.id.design_bottom_sheet);
+                if (bottomSheet != null) {
+                    applyBottomSheetHeight(bottomSheet, bars.top, bottomInset, imeVisible);
+                }
+            }
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(view);
 
         // 0) 맨 위 원본 리뷰 영역 채우기 (전달값이 있으면 즉시 표시, 없으면 Firestore에서 조회)
         setupOriginalReviewHeader();

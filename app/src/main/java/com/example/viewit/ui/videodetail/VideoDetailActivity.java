@@ -40,6 +40,7 @@ import com.example.viewit.R;
 import com.example.viewit.data.RatingRepository;
 import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.WatchHistoryRepository;
+import com.example.viewit.data.WatchLaterRepository;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.Video;
@@ -52,6 +53,7 @@ import com.example.viewit.ui.common.DurationFormat;
 import com.example.viewit.ui.common.VideoPlayerView;
 import com.example.viewit.ui.common.YouTubeErrorMessage;
 import com.example.viewit.ui.common.YouTubeLinks;
+import com.example.viewit.ui.share.ShareRatingBottomSheetFragment;
 import com.example.viewit.ui.watchlater.WatchLaterBottomSheetFragment;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -99,9 +101,11 @@ public class VideoDetailActivity extends AppCompatActivity {
     private int publicStatisticsRequest;
     private boolean fullscreenMode;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final WatchLaterRepository watchLaterRepository = new WatchLaterRepository();
     private final Set<String> likeRequestsInFlight = new HashSet<>();
+    private boolean watchLaterSaved;
 
-    // 공개 평가 목록의 좋아요·댓글 클릭 리스너
+    // 공개 평가 목록의 좋아요·댓글·공유·나중에 보기 클릭 리스너
     private final VideoDetailAdapter.OnReviewActionListener reviewActionListener =
             new VideoDetailAdapter.OnReviewActionListener() {
                 @Override
@@ -122,6 +126,26 @@ public class VideoDetailActivity extends AppCompatActivity {
                             rating.getScore(),
                             rating.getComment());
                     sheet.show(getSupportFragmentManager(), "CommentBottomSheet");
+                }
+
+                @Override
+                public void onShareClick(@NonNull Rating rating, @NonNull String authorName) {
+                    String shareVideoId = rating.getVideoId() != null && !rating.getVideoId().isEmpty()
+                            ? rating.getVideoId()
+                            : videoId;
+                    Log.d(TAG, "공유 바텀시트 열기: videoId=" + shareVideoId);
+                    ShareRatingBottomSheetFragment sheet = ShareRatingBottomSheetFragment.newInstance(
+                            authorName,
+                            (int) rating.getScore(),
+                            rating.getComment(),
+                            resolveCurrentVideoTitle(),
+                            shareVideoId);
+                    sheet.show(getSupportFragmentManager(), "ShareRatingBottomSheet");
+                }
+
+                @Override
+                public void onWatchLaterClick(boolean alreadySaved) {
+                    openWatchLaterBottomSheet(alreadySaved);
                 }
             };
 
@@ -241,28 +265,7 @@ public class VideoDetailActivity extends AppCompatActivity {
         headerBinding.ratingPanel.setOnWatchLaterClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-                    //토스트는 재사용되니까, 함수로 사용한다.
-                    makeToast(R.string.reactions_login_required);
-                    return;
-                }
-                String title = loadedVideo != null && loadedVideo.getTitle() != null
-                        ? loadedVideo.getTitle()
-                        : headerBinding.videoTitle.getText().toString();
-                String meta = "";
-                String thumbUrl = "";
-                if (loadedVideo != null) {
-                    String duration = DurationFormat.format(loadedVideo.getDurationSeconds());
-                    String channel = loadedVideo.getChannelTitle();
-                    meta = channel == null || channel.isEmpty()
-                            ? duration
-                            : getString(R.string.video_meta, channel, duration);
-                    thumbUrl = loadedVideo.getThumbnailUrl() != null ? loadedVideo.getThumbnailUrl() : "";
-                }
-                Log.d(TAG, "영상 상세 나중에 보기 바텀시트 열기: videoId=" + videoId);
-                WatchLaterBottomSheetFragment sheet = WatchLaterBottomSheetFragment.newInstance(
-                        videoId, title, meta, thumbUrl, false);
-                sheet.show(getSupportFragmentManager(), "WatchLaterBottomSheet");
+                openWatchLaterBottomSheet(watchLaterSaved);
             }
         });
         // 패널 전체가 아니라 패널 안의 '평가 저장' 버튼에 리스너를 연결한다.
@@ -592,6 +595,108 @@ public class VideoDetailActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        // 공유 바텀시트(ShareRatingBottomSheetFragment)에서 setFragmentResult()로 전달한 결과를 수신한다.
+        getSupportFragmentManager().setFragmentResultListener(
+                ShareRatingBottomSheetFragment.REQUEST_KEY,
+                this,
+                new FragmentResultListener() {
+                    @Override
+                    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                        String action = result.getString(ShareRatingBottomSheetFragment.RESULT_ACTION, "");
+                        Log.d(TAG, "공유 결과 수신(setFragmentResult): action=" + action);
+                        if (ShareRatingBottomSheetFragment.ACTION_COPY_LINK.equals(action)) {
+                            makeToast(R.string.share_copied_toast);
+                        } else if (ShareRatingBottomSheetFragment.ACTION_KAKAOTALK.equals(action)) {
+                            makeToast(R.string.share_kakaotalk_opened_toast);
+                        } else if (ShareRatingBottomSheetFragment.ACTION_SMS.equals(action)) {
+                            makeToast(R.string.share_sms_opened_toast);
+                        } else if (ShareRatingBottomSheetFragment.ACTION_MORE.equals(action)) {
+                            makeToast(R.string.share_more_opened_toast);
+                        }
+                    }
+                });
+
+        // 나중에 보기 바텀시트(WatchLaterBottomSheetFragment)에서 저장·취소 결과를 수신해 북마크 아이콘을 갱신한다.
+        getSupportFragmentManager().setFragmentResultListener(
+                WatchLaterBottomSheetFragment.REQUEST_KEY,
+                this,
+                new FragmentResultListener() {
+                    @Override
+                    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                        String resultVideoId = result.getString(WatchLaterBottomSheetFragment.RESULT_VIDEO_ID, "");
+                        boolean saved = result.getBoolean(WatchLaterBottomSheetFragment.RESULT_SAVED, false);
+                        Log.d(TAG, "나중에 보기 결과 수신(setFragmentResult): videoId="
+                                + resultVideoId + ", saved=" + saved);
+                        if (videoId != null && videoId.equals(resultVideoId)) {
+                            watchLaterSaved = saved;
+                            if (videoDetailAdapter != null) {
+                                videoDetailAdapter.setWatchLaterSaved(saved);
+                            }
+                        }
+                    }
+                });
+    }
+
+    private String resolveCurrentVideoTitle() {
+        if (loadedVideo != null && loadedVideo.getTitle() != null) {
+            return loadedVideo.getTitle();
+        }
+        return headerBinding.videoTitle.getText().toString();
+    }
+
+    // 상단 '보관함에 담기' 버튼과 공개 평가 카드 '나중에 보기' 버튼이 같은 바텀시트를 공유한다.
+    private void openWatchLaterBottomSheet(boolean initialSaved) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            makeToast(R.string.reactions_login_required);
+            return;
+        }
+        String title = resolveCurrentVideoTitle();
+        String meta = "";
+        String thumbUrl = "";
+        if (loadedVideo != null) {
+            String duration = DurationFormat.format(loadedVideo.getDurationSeconds());
+            String channel = loadedVideo.getChannelTitle();
+            meta = channel == null || channel.isEmpty()
+                    ? duration
+                    : getString(R.string.video_meta, channel, duration);
+            thumbUrl = loadedVideo.getThumbnailUrl() != null ? loadedVideo.getThumbnailUrl() : "";
+        }
+        Log.d(TAG, "영상 상세 나중에 보기 바텀시트 열기: videoId=" + videoId + ", saved=" + initialSaved);
+        WatchLaterBottomSheetFragment sheet = WatchLaterBottomSheetFragment.newInstance(
+                videoId, title, meta, thumbUrl, initialSaved);
+        sheet.show(getSupportFragmentManager(), "WatchLaterBottomSheet");
+    }
+
+    // 현재 로그인 사용자가 이 영상을 보관함에 담았는지 조회해 공개 평가 카드의 북마크 아이콘에 반영한다.
+    private void loadWatchLaterStatus() {
+        if (videoId == null || videoId.isEmpty()
+                || FirebaseAuth.getInstance().getCurrentUser() == null) {
+            watchLaterSaved = false;
+            if (videoDetailAdapter != null) {
+                videoDetailAdapter.setWatchLaterSaved(false);
+            }
+            return;
+        }
+        watchLaterRepository.isSaved(videoId)
+                .addOnSuccessListener(new OnSuccessListener<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean saved) {
+                        if (isFinishing() || isDestroyed()) {
+                            return;
+                        }
+                        watchLaterSaved = Boolean.TRUE.equals(saved);
+                        if (videoDetailAdapter != null) {
+                            videoDetailAdapter.setWatchLaterSaved(watchLaterSaved);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception error) {
+                        Log.w(TAG, "나중에 보기 상태 조회 실패: videoId=" + videoId, error);
+                    }
+                });
     }
 
     // 공개 평가 카드의 좋아요 토글: ratings/{ratingId}/likes/{uid} 와 likeCount ±1을 한 번에 반영한다.
@@ -719,6 +824,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             videoDetailAdapter.clearProfiles();
             videoDetailAdapter.refresh();
         }
+        loadWatchLaterStatus();
         // 목록과 별도로 전체 공개 평가 통계를 조회한다.
         new RatingRepository().loadPublicVideoStatistics(videoId,
                 // 통계 조회 성공: 목록 페이지가 아닌 전체 공개 평가를 기준으로 표시한다.

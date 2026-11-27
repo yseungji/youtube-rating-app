@@ -30,6 +30,7 @@ import com.example.viewit.R;
 import com.example.viewit.SettingsActivity;
 import com.example.viewit.data.BlockRepository;
 import com.example.viewit.data.FollowRepository;
+import com.example.viewit.data.PrivacyRepository;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.data.model.User;
@@ -43,6 +44,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // 프로필 화면 (6.1 내 프로필 / 6.2 다른 사용자 프로필).
 // MainActivity의 프로필 탭은 new ProfileFragment()로 내 프로필을, UserProfileActivity는 newInstance(uid)로 다른 사람 프로필을 연다.
 public class ProfileFragment extends Fragment {
@@ -54,6 +58,8 @@ public class ProfileFragment extends Fragment {
     private ListenerRegistration userListener;
     private final FollowRepository followRepository = new FollowRepository();
     private final BlockRepository blockRepository = new BlockRepository();
+    private final PrivacyRepository privacyRepository = new PrivacyRepository();
+    private ProfilePagerAdapter pagerAdapter;
 
     private String myUid;          // 로그인한 사람
     private String profileUid;     // 이 화면에 보여 주는 사람
@@ -91,13 +97,16 @@ public class ProfileFragment extends Fragment {
         profileUid = TextUtils.isEmpty(argUid) ? myUid : argUid;
         isMine = profileUid.equals(myUid);
 
-        binding.profilePager.setAdapter(new ProfilePagerAdapter(this, profileUid, isMine));
+        pagerAdapter = new ProfilePagerAdapter(this, profileUid, isMine);
+        binding.profilePager.setAdapter(pagerAdapter);
+        // 탭 아이콘은 탭 종류로 정한다 (다른 사람 프로필은 공개 범위에 따라 탭 수가 다르다)
         new TabLayoutMediator(binding.profileTabs, binding.profilePager, (tab, position) -> {
-            if(position == 0){ //평가 격자(기본 탭)
+            String type = pagerAdapter.getTabType(position);
+            if(ProfilePagerAdapter.TYPE_RATINGS.equals(type)){ //평가 격자(기본 탭)
                 tab.setIcon(R.drawable.ic_grid);
                 tab.setContentDescription(R.string.profile_tab_ratings);
             }
-            else if(position == 1){ //나중에 볼 영상
+            else if(ProfileListFragment.TYPE_WATCH_LATER.equals(type)){ //나중에 볼 영상
                 tab.setIcon(R.drawable.ic_bookmark_outline);
                 tab.setContentDescription(R.string.profile_tab_watch_later);
             }
@@ -192,6 +201,29 @@ public class ProfileFragment extends Fragment {
         binding.profileBlockedNotice.emptyAction.setVisibility(View.VISIBLE);
         binding.profileBlockedNotice.emptyAction.setOnClickListener(v -> unblockUser());
         loadBlockedState();
+        loadVisibleTabs();
+    }
+
+    // ---------- 공개 범위 (6.3) ----------
+
+    // 상대가 허용한 보관함·최근 본 영상 탭만 더한다 (팔로워만이면 내가 팔로우 중일 때만)
+    private void loadVisibleTabs() {
+        privacyRepository.loadVisibleLists(myUid, profileUid, new PrivacyRepository.Callback<PrivacyRepository.VisibleLists>() {
+            @Override
+            public void onSuccess(PrivacyRepository.VisibleLists visible) {
+                if (binding == null) return;
+                List<String> tabs = new ArrayList<>();
+                tabs.add(ProfilePagerAdapter.TYPE_RATINGS);
+                if (visible.watchLater) tabs.add(ProfileListFragment.TYPE_WATCH_LATER);
+                if (visible.watchHistory) tabs.add(ProfileListFragment.TYPE_HISTORY);
+                pagerAdapter.setTabs(tabs);
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                Log.w(TAG, "visible tabs failed", error);   // 평가 탭만 보인다
+            }
+        });
     }
 
     // ---------- 차단 (6.3) ----------
@@ -308,6 +340,7 @@ public class ProfileFragment extends Fragment {
                 if (binding == null) return;
                 following = !wasFollowing;
                 showFollowButton();
+                loadVisibleTabs();    // "팔로워만" 탭이 생기거나 사라질 수 있다
                 binding.profileFollowButton.setEnabled(true);
                 loadFollowCounts(profileUid);
             }

@@ -152,7 +152,7 @@
     <string name="settings_my_activity">좋아요·댓글</string>
     <string name="settings_my_activity_desc">내가 좋아요한 리뷰와 내가 쓴 댓글</string>
     <string name="settings_visibility">공개 범위</string>
-    <string name="settings_visibility_desc">시청 기록·나중에 보기·구독 채널</string>
+    <string name="settings_visibility_desc">보관함·최근 본 영상</string>
     <string name="settings_blocked">차단한 사용자</string>
     <string name="settings_blocked_count">%1$d명</string>
     <string name="settings_terms">이용약관</string>

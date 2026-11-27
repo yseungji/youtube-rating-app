@@ -30,15 +30,23 @@ public class ProfileListFragment extends Fragment {
     private RatedVideoAdapter adapter;
     private final ProfileVideoLoader loader = new ProfileVideoLoader();
     private String type;   // TYPE_WATCH_LATER 또는 TYPE_HISTORY
+    private String uid;    // 누구의 목록인지 (없으면 나)
 
     private static final String ARG_TYPE = "type";
+    private static final String ARG_UID = "uid";
     public static final String TYPE_WATCH_LATER = "watch_later";
     public static final String TYPE_HISTORY = "history";
 
     public static ProfileListFragment newInstance(String type){
+        return newInstance(type, null);
+    }
+
+    // 다른 사람 목록 (공개 범위가 허용할 때만 프로필에 탭이 생긴다)
+    public static ProfileListFragment newInstance(String type, String uid){
         ProfileListFragment fragment = new ProfileListFragment(); //Fragment 생성
         Bundle args = new Bundle(); //상자 만들기
         args.putString(ARG_TYPE, type); //"type"이라는 이름표로 값 넣기
+        args.putString(ARG_UID, uid);
         fragment.setArguments(args); //fragment에 상자 넣기
         return fragment;
     }
@@ -54,6 +62,7 @@ public class ProfileListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         type = requireArguments().getString(ARG_TYPE);
+        uid = requireArguments().getString(ARG_UID);
 
         if(TYPE_WATCH_LATER.equals(type)){
             binding.profileListEmpty.emptyIcon.setImageResource(R.drawable.ic_bookmark_outline);
@@ -64,6 +73,9 @@ public class ProfileListFragment extends Fragment {
             binding.profileListEmpty.emptyIcon.setImageResource(R.drawable.ic_history);
             binding.profileListEmpty.emptyTitle.setText(getString(R.string.profile_empty_history_title));
             binding.profileListEmpty.emptyMessage.setText(getString(R.string.profile_empty_history_message));
+        }
+        if (uid != null) {
+            binding.profileListEmpty.emptyMessage.setVisibility(View.GONE);   // "누르면 담겨요" 안내는 내 목록에만
         }
 
         // 목록 연결: 줄을 누르면 영상 상세
@@ -101,7 +113,7 @@ public class ProfileListFragment extends Fragment {
         }
         binding.profileListLoading.setVisibility(View.VISIBLE);
         binding.profileListEmpty.getRoot().setVisibility(View.GONE);
-        loader.load(requireContext(), TYPE_WATCH_LATER.equals(type), new ProfileVideoLoader.Callback() {
+        ProfileVideoLoader.Callback callback = new ProfileVideoLoader.Callback() {
             @Override
             public void onLoaded(@NonNull List<RatedVideoItem> items) {
                 showItems(items);
@@ -112,7 +124,13 @@ public class ProfileListFragment extends Fragment {
                 Log.w(TAG, "load failed: " + type, error);
                 showItems(new ArrayList<>());
             }
-        });
+        };
+        boolean watchLater = TYPE_WATCH_LATER.equals(type);
+        if (uid == null) {
+            loader.load(requireContext(), watchLater, callback);
+        } else {
+            loader.load(requireContext(), uid, watchLater, callback);
+        }
     }
 
     private void showItems(List<RatedVideoItem> items) {

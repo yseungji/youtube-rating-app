@@ -27,7 +27,7 @@ import java.util.Map;
 // 프로필 "보관함"·"최근 본 영상" 탭 목록 (6.1).
 // users/{uid}/watchLater (5.4 나중에 보기), users/{uid}/watchHistory (5.1 앱에서 본 영상)에서
 // 영상 ID를 최신순으로 읽고, VideoRepository로 제목·썸네일을 채워 한 줄(RatedVideoItem)로 만든다.
-// 지금은 내 프로필에서만 쓴다 (다른 사람 것은 6.3 공개 범위 이후).
+// 다른 사람 목록은 공개 범위(6.3, PrivacyRepository)가 허용할 때만 읽을 수 있다 (firestore.rules).
 public class ProfileVideoLoader {
 
     public interface Callback {
@@ -42,18 +42,23 @@ public class ProfileVideoLoader {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final VideoRepository videoRepository = new VideoRepository();
 
-    // watchLater가 true면 보관함, false면 최근 본 영상
+    // 내 목록. watchLater가 true면 보관함, false면 최근 본 영상
     public void load(@NonNull Context context, boolean watchLater, @NonNull Callback callback) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             callback.onLoaded(new ArrayList<>());
             return;
         }
+        load(context, user.getUid(), watchLater, callback);
+    }
+
+    // uid의 목록
+    public void load(@NonNull Context context, @NonNull String uid, boolean watchLater, @NonNull Callback callback) {
         final Context appContext = context.getApplicationContext();
         String collection = watchLater ? FirestorePaths.WATCH_LATER : FirestorePaths.WATCH_HISTORY;
         final String timeField = watchLater ? "createdAt" : "lastWatchedAt";
 
-        db.collection(FirestorePaths.USERS).document(user.getUid())
+        db.collection(FirestorePaths.USERS).document(uid)
                 .collection(collection)
                 .orderBy(timeField, Query.Direction.DESCENDING)
                 .limit(LIMIT)

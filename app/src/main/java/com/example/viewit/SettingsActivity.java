@@ -27,6 +27,7 @@ import com.example.viewit.data.youtube.YouTubeAccountRepository;
 import com.example.viewit.databinding.ActivitySettingsBinding;
 import com.example.viewit.databinding.ViewSettingsRowBinding;
 import com.example.viewit.ui.profile.BlockedUsersActivity;
+import com.example.viewit.ui.profile.PrivacySettingsActivity;
 import com.example.viewit.ui.profile.ProfileEditActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -243,7 +244,7 @@ public class SettingsActivity extends AppCompatActivity {
         bindRow(binding.settingsAppVersion, R.drawable.ic_info_outline,
             R.string.settings_app_version, 0, BuildConfig.VERSION_NAME, false);
 
-        // 아직 만들지 않은 기능 (내 활동·공개 범위·약관은 6.3 후속)
+        // 아직 만들지 않은 기능 (내 활동·약관은 6.3 후속)
         View.OnClickListener comingSoon = v ->
             Toast.makeText(this, R.string.profile_coming_soon, Toast.LENGTH_SHORT).show();
         // 프로필 편집 화면 열기
@@ -253,7 +254,11 @@ public class SettingsActivity extends AppCompatActivity {
         });
         binding.settingsYoutube.getRoot().setOnClickListener(v -> onYoutubeRowClick());
         binding.settingsMyActivity.getRoot().setOnClickListener(comingSoon);
-        binding.settingsVisibility.getRoot().setOnClickListener(comingSoon);
+        // 공개 범위 (6.3)
+        binding.settingsVisibility.getRoot().setOnClickListener(v -> {
+            Intent intent = new Intent(this, PrivacySettingsActivity.class);
+            startActivity(intent);
+        });
         // 차단한 사용자 목록 (6.3)
         binding.settingsBlocked.getRoot().setOnClickListener(v->{
             Intent intent = new Intent(this, BlockedUsersActivity.class);

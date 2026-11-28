@@ -38,6 +38,7 @@ import com.example.viewit.BuildConfig;
 import com.example.viewit.MainActivity;
 import com.example.viewit.R;
 import com.example.viewit.data.RatingRepository;
+import com.example.viewit.data.FollowingRatingsQuery;
 import com.example.viewit.data.VideoRepository;
 import com.example.viewit.data.WatchHistoryRepository;
 import com.example.viewit.data.WatchLaterRepository;
@@ -68,8 +69,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -97,6 +100,10 @@ public class VideoDetailActivity extends AppCompatActivity {
     private boolean publicListRefreshing;
     private AlertDialog ratingDeleteDialog;
     private VideoDetailAdapter videoDetailAdapter;
+    // 평가 목록 필터 (4.2 장주원): false = 전체 공개 평가, true = 내가 팔로우한 사람의 공개 평가
+    private boolean followingOnly;
+    private List<String> followingIds;   // 한 번 받으면 화면이 살아 있는 동안 재사용. null이면 아직 안 받음
+    private final FollowingRatingsQuery followingRatingsQuery = new FollowingRatingsQuery();
     // 나중에 보낸 요청보다 먼저 보낸 요청이 늦게 도착해 화면을 덮는 것을 막는다.
     private int publicStatisticsRequest;
     private boolean fullscreenMode;
@@ -574,6 +581,11 @@ public class VideoDetailActivity extends AppCompatActivity {
                 videoDetailAdapter,
                 new DetailSectionAdapter(statusBinding.getRoot()));
         binding.publicRatingList.setAdapter(detailAdapter);
+        // 전체/팔로잉 칩: 목록의 조회 조건만 바꾸고, 평균·분포 통계는 전체 기준 그대로 둔다 (4.2 장주원)
+        headerBinding.publicRatingFilterGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            applyRatingFilter(checkedIds.get(0) == R.id.public_rating_filter_following);
+        });
         // FirebaseUI가 로딩·실패·빈 목록 상태를 전달한다. 실패 원인은 Logcat에도 남긴다.
         videoDetailAdapter.addLoadStateListener(states -> {
             renderPublicRatingsLoadState(states);
@@ -773,6 +785,67 @@ public class VideoDetailActivity extends AppCompatActivity {
                 });
     }
 
+    // ---------- 평가 목록 전체/팔로잉 필터 (4.2 장주원) ----------
+
+    private void applyRatingFilter(boolean following) {
+        if (following == followingOnly || videoDetailAdapter == null) {
+            return;
+        }
+        followingOnly = following;
+        headerBinding.publicRatingHeading.setText(following
+                ? R.string.video_detail_following_heading : R.string.video_detail_public_heading);
+        // 제목 옆 숫자는 전체 공개 평가 수라 팔로잉에서는 숨긴다
+        headerBinding.publicRatingCount.setVisibility(following ? View.GONE : View.VISIBLE);
+        if (!following) {
+            videoDetailAdapter.clearProfiles();
+            videoDetailAdapter.updateOptions(publicRatingOptions());
+            return;
+        }
+        if (followingIds != null) {
+            showFollowingRatings();
+            return;
+        }
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            followingIds = new ArrayList<>();
+            showFollowingRatings();
+            return;
+        }
+        statusBinding.publicRatingListLoading.setVisibility(View.VISIBLE);
+        followingRatingsQuery.loadFollowingIds(user.getUid(), new FollowingRatingsQuery.Callback<List<String>>() {
+            @Override
+            public void onSuccess(List<String> result) {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                followingIds = result;
+                if (followingOnly) {
+                    showFollowingRatings();
+                }
+            }
+
+            @Override
+            public void onError(@NonNull Exception error) {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                Log.e(TAG, "Following list load failed", error);
+                statusBinding.publicRatingListLoading.setVisibility(View.GONE);
+                makeToast(R.string.video_detail_public_list_error);
+                headerBinding.publicRatingFilterGroup.check(R.id.public_rating_filter_all);
+            }
+        });
+    }
+
+    private void showFollowingRatings() {
+        videoDetailAdapter.clearProfiles();
+        videoDetailAdapter.updateOptions(new FirestorePagingOptions.Builder<Rating>()
+                .setLifecycleOwner(this)
+                .setQuery(followingRatingsQuery.query(videoId, followingIds),
+                        new PagingConfig(10, 5, false), Rating.class)
+                .build());
+    }
+
     // FirebaseUI가 사용할 조회 설정만 준비한다. 생명주기에 맞춘 시작·정지는 FirebaseUI가 관리한다.
     // setLifecycleOwner(this)는 Activity 생명주기와 연결하며 실시간 데이터 구독을 뜻하지 않는다.
     private FirestorePagingOptions<Rating> publicRatingOptions() {
@@ -890,7 +963,9 @@ public class VideoDetailActivity extends AppCompatActivity {
             statusBinding.publicRatingListStatus.setVisibility(View.VISIBLE);
         } else if (refresh instanceof LoadState.NotLoading
                 && videoDetailAdapter.getItemCount() == 0) {
-            statusBinding.publicRatingListStatus.setText(R.string.video_detail_public_empty);
+            statusBinding.publicRatingListStatus.setText(!followingOnly ? R.string.video_detail_public_empty
+                    : (followingIds != null && followingIds.isEmpty()
+                    ? R.string.video_detail_following_none : R.string.video_detail_following_empty));
             statusBinding.publicRatingListStatus.setVisibility(View.VISIBLE);
         } else {
             if (refresh instanceof LoadState.NotLoading) {

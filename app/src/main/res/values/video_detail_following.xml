@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 영상 상세 평가 목록 전체/팔로잉 필터 (4.2 장주원). 나머지 영상 상세 문자열은 video_detail.xml -->
+<resources>
+    <string name="video_detail_filter_all">전체</string>
+    <string name="video_detail_filter_following">팔로잉</string>
+    <string name="video_detail_following_heading">팔로우한 사람의 평가</string>
+    <string name="video_detail_following_empty">팔로우한 사람 중에 이 영상을 평가한 사람이 아직 없어요.</string>
+    <string name="video_detail_following_none">아직 팔로우한 사람이 없어요. 탐색에서 사람을 찾아 팔로우해 보세요.</string>
+</resources>

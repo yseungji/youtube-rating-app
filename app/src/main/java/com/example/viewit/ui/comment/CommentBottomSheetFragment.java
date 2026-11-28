@@ -89,6 +89,24 @@ public class CommentBottomSheetFragment extends BottomSheetDialogFragment {
     private String targetAuthorName = null;      // 답글 대상자 표시 이름
     private String targetUsername = null;        // 답글 대상자 아이디 (@아이디 언급용)
 
+    // 키보드·시스템 바 인셋 중복 차감을 막기 위해 마지막 인셋과 부모 레이아웃 변경을 추적한다.
+    private int basePaddingLeft;
+    private int basePaddingTop;
+    private int basePaddingRight;
+    private int basePaddingBottom;
+    private int lastBarsTop;
+    private int lastRawBottomInset;
+    private boolean lastImeVisible;
+    private int lastObservedSheetPaddingBottom = -1;
+    @Nullable
+    private View observedSheetParent;
+    @Nullable
+    private View.OnLayoutChangeListener sheetParentLayoutListener;
+    @Nullable
+    private View observedBottomSheet;
+    @Nullable
+    private View.OnLayoutChangeListener bottomSheetLayoutListener;
+
     public static CommentBottomSheetFragment newInstance(String ratingId) {
         CommentBottomSheetFragment fragment = new CommentBottomSheetFragment();
         Bundle args = new Bundle();
@@ -147,45 +165,144 @@ public class CommentBottomSheetFragment extends BottomSheetDialogFragment {
                     com.google.android.material.R.id.design_bottom_sheet);
             if (bottomSheet != null) {
                 bottomSheet.setBackgroundResource(android.R.color.transparent);
-                applyBottomSheetHeight(bottomSheet, 0, 0, false);
+                attachParentLayoutObserver(bottomSheet);
+                updateSheetLayout();
             }
         });
         return dialog;
     }
 
-    // BottomSheetBehavior는 topMargin을 주면 자체 오프셋과 더해져 시트 하단이 화면 밖으로 밀린다.
-    // 따라서 topMargin은 0으로 두고, 시트 높이 자체를 화면 비율에 맞춰 지정해 바닥에 딱 맞춘다.
-    private void applyBottomSheetHeight(@NonNull FrameLayout bottomSheet,
-                                        int statusBarTop,
-                                        int bottomInset,
-                                        boolean imeVisible) {
-        if (getContext() == null) {
+    private void attachParentLayoutObserver(@NonNull FrameLayout bottomSheet) {
+        if (bottomSheet.getParent() instanceof View) {
+            View parent = (View) bottomSheet.getParent();
+            if (observedSheetParent != parent || sheetParentLayoutListener == null) {
+                if (observedSheetParent != null && sheetParentLayoutListener != null) {
+                    observedSheetParent.removeOnLayoutChangeListener(sheetParentLayoutListener);
+                }
+                observedSheetParent = parent;
+                sheetParentLayoutListener = (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                    if (bottom != oldBottom || top != oldTop) {
+                        v.post(this::updateSheetLayout);
+                    }
+                };
+                parent.addOnLayoutChangeListener(sheetParentLayoutListener);
+            }
+        }
+        if (observedBottomSheet != bottomSheet || bottomSheetLayoutListener == null) {
+            if (observedBottomSheet != null && bottomSheetLayoutListener != null) {
+                observedBottomSheet.removeOnLayoutChangeListener(bottomSheetLayoutListener);
+            }
+            observedBottomSheet = bottomSheet;
+            bottomSheetLayoutListener = (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                int currentPadBottom = v.getPaddingBottom();
+                if (currentPadBottom != lastObservedSheetPaddingBottom) {
+                    lastObservedSheetPaddingBottom = currentPadBottom;
+                    v.post(this::updateSheetLayout);
+                }
+            };
+            bottomSheet.addOnLayoutChangeListener(bottomSheetLayoutListener);
+        }
+    }
+
+    private void detachParentLayoutObserver() {
+        if (observedSheetParent != null && sheetParentLayoutListener != null) {
+            observedSheetParent.removeOnLayoutChangeListener(sheetParentLayoutListener);
+        }
+        if (observedBottomSheet != null && bottomSheetLayoutListener != null) {
+            observedBottomSheet.removeOnLayoutChangeListener(bottomSheetLayoutListener);
+        }
+        observedSheetParent = null;
+        sheetParentLayoutListener = null;
+        observedBottomSheet = null;
+        bottomSheetLayoutListener = null;
+        lastObservedSheetPaddingBottom = -1;
+    }
+
+    // 기기·Android 버전마다 ADJUST_RESIZE나 Material BottomSheetDialog가 부모(CoordinatorLayout) 또는
+    // design_bottom_sheet의 paddingBottom으로 이미 키보드·내비게이션 바 높이를 반영하는 경우가 다르다.
+    // 실제 화면 좌표에서 남은 겹침량만 rootView 패딩으로 보정해 이중 패딩을 막는다.
+    private void updateSheetLayout() {
+        if (binding == null || getContext() == null) {
             return;
         }
-        View parent = bottomSheet.getParent() instanceof View ? (View) bottomSheet.getParent() : null;
-        int parentHeight = parent != null && parent.getHeight() > 0
-                ? parent.getHeight()
-                : getResources().getDisplayMetrics().heightPixels;
-        if (parentHeight <= 0) {
+        Dialog dialog = getDialog();
+        if (!(dialog instanceof BottomSheetDialog)) {
             return;
+        }
+        FrameLayout bottomSheet = dialog.findViewById(
+                com.google.android.material.R.id.design_bottom_sheet);
+        if (bottomSheet == null || !(bottomSheet.getParent() instanceof View)) {
+            return;
+        }
+        View parent = (View) bottomSheet.getParent();
+        int parentHeight = parent.getHeight();
+        if (parentHeight <= 0) {
+            parentHeight = getResources().getDisplayMetrics().heightPixels;
+            if (parentHeight <= 0) {
+                return;
+            }
+        }
+
+        int parentOverlapTop = lastBarsTop;
+        int parentOverlapBottom = lastRawBottomInset;
+
+        Window dialogWindow = dialog.getWindow();
+        View dialogDecor = dialogWindow != null ? dialogWindow.getDecorView() : null;
+        View activityDecor = getActivity() != null && getActivity().getWindow() != null
+                ? getActivity().getWindow().getDecorView()
+                : null;
+
+        if (parent.getHeight() > 0 && dialogDecor != null && dialogDecor.getHeight() > 0) {
+            int[] parentLoc = new int[2];
+            int[] dialogLoc = new int[2];
+            parent.getLocationOnScreen(parentLoc);
+            dialogDecor.getLocationOnScreen(dialogLoc);
+
+            int windowTop = dialogLoc[1];
+            int windowBottom = dialogLoc[1] + dialogDecor.getHeight();
+            if (activityDecor != null && activityDecor.getHeight() > 0) {
+                int[] activityLoc = new int[2];
+                activityDecor.getLocationOnScreen(activityLoc);
+                windowTop = Math.min(windowTop, activityLoc[1]);
+                windowBottom = Math.max(windowBottom, activityLoc[1] + activityDecor.getHeight());
+            }
+
+            int safeTop = windowTop + lastBarsTop;
+            int safeBottom = windowBottom - lastRawBottomInset;
+            int parentTop = parentLoc[1];
+            int parentBottom = parentLoc[1] + parent.getHeight();
+
+            parentOverlapTop = Math.max(0, safeTop - parentTop);
+            parentOverlapBottom = Math.max(0, parentBottom - safeBottom);
+        }
+
+        // design_bottom_sheet 자체가 이미 적용한 paddingBottom만큼은 빼고, 진짜 남은 겹침량만 rootView에 더한다.
+        int sheetPaddingBottom = bottomSheet.getPaddingBottom();
+        lastObservedSheetPaddingBottom = sheetPaddingBottom;
+        int rootOverlapBottom = Math.max(0, parentOverlapBottom - sheetPaddingBottom);
+
+        View rootView = binding.getRoot();
+        int nextPaddingBottom = basePaddingBottom + rootOverlapBottom;
+        if (rootView.getPaddingBottom() != nextPaddingBottom) {
+            rootView.setPadding(basePaddingLeft, basePaddingTop, basePaddingRight, nextPaddingBottom);
         }
 
         boolean isLandscape = getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE;
-        int usableHeight = Math.max(0, parentHeight - statusBarTop - bottomInset);
-        int targetHeight;
-        if (imeVisible || isLandscape) {
+        int usableHeight = Math.max(0, parentHeight - parentOverlapTop - parentOverlapBottom);
+        int computedHeight;
+        if (lastImeVisible || isLandscape) {
             int topGap = Math.round(12 * getResources().getDisplayMetrics().density);
-            targetHeight = Math.max(0, usableHeight - topGap) + bottomInset;
+            computedHeight = Math.max(0, usableHeight - topGap) + parentOverlapBottom;
         } else {
             // 세로 기본 상태에서는 사용 가능 높이의 85%를 차지해 상단 영상이 살짝 보이면서도
             // 하단 입력창이 스크롤 없이 바로 화면 바닥에 표시되도록 한다.
-            targetHeight = Math.round(usableHeight * 0.85f) + bottomInset;
+            computedHeight = Math.round(usableHeight * 0.85f) + parentOverlapBottom;
         }
-        int maxAllowedHeight = Math.max(0, parentHeight - statusBarTop);
-        if (maxAllowedHeight > 0) {
-            targetHeight = Math.min(targetHeight, maxAllowedHeight);
-        }
+        int maxAllowedHeight = Math.max(0, parentHeight - parentOverlapTop);
+        int targetHeight = maxAllowedHeight > 0
+                ? Math.min(computedHeight, maxAllowedHeight)
+                : computedHeight;
 
         ViewGroup.LayoutParams lp = bottomSheet.getLayoutParams();
         if (lp != null) {
@@ -206,8 +323,12 @@ public class CommentBottomSheetFragment extends BottomSheetDialogFragment {
         BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
         behavior.setFitToContents(true);
         behavior.setSkipCollapsed(true);
-        behavior.setPeekHeight(targetHeight);
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        if (behavior.getPeekHeight() != targetHeight) {
+            behavior.setPeekHeight(targetHeight);
+        }
+        if (behavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
     }
 
     @Override
@@ -231,27 +352,26 @@ public class CommentBottomSheetFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 시스템 하단 내비게이션 바·키보드 인셋을 반영해 어떤 기기에서도 댓글 입력창이 바닥에 잘리지 않게 한다.
-        final int baseLeft = view.getPaddingLeft();
-        final int baseTop = view.getPaddingTop();
-        final int baseRight = view.getPaddingRight();
-        final int baseBottom = view.getPaddingBottom();
+        basePaddingLeft = view.getPaddingLeft();
+        basePaddingTop = view.getPaddingTop();
+        basePaddingRight = view.getPaddingRight();
+        basePaddingBottom = view.getPaddingBottom();
+
+        // 시스템 하단 내비게이션 바·키보드 인셋을 실제 부모 겹침량 기준으로 반영한다.
         ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             boolean imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
 
-            int bottomInset = Math.max(bars.bottom, ime.bottom);
-            v.setPadding(baseLeft, baseTop, baseRight, baseBottom + bottomInset);
-
-            Dialog dialog = getDialog();
-            if (dialog instanceof BottomSheetDialog) {
-                FrameLayout bottomSheet = dialog.findViewById(
-                        com.google.android.material.R.id.design_bottom_sheet);
-                if (bottomSheet != null) {
-                    applyBottomSheetHeight(bottomSheet, bars.top, bottomInset, imeVisible);
-                }
+            lastBarsTop = bars.top;
+            lastRawBottomInset = Math.max(bars.bottom, ime.bottom);
+            if (lastImeVisible != imeVisible) {
+                Log.d(TAG, "댓글 바텀시트 키보드 상태 변경: imeVisible=" + imeVisible
+                        + ", imeBottom=" + ime.bottom + ", barsBottom=" + bars.bottom);
             }
+            lastImeVisible = imeVisible;
+
+            updateSheetLayout();
             return insets;
         });
         ViewCompat.requestApplyInsets(view);
@@ -764,6 +884,7 @@ public class CommentBottomSheetFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onDestroyView() {
+        detachParentLayoutObserver();
         super.onDestroyView();
         binding = null;
     }

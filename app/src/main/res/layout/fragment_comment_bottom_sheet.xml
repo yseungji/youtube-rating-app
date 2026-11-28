@@ -4,7 +4,7 @@
     android:id="@+id/comments_sheet_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_rating_delete_dialog"
+    android:background="@drawable/bg_share_sheet"
     android:orientation="vertical"
     android:paddingHorizontal="@dimen/screen_padding"
     android:paddingTop="@dimen/space_s">
@@ -94,7 +94,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:paddingVertical="@dimen/space_l"
+            android:paddingVertical="@dimen/space_s"
             android:visibility="gone">
 
             <TextView

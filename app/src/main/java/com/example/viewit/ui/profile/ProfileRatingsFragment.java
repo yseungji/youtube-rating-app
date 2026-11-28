@@ -16,10 +16,13 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.example.viewit.MainActivity;
 import com.example.viewit.R;
 import com.example.viewit.ui.videodetail.VideoDetailActivity;
+import com.example.viewit.data.FollowRepository;
 import com.example.viewit.data.model.FirestorePaths;
 import com.example.viewit.data.model.Rating;
 import com.example.viewit.databinding.FragmentProfileRatingsBinding;
 import com.example.viewit.ui.common.GridSpacingItemDecoration;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -98,6 +101,9 @@ public class ProfileRatingsFragment extends Fragment {
                     return;
                 List<Rating> list = result.toObjects(Rating.class);
                 adapter.setItems(list);
+                if (publicOnly) {
+                    markChecked(uid);   // 다른 사람 평가 목록을 봤으니 "새 평가" 표시를 지운다 (6.2)
+                }
 
                 // 0개도 "성공"이다. 비었으면 빈 화면(Figma 05-C), 있으면 3열 격자를 보인다
                 if (list.isEmpty()) {
@@ -133,6 +139,13 @@ public class ProfileRatingsFragment extends Fragment {
     private void openRateTab() {
         if (requireActivity() instanceof MainActivity) {
             ((MainActivity) requireActivity()).openTab(R.id.nav_rate);
+        }
+    }
+
+    private void markChecked(String authorUid) {
+        FirebaseUser me = FirebaseAuth.getInstance().getCurrentUser();
+        if (me != null && !me.getUid().equals(authorUid)) {
+            new FollowRepository().markRatingsChecked(me.getUid(), authorUid);
         }
     }
 

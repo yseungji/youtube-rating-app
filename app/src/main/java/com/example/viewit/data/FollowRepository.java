@@ -93,6 +93,70 @@ public class FollowRepository {
             .addOnFailureListener(callback::onError);
     }
 
+    // 팔로워 삭제: 상대가 나를 팔로우한 문서를 지운다 (팔로우당한 사람도 지울 수 있게 규칙이 허용, 6.3 차단과 같은 규칙)
+    public void removeFollower(@NonNull String myUid, @NonNull String followerUid, @NonNull Callback<Void> callback) {
+        followRef(followerUid, myUid).delete()
+            .addOnSuccessListener(unused -> callback.onSuccess(null))
+            .addOnFailureListener(e -> {
+                Log.w(TAG, "remove follower failed", e);
+                callback.onError(e);
+            });
+    }
+
+    // ---------- 새 평가 (FIRESTORE_SCHEMA "새 평가 개수") ----------
+
+    // 내가 팔로우하는 사람마다, 마지막으로 확인한 뒤(ratingReadStates.lastCheckedAt) 새로 쓴 공개 평가 수.
+    // 확인 기록이 없거나 개수를 못 세면 0으로 둔다. 인덱스: userId, visibility, createdAt↓
+    public void loadNewRatingCounts(@NonNull String myUid, @NonNull List<String> authorUids,
+                                    @NonNull Callback<Map<String, Long>> callback) {
+        Map<String, Long> counts = new HashMap<>();
+        if (authorUids.isEmpty()) {
+            callback.onSuccess(counts);
+            return;
+        }
+        List<Task<Void>> tasks = new ArrayList<>();
+        for (String author : authorUids) {
+            Task<Void> one = db.collection(FirestorePaths.USERS).document(myUid)
+                .collection(FirestorePaths.RATING_READ_STATES).document(author).get()
+                .continueWithTask(task -> {
+                    Timestamp lastChecked = task.isSuccessful() && task.getResult() != null
+                        ? task.getResult().getTimestamp("lastCheckedAt") : null;
+                    if (lastChecked == null) {
+                        return Tasks.forResult((AggregateQuerySnapshot) null);
+                    }
+                    return db.collection(FirestorePaths.RATINGS)
+                        .whereEqualTo("userId", author)
+                        .whereEqualTo("visibility", Rating.VISIBILITY_PUBLIC)
+                        .whereGreaterThan("createdAt", lastChecked)
+                        .orderBy("createdAt", Query.Direction.DESCENDING)
+                        .count().get(AggregateSource.SERVER);
+                })
+                .continueWith(task -> {
+                    long count = 0;
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        count = task.getResult().getCount();
+                    } else if (!task.isSuccessful()) {
+                        Log.w(TAG, "new rating count failed: " + author, task.getException());
+                    }
+                    synchronized (counts) {
+                        counts.put(author, count);
+                    }
+                    return null;
+                });
+            tasks.add(one);
+        }
+        Tasks.whenAllComplete(tasks).addOnCompleteListener(done -> callback.onSuccess(counts));
+    }
+
+    // 그 사람의 평가 목록을 정상적으로 불러왔을 때 확인한 것으로 기록한다.
+    // 팔로우하지 않으면 확인 기록 문서가 없어서 update가 실패하는데, 그건 넘어간다.
+    public void markRatingsChecked(@NonNull String myUid, @NonNull String authorUid) {
+        db.collection(FirestorePaths.USERS).document(myUid)
+            .collection(FirestorePaths.RATING_READ_STATES).document(authorUid)
+            .update("lastCheckedAt", FieldValue.serverTimestamp())
+            .addOnFailureListener(e -> Log.d(TAG, "mark checked skipped (not following?)", e));
+    }
+
     // ---------- 숫자 ----------
 
     // uid를 팔로우하는 사람 수

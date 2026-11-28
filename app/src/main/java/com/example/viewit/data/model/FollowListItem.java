@@ -9,6 +9,7 @@ public class FollowListItem {
     private final String photoUrl;
     private final long publicRatingCount;   // 그 사람의 공개 평가 수
     private boolean followedByMe;           // 내가 이 사람을 팔로우하고 있는지 (버튼 모양)
+    private long newRatingCount;            // 마지막으로 확인한 뒤 새로 쓴 공개 평가 수 (내 팔로잉 목록에서만)
 
     public FollowListItem(String uid, String displayName, String username, String photoUrl,
                           long publicRatingCount, boolean followedByMe) {
@@ -46,5 +47,13 @@ public class FollowListItem {
 
     public void setFollowedByMe(boolean followedByMe) {
         this.followedByMe = followedByMe;
+    }
+
+    public long getNewRatingCount() {
+        return newRatingCount;
+    }
+
+    public void setNewRatingCount(long newRatingCount) {
+        this.newRatingCount = newRatingCount;
     }
 }

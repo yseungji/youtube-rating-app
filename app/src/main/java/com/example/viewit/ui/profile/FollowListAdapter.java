@@ -23,11 +23,16 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowListAdapter.Fo
         void onRowClick(FollowListItem item);                    // 줄 → 그 사람 프로필 열기
 
         void onFollowButtonClick(FollowListItem item, int position);   // 버튼 → 팔로우/언팔로우
+
+        // ⋮ → 팔로워 삭제·팔로우 취소·차단 (내 목록에서만 보인다). 온보딩 추천처럼 ⋮가 없는 화면은 구현하지 않아도 된다
+        default void onMoreClick(FollowListItem item, int position, View anchor) {
+        }
     }
 
     private List<FollowListItem> items = new ArrayList<>();
     private final OnFollowRowListener listener;
     private boolean followerTab;   // 팔로워 탭이면 팔로우 전 버튼 글자가 "맞팔로우", 팔로잉 탭이면 "팔로우"
+    private boolean showMore;      // ⋮ 메뉴를 보일지 (내 팔로워·팔로잉 목록에서만)
 
     public FollowListAdapter(OnFollowRowListener listener) {
         this.listener = listener;
@@ -38,6 +43,11 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowListAdapter.Fo
         this.items = newItems;
         this.followerTab = followerTab;
         notifyDataSetChanged();
+    }
+
+    // ⋮ 메뉴 보이기 (FollowListActivity가 내 목록일 때 켠다)
+    public void setShowMore(boolean showMore) {
+        this.showMore = showMore;
     }
 
     // 한 줄 화면을 만든다 (화면에 보일 만큼만 만들고 다시 쓴다)
@@ -66,7 +76,16 @@ public class FollowListAdapter extends RecyclerView.Adapter<FollowListAdapter.Fo
         FollowButtonStyle.apply(holder.binding.followRowButton, item.isFollowedByMe(), followerTab ? R.string.follow_back : R.string.follow);
         holder.binding.getRoot().setOnClickListener(v -> listener.onRowClick(item));
         holder.binding.followRowButton.setOnClickListener(v -> listener.onFollowButtonClick(item, holder.getBindingAdapterPosition()));
-        holder.binding.followRowMore.setVisibility(View.GONE);
+        // 새 평가 N개 (내 팔로잉 목록에서만 값이 있다)
+        long newCount = item.getNewRatingCount();
+        holder.binding.followRowNew.setVisibility(newCount > 0 ? View.VISIBLE : View.GONE);
+        if (newCount > 0) {
+            holder.binding.followRowNewCount.setText(
+                holder.itemView.getContext().getString(R.string.follow_new_ratings, (int) newCount));
+        }
+        holder.binding.followRowMore.setVisibility(showMore ? View.VISIBLE : View.GONE);
+        holder.binding.followRowMore.setOnClickListener(
+            v -> listener.onMoreClick(item, holder.getBindingAdapterPosition(), v));
     }
 
     @Override

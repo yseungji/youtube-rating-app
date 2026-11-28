@@ -7,6 +7,7 @@
     android:background="@color/bg_surface"
     android:orientation="vertical">
 
+    <!-- 상단: viewit 로고 글자 + [최신순] (Figma B · 인스타식) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/app_bar_height"
@@ -19,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/tab_feed"
+            android:text="@string/feed_logo"
             android:textAppearance="@style/TextAppearance.Viewit.Display" />
 
         <!-- 선택 메뉴를 여는 onClick-->

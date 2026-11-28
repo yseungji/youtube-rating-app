@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 설정 → 공개 범위 (6.3). 보관함·최근 본 영상마다 [전체 공개 | 팔로워만 | 나만 보기] 중 하나.
+     고르면 바로 저장된다 (PrivacySettingsActivity). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:orientation="vertical">
+
+    <!-- App bar: ← + 제목 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_bar_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_xs">
+
+        <include
+            android:id="@+id/privacy_back"
+            layout="@layout/view_back_button" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:layout_weight="1"
+            android:text="@string/privacy_title"
+            android:textAppearance="@style/TextAppearance.Viewit.Heading" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/border_default" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/privacy_intro"
+                android:textAppearance="@style/TextAppearance.Viewit.Body.Secondary" />
+
+            <!-- 보관함 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/privacy_watch_later"
+                android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/privacy_watch_later_desc"
+                android:textAppearance="@style/TextAppearance.Viewit.Meta" />
+
+            <RadioGroup
+                android:id="@+id/privacy_watch_later_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/privacy_watch_later_public"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/privacy_public" />
+
+                <RadioButton
+                    android:id="@+id/privacy_watch_later_followers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/privacy_followers" />
+
+                <RadioButton
+                    android:id="@+id/privacy_watch_later_private"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/privacy_private" />
+            </RadioGroup>
+
+            <!-- 최근 본 영상 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/privacy_history"
+                android:textAppearance="@style/TextAppearance.Viewit.Section" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/privacy_history_desc"
+                android:textAppearance="@style/TextAppearance.Viewit.Meta" />
+
+            <RadioGroup
+                android:id="@+id/privacy_history_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/privacy_history_public"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/privacy_public" />
+
+                <RadioButton
+                    android:id="@+id/privacy_history_followers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/privacy_followers" />
+
+                <RadioButton
+                    android:id="@+id/privacy_history_private"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/privacy_private" />
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/privacy_note"
+                android:textAppearance="@style/TextAppearance.Viewit.Meta" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -70,10 +70,71 @@ test('users: 남의 프로필은 못 고친다', async () => {
   await assertFails(bob().doc('users/alice').update({ bannerVideoId: 'v9' }));
 });
 
-test('users: 하위 컬렉션(watchLater 등)은 본인만 읽고 쓴다', async () => {
+test('users: 하위 컬렉션 쓰기는 본인만, 연동·확인 상태는 읽기도 본인만', async () => {
   await assertSucceeds(alice().doc('users/alice/watchLater/v2').set({ createdAt: 2 }));
-  await assertFails(bob().doc('users/alice/watchLater/v1').get());
+  await assertFails(bob().doc('users/alice/watchLater/v2').set({ createdAt: 2 }));
   await assertFails(bob().doc('users/alice/ratingReadStates/bob').set({ lastCheckedAt: 1 }));
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await ctx.firestore().doc('users/alice/integrations/youtube').set({ connected: true });
+  });
+  await assertFails(bob().doc('users/alice/integrations/youtube').get());
+});
+
+// ---------- 공개 범위 (6.3) ----------
+
+const setPrivacy = (data) => env.withSecurityRulesDisabled(async (ctx) => {
+  await ctx.firestore().doc('users/alice/settings/privacy').set(data);
+});
+
+test('privacy: 본인만 정해진 값으로 저장하고, 누구나 읽는다', async () => {
+  await assertSucceeds(alice().doc('users/alice/settings/privacy').set({ watchLaterVisibility: 'followers', updatedAt: 1 }));
+  await assertFails(alice().doc('users/alice/settings/privacy').set({ watchLaterVisibility: 'friends' }));
+  await assertFails(alice().doc('users/alice/settings/privacy').set({ email: 'a@b.c' }));
+  await assertFails(bob().doc('users/alice/settings/privacy').set({ watchLaterVisibility: 'public' }));
+  await assertSucceeds(bob().doc('users/alice/settings/privacy').get());
+});
+
+test('privacy: 탈퇴 정리 때 본인만 지운다 (6.4)', async () => {
+  await setPrivacy({ watchLaterVisibility: 'private' });
+  await assertFails(bob().doc('users/alice/settings/privacy').delete());
+  await assertSucceeds(alice().doc('users/alice/settings/privacy').delete());
+});
+
+test('탈퇴 정리: 내 하위 문서·나를 팔로우한 문서·내 평가를 지운다 (6.4)', async () => {
+  await assertSucceeds(alice().doc('users/alice/watchLater/v1').delete());
+  await assertSucceeds(alice().doc('follows/bob_alice').delete());
+  await assertSucceeds(alice().doc('ratings/alice_v1').delete());
+  await assertSucceeds(alice().doc('ratings/alice_v2').delete());
+});
+
+test('privacy: 설정이 없으면 전체 공개라 다른 사람도 보관함을 읽는다', async () => {
+  await assertSucceeds(bob().doc('users/alice/watchLater/v1').get());
+  await assertSucceeds(bob().collection('users/alice/watchLater').orderBy('createdAt', 'desc').limit(50).get());
+});
+
+test('privacy: 나만 보기면 본인만 읽는다', async () => {
+  await setPrivacy({ watchLaterVisibility: 'private' });
+  await assertFails(bob().doc('users/alice/watchLater/v1').get());
+  await assertSucceeds(alice().doc('users/alice/watchLater/v1').get());
+});
+
+test('privacy: 팔로워만이면 팔로우한 사람만 읽는다', async () => {
+  await setPrivacy({ watchLaterVisibility: 'followers' });
+  await assertSucceeds(bob().doc('users/alice/watchLater/v1').get());   // bob은 alice를 팔로우함
+  await assertFails(env.authenticatedContext('carol').firestore().doc('users/alice/watchLater/v1').get());
+});
+
+test('privacy: 최근 본 영상은 따로 정하고, 나를 차단한 사람 것은 못 본다', async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await ctx.firestore().doc('users/alice/watchHistory/v1').set({ lastWatchedAt: 1 });
+  });
+  await setPrivacy({ watchLaterVisibility: 'public', watchHistoryVisibility: 'private' });
+  await assertSucceeds(bob().doc('users/alice/watchLater/v1').get());
+  await assertFails(bob().doc('users/alice/watchHistory/v1').get());
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await ctx.firestore().doc('users/alice/blockedUsers/bob').set({ createdAt: 1 });
+  });
+  await assertFails(bob().doc('users/alice/watchLater/v1').get());
 });
 
 // ---------- usernames ----------

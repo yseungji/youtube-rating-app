@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 설정 → 공개 범위 (6.3). 보관함·최근 본 영상을 누구에게 보여 줄지 -->
+<resources>
+    <string name="privacy_title">공개 범위</string>
+    <string name="privacy_intro">다른 사람이 내 프로필에서 볼 수 있는 목록을 정해요. 처음에는 모두 전체 공개예요.</string>
+
+    <string name="privacy_watch_later">보관함</string>
+    <string name="privacy_watch_later_desc">나중에 보기로 담은 영상</string>
+    <string name="privacy_history">최근 본 영상</string>
+    <string name="privacy_history_desc">앱에서 재생한 영상</string>
+
+    <string name="privacy_public">전체 공개</string>
+    <string name="privacy_followers">팔로워만</string>
+    <string name="privacy_private">나만 보기</string>
+
+    <string name="privacy_note">평가의 공개 범위는 평가를 남길 때 하나씩 정해요.</string>
+    <string name="privacy_saved">공개 범위를 바꿨어요</string>
+    <string name="privacy_save_failed">저장하지 못했어요. 잠시 후 다시 시도해 주세요</string>
+    <string name="privacy_load_failed">공개 범위를 불러오지 못했어요</string>
+</resources>

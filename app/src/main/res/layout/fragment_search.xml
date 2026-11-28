@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 탐색 탭 (4.4 장주원, Figma 02 탐색 · 07 영상 검색 결과 · 08 사용자 검색 결과).
-     위에서부터 앱 바 → 검색창 → [검색 전] 최근 검색어 / [검색 후] 영상·사용자 칩 + 결과.
+     위에서부터 검색창 → [검색 전] 최근 검색어 / [검색 후] 영상·사용자 칩 + 결과.
      영상 결과는 "서비스에 등록된 영상"(우리 앱에서 평가된 영상) 아래에 "YouTube에서 더 찾기" 상자를 둔다.
      YouTube 검색은 100유닛이라 버튼을 눌렀을 때만 하고, 그 결과는 상자 아래에 붙는다.
      [영상]/[사용자]는 칩을 누르거나 좌우로 밀어서 넘긴다 (ViewPager2, 메인 5탭 스와이프와는 SwipeablePagerContainer가 조율).
@@ -12,21 +12,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- 상단 제목 (Figma App bar, 높이 64dp) -->
-    <TextView
-        android:id="@+id/search_title"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/app_bar_height"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
-        android:text="@string/tab_search"
-        android:textAppearance="@style/TextAppearance.Viewit.Display" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/divider"
-        android:background="@color/border_default" />
-
+    <!-- 제목 줄 없음 (Figma B · 인스타식): 검색창이 맨 위 -->
     <!-- 검색창 (공통 view_search_field). 입력칸은 binding.searchField.searchInput -->
     <include
         android:id="@+id/search_field"

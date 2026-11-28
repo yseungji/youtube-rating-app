@@ -220,8 +220,9 @@ Storage
 
 ### 접근 범위
 
-- `settings`, `integrations`, `blockedUsers`, `ratingReadStates`는 본인 전용입니다.
-- 시청 기록·나중에 보기·구독 채널은 각각의 공개 범위를 따릅니다.
+- `integrations`, `blockedUsers`, `ratingReadStates`와 `settings`의 다른 문서는 본인 전용입니다.
+- `settings/privacy`는 로그인한 사람이 읽을 수 있습니다 (다른 사람 프로필에 어떤 탭을 보여 줄지 정함). 쓰기는 본인만, 값은 `public` / `followers` / `private`.
+- 시청 기록(`watchHistory`)·나중에 보기(`watchLater`)는 각각의 공개 범위를 따릅니다. **값이 없으면 전체 공개**(2026-11-27 결정), `followers`는 `follows/{읽는 사람}_{주인}`이 있을 때, 주인이 읽는 사람을 차단했으면 못 읽습니다. 구독 채널은 8.2에서 붙입니다.
 - 비공개 평가와 그 하위 좋아요·댓글은 평가 작성자에게만 읽기를 허용합니다.
 - 프로필의 공개 문서에는 이메일·비밀번호·OAuth 토큰을 넣지 않습니다.
 - 실제 접근 제어는 Security Rules와 필요한 서버 처리로 구현합니다. 문서 경로만으로 보호되지는 않습니다.
@@ -233,7 +234,9 @@ Storage
 | 경로 | 읽기 | 쓰기 |
 |---|---|---|
 | `users/{uid}` | 로그인한 사람 | 본인만 |
-| `users/{uid}/…` (settings, watchLater, watchHistory, ratingReadStates 등) | 본인만 | 본인만 |
+| `users/{uid}/…` (integrations, blockedUsers, ratingReadStates 등) | 본인만 | 본인만 |
+| `users/{uid}/settings/privacy` | 로그인한 사람 | 본인만, 공개 범위 값 3가지만 |
+| `users/{uid}/watchLater`, `watchHistory` | 본인, 또는 공개 범위가 허용하고 차단당하지 않은 사람 | 본인만 |
 | `usernames/{username}` | 로그인한 사람 | 본인 uid로만 만들기·지우기, 아이디 형식 검사 |
 | `follows/{followerId}_{followingId}` | 로그인한 사람 | 팔로우한 본인만 만들기, 자기 자신 금지, 상대가 나를 차단했으면 금지. 지우기는 팔로우한 사람·팔로우당한 사람 |
 | `ratings/{uid}_{videoId}` | 공개이거나 내 평가 (없는 문서는 "없음"으로 읽힘) | 작성자만. 별점 1~5 정수, 공개 범위 public·private. **누구나 공개 평가의 `likeCount`·`commentCount`만 ±1** |
@@ -254,6 +257,8 @@ Storage
 3. 각자 자기 기능(평가 저장·수정·삭제, 좋아요, 댓글, 나중에 보기, 팔로우, 프로필 만들기·편집, 탈퇴) 확인
 4. 막히는 기능이 있으면 Logcat의 `PERMISSION_DENIED`를 공유하고, 급하면 1번의 백업으로 되돌리기
 - 탈퇴·평가 삭제 시 하위 컬렉션과 연결 데이터도 정리해야 합니다. 부모 문서 삭제만으로 하위 문서가 자동 삭제되지는 않습니다.
+- 탈퇴 정리 순서 (2026-11-27, 앱 `AccountRepository`): ① `ratings`에서 내 평가를 `RatingRepository.deleteRating`으로 하나씩 삭제(영상 집계 함께 갱신) ② `follows` 양방향, `users/{uid}`의 `watchLater`·`watchHistory`·`blockedUsers`·`ratingReadStates`·`settings`·`integrations`, Storage `profileImages/{uid}.jpg` ③ `users/{uid}`·`usernames/{username}` ④ Firebase 계정. 실패하면 멈추고, 다시 탈퇴하면 남은 것부터 지웁니다.
+- 탈퇴해도 남는 것: 내가 다른 사람 평가에 남긴 좋아요·댓글(좋아요 문서에 작성자 필드가 없고, 댓글을 사람별로 찾으려면 컬렉션 그룹 색인이 필요), 다른 사람이 내 평가에 단 좋아요·댓글(평가가 없어져 규칙상 읽을 수 없음).
 - 내 활동(내가 좋아요한 리뷰·내가 쓴 댓글 목록)은 본인 전용입니다.
 - Storage `profileImages/{uid}.jpg`는 로그인한 사용자만 읽고, 본인만 올리거나 바꿉니다. 이미지 형식과 크기(2MB 미만)도 Storage 규칙으로 제한합니다.
 - 탈퇴 시 Storage의 프로필 사진도 지워야 합니다. Firestore 문서를 지워도 Storage 파일은 자동으로 삭제되지 않습니다.

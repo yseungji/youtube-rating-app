@@ -4,16 +4,24 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.viewit.databinding.ActivityMainBinding;
+import com.example.viewit.ui.common.SystemBarInsets;
+import com.example.viewit.ui.category.CategoryFragment;
+import com.example.viewit.ui.feed.FeedFragment;
+import com.example.viewit.ui.rate.RateFragment;
+import com.example.viewit.ui.search.SearchFragment;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,6 +33,21 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
     // 스와이프로 페이지가 바뀌면 하단 5탭 선택 상태도 같이 맞춘다.
+    // 피드·탐색·카테고리·평가하기 탭 화면이 만들어지면 상태바 높이만큼 위를 띄운다.
+    // 프로필은 배너를 상태바 뒤까지 깔아서 제외하고, 바텀시트 같은 다른 Fragment도 건드리지 않는다.
+    // 각 탭 Fragment 코드는 고치지 않는다.
+    private final FragmentManager.FragmentLifecycleCallbacks tabTopInset =
+        new FragmentManager.FragmentLifecycleCallbacks() {
+            @Override
+            public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                                              @NonNull View v, Bundle savedInstanceState) {
+                if (f instanceof FeedFragment || f instanceof SearchFragment
+                    || f instanceof CategoryFragment || f instanceof RateFragment) {
+                    SystemBarInsets.padTop(v);
+                }
+            }
+        };
+
     private final ViewPager2.OnPageChangeCallback pageChangeCallback =
             new ViewPager2.OnPageChangeCallback() {
                 @Override
@@ -51,12 +74,14 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // 아래쪽 여백은 BottomNavigationView가 직접 처리하므로 위·좌·우만 맞춘다
+        // 아래쪽 여백은 BottomNavigationView가 직접 처리하므로 좌·우만 맞춘다.
+        // 위쪽(상태바) 여백은 탭 화면마다 준다: 프로필은 배너를 상태바 뒤까지 깔기 때문 (Figma 05-D)
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
             return insets;
         });
+        getSupportFragmentManager().registerFragmentLifecycleCallbacks(tabTopInset, false);
 
         // 5탭 화면을 ViewPager2에 연결해 좌우 스와이프로 전환할 수 있게 한다.
         binding.mainPager.setAdapter(new MainPagerAdapter(this));

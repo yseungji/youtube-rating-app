@@ -12,6 +12,15 @@
     <string name="follow_list_load_failed">목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요</string>
     <string name="follow_failed">팔로우하지 못했어요. 잠시 후 다시 시도해 주세요</string>
     <string name="unfollow_failed">팔로우를 취소하지 못했어요. 잠시 후 다시 시도해 주세요</string>
+    <!-- 새 평가 표시와 ⋮ 메뉴 (6.2) -->
+    <string name="follow_new_ratings">새 평가 %1$d개</string>
+    <string name="follow_menu_remove">팔로워 삭제</string>
+    <string name="follow_menu_unfollow">팔로우 취소</string>
+    <string name="remove_follower_dialog_title">%1$s 님을 팔로워에서 삭제할까요?</string>
+    <string name="remove_follower_dialog_message">상대에게 알림은 가지 않아요. 상대는 다시 팔로우할 수 있어요.</string>
+    <string name="remove_follower_confirm">삭제</string>
+    <string name="remove_follower_done">팔로워에서 삭제했어요</string>
+    <string name="remove_follower_failed">팔로워를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요</string>
     <string name="profile_empty_public_ratings_title">아직 공개한 평가가 없어요</string>
     <string name="profile_empty_public_ratings_message">공개로 남긴 평가가 여기에 보여요</string>
 </resources>

@@ -3,6 +3,7 @@
 <resources>
 
     <!-- 카테고리 칩. 괄호 안은 YouTube 카테고리 ID(fragment_category.xml의 android:tag) -->
+    <string name="category_intro">관심 있는 주제를 골라보세요</string>
     <string name="category_all">전체</string>
     <string name="category_music">음악</string>                   <!-- 10 -->
     <string name="category_game">게임</string>                    <!-- 20 -->

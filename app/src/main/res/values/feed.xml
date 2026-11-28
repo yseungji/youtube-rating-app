@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="feed_logo" translatable="false">viewit</string>
     <string name="feed_order_latest">최신순</string>
     <string name="feed_order_popular">인기순</string>
     <string name="feed_order_description">최신순·인기순 전환</string>

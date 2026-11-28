@@ -35,10 +35,50 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create, update, delete: if isUser(uid);
 
-      // settings, integrations, watchHistory, watchLater, blockedUsers, ratingReadStates: 본인 전용
+      // integrations, watchHistory, watchLater, blockedUsers, ratingReadStates: 본인은 읽고 쓴다
+      // (settings는 아래에서 따로: 공개 범위 값 검사 때문)
       match /{collection}/{docId} {
-        allow read, write: if isUser(uid);
+        allow read, write: if isUser(uid) && collection != 'settings';
       }
+
+      // settings/privacy: 공개 범위 (6.3). 누구나 읽고(어떤 탭을 보여 줄지 정함), 본인만 정해진 값으로 쓴다
+      match /settings/{docId} {
+        allow read: if isUser(uid) || (signedIn() && docId == 'privacy');
+        allow create, update: if isUser(uid) && (docId != 'privacy' || validPrivacy());
+        allow delete: if isUser(uid);   // 탈퇴할 때 정리 (6.4)
+      }
+
+      // 보관함·최근 본 영상: 본인 말고도 공개 범위가 허용하면 읽는다 (쓰기는 위의 본인 규칙)
+      match /watchLater/{videoId} {
+        allow read: if canSeeList(uid, 'watchLaterVisibility');
+      }
+      match /watchHistory/{videoId} {
+        allow read: if canSeeList(uid, 'watchHistoryVisibility');
+      }
+    }
+
+    function visibilityLevel(value) {
+      return value in ['public', 'followers', 'private'];
+    }
+
+    function validPrivacy() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['watchLaterVisibility', 'watchHistoryVisibility', 'subscriptionVisibility', 'updatedAt'])
+        && (!('watchLaterVisibility' in data) || visibilityLevel(data.watchLaterVisibility))
+        && (!('watchHistoryVisibility' in data) || visibilityLevel(data.watchHistoryVisibility))
+        && (!('subscriptionVisibility' in data) || visibilityLevel(data.subscriptionVisibility));
+    }
+
+    // owner의 목록(field: watchLaterVisibility 등)을 지금 사람이 볼 수 있는지.
+    // 설정이 없으면 전체 공개. 팔로워만이면 팔로우 문서가 있어야 하고, owner가 나를 차단했으면 못 본다.
+    function canSeeList(owner, field) {
+      let privacyPath = /databases/$(database)/documents/users/$(owner)/settings/privacy;
+      let level = exists(privacyPath) ? get(privacyPath).data.get(field, 'public') : 'public';
+      return signedIn()
+        && !exists(/databases/$(database)/documents/users/$(owner)/blockedUsers/$(request.auth.uid))
+        && (level == 'public'
+          || (level == 'followers'
+            && exists(/databases/$(database)/documents/follows/$(request.auth.uid + '_' + owner))));
     }
 
     // usernames/{username}: 아이디 예약. 본인 uid로만 만들고 지운다 (3.2 프로필 만들기, 6.3 프로필 편집·탈퇴)

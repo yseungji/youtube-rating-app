@@ -57,6 +57,14 @@
         <activity
             android:name=".ui.profile.BlockedUsersActivity"
             android:exported="false" />
+        <!-- 6.3 설정 → 이용약관·개인정보처리방침 -->
+        <activity
+            android:name=".PolicyActivity"
+            android:exported="false" />
+        <!-- 6.3 설정 → 공개 범위 -->
+        <activity
+            android:name=".ui.profile.PrivacySettingsActivity"
+            android:exported="false" />
 
         <!-- 6.1 평가한 영상 목록 (프로필의 평가 숫자에서 연다) -->
         <activity

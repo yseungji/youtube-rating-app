@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -18,10 +20,12 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.viewit.databinding.ActivityMainBinding;
 import com.example.viewit.ui.common.SystemBarInsets;
+import com.example.viewit.ui.common.YouTubeLinks;
 import com.example.viewit.ui.category.CategoryFragment;
 import com.example.viewit.ui.feed.FeedFragment;
 import com.example.viewit.ui.rate.RateFragment;
 import com.example.viewit.ui.search.SearchFragment;
+import com.example.viewit.ui.videodetail.VideoDetailActivity;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -65,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
+            if (isTextShareIntent(getIntent())) {
+                Log.d(TAG, "미로그인 상태에서 공유 인텐트 수신 -> 로그인 화면 이동");
+                Toast.makeText(this, R.string.share_receive_login_required, Toast.LENGTH_SHORT).show();
+            }
             openAndClear(GoogleSignInActivity.class);
             return;
         }
@@ -108,6 +116,62 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        // 외부 앱(YouTube 등)에서 영상 링크를 공유받아 처음 실행된 경우 바로 영상 상세를 연다.
+        // 회전 등 재생성(savedInstanceState != null) 시에는 같은 공유 인텐트를 다시 열지 않는다.
+        if (savedInstanceState == null) {
+            handleShareIntent(getIntent());
+        }
+    }
+
+    // 앱이 이미 실행 중인 상태에서 외부 앱의 공유(ACTION_SEND)를 다시 받았을 때 호출된다.
+    @Override
+    protected void onNewIntent(@NonNull Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            if (isTextShareIntent(intent)) {
+                Log.d(TAG, "미로그인 상태에서 onNewIntent 공유 수신 -> 로그인 화면 이동");
+                Toast.makeText(this, R.string.share_receive_login_required, Toast.LENGTH_SHORT).show();
+            }
+            openAndClear(GoogleSignInActivity.class);
+            return;
+        }
+        handleShareIntent(intent);
+    }
+
+    private boolean isTextShareIntent(@Nullable Intent intent) {
+        return intent != null
+                && Intent.ACTION_SEND.equals(intent.getAction())
+                && intent.getType() != null
+                && intent.getType().startsWith("text/");
+    }
+
+    // 공유받은 텍스트에서 YouTube 영상 ID를 추출해 MainActivity 위에 VideoDetailActivity를 연다.
+    // 뒤로가기를 누르면 아래에 깔린 MainActivity로 자연스럽게 돌아온다.
+    private void handleShareIntent(@Nullable Intent intent) {
+        if (!isTextShareIntent(intent)) {
+            return;
+        }
+        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        String videoId = YouTubeLinks.extractVideoId(sharedText);
+        if (videoId == null) {
+            String subjectText = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+            videoId = YouTubeLinks.extractVideoId(subjectText);
+        }
+        // 처리 완료한 공유 인텐트는 비워 두어 이후 재생성 시 중복 실행되지 않게 한다.
+        setIntent(new Intent(this, MainActivity.class));
+
+        if (videoId == null) {
+            Log.w(TAG, "공유 텍스트에서 유효한 YouTube 영상 ID를 찾지 못함");
+            Toast.makeText(this, R.string.share_receive_invalid_url, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Log.d(TAG, "공유받은 YouTube 영상 상세 열기: videoId=" + videoId);
+        Intent detailIntent = new Intent(this, VideoDetailActivity.class);
+        detailIntent.putExtra(VideoDetailActivity.EXTRA_VIDEO_ID, videoId);
+        startActivity(detailIntent);
     }
 
     @Override

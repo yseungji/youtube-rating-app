@@ -8,10 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,6 +67,63 @@ public class RateFragment extends Fragment {
     private int requestNumber;
     private boolean skipInitialResumeReload;
     private boolean reloadedFromResult;
+    private boolean connectInProgress;
+
+    // 좋아요·구독 채널 탭에서 YouTube 미연동 상태일 때 바로 Google OAuth 연동을 진행한다.
+    private final YouTubeAccountRepository.ConnectCallback youtubeConnectCallback =
+            new YouTubeAccountRepository.ConnectCallback() {
+                @Override
+                public void onConnected() {
+                    connectInProgress = false;
+                    Log.d(TAG, "평가하기 탭 YouTube 계정 연동 완료: tab=" + selectedTab);
+                    if (binding == null || !isAdded()) {
+                        return;
+                    }
+                    binding.rateConnectButton.setEnabled(true);
+                    Toast.makeText(requireContext(), R.string.youtube_connect_done, Toast.LENGTH_SHORT).show();
+                    loadCurrentTab(true);
+                }
+
+                @Override
+                public void onCancelled() {
+                    connectInProgress = false;
+                    Log.d(TAG, "평가하기 탭 YouTube 계정 연동 취소");
+                    if (binding == null || !isAdded()) {
+                        return;
+                    }
+                    hideLoading();
+                    binding.rateConnectButton.setEnabled(true);
+                    Toast.makeText(requireContext(), R.string.youtube_connect_cancelled, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(@NonNull Exception error) {
+                    connectInProgress = false;
+                    Log.w(TAG, "평가하기 탭 YouTube 계정 연동 실패", error);
+                    if (binding == null || !isAdded()) {
+                        return;
+                    }
+                    hideLoading();
+                    binding.rateConnectButton.setEnabled(true);
+                    Toast.makeText(requireContext(), R.string.youtube_connect_failed, Toast.LENGTH_SHORT).show();
+                }
+            };
+
+    // Google OAuth 권한 동의 창 결과를 받아 YouTubeAccountRepository에 전달한다.
+    private final ActivityResultLauncher<IntentSenderRequest> youtubeConnectLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            Activity activity = getActivity();
+                            if (activity == null) {
+                                connectInProgress = false;
+                                return;
+                            }
+                            youTubeAccountRepository.handleConnectResult(
+                                    activity, result, youtubeConnectCallback);
+                        }
+                    });
 
     // 상세 화면에서 평가를 저장·삭제하고 돌아오면 현재 탭 목록을 새로고침한다.
     //Launcher 클래스로 정보를 돌려받는다.
@@ -158,6 +217,14 @@ public class RateFragment extends Fragment {
             }
         });
 
+        // 5) 좋아요·구독 채널 미연동 시 바로 Google OAuth 연동을 시작하는 버튼 리스너 연결
+        binding.rateConnectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startYouTubeConnect();
+            }
+        });
+
         skipInitialResumeReload = true;
         loadCurrentTab(false);
     }
@@ -171,6 +238,9 @@ public class RateFragment extends Fragment {
         }
         if (reloadedFromResult) {
             reloadedFromResult = false;
+            return;
+        }
+        if (connectInProgress) {
             return;
         }
         // 다른 탭에서 영상을 보거나 설정에서 YouTube 연동 상태를 바꾸고 돌아왔을 때 현재 탭을 갱신한다.
@@ -233,7 +303,7 @@ public class RateFragment extends Fragment {
         final int request = ++requestNumber;
         videoItems.clear();
         adapter.notifyDataSetChanged();
-        binding.rateStatus.setVisibility(View.GONE);
+        hideStatus();
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             hideLoading();
@@ -355,8 +425,8 @@ public class RateFragment extends Fragment {
                         }
                         if (!Boolean.TRUE.equals(connected)) {
                             hideLoading();
-                            Log.d(TAG, "YouTube 미연동 안내 표시: tab=" + tab);
-                            showStatus(connectMessageRes);
+                            Log.d(TAG, "YouTube 미연동 안내 및 연동 버튼 표시: tab=" + tab);
+                            showStatus(connectMessageRes, true);
                             return;
                         }
 
@@ -416,7 +486,7 @@ public class RateFragment extends Fragment {
                                 Log.w(TAG, "YouTube OAuth 영상 조회 실패: tab=" + tab
                                         + ", reason=" + error.getReason());
                                 if (error.getReason() == YouTubeException.Reason.AUTH_REQUIRED) {
-                                    showStatus(R.string.youtube_error_auth_required);
+                                    showStatus(connectMessageRes, true);
                                 } else {
                                     showStatus(YouTubeErrorMessage.of(currentContext, error));
                                 }
@@ -438,9 +508,24 @@ public class RateFragment extends Fragment {
                         }
                         hideLoading();
                         Log.w(TAG, "YouTube 연동 여부 확인 실패", error);
-                        showStatus(connectMessageRes);
+                        showStatus(connectMessageRes, true);
                     }
                 });
+    }
+
+    private void startYouTubeConnect() {
+        if (binding == null || connectInProgress) {
+            return;
+        }
+        Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        connectInProgress = true;
+        binding.rateConnectButton.setEnabled(false);
+        showLoading();
+        Log.d(TAG, "평가하기 탭에서 YouTube 계정 연동 시작: tab=" + selectedTab);
+        youTubeAccountRepository.connect(activity, youtubeConnectLauncher, youtubeConnectCallback);
     }
 
     private void showVideoItems(@NonNull List<RateVideoAdapter.RateVideoItem> items, int emptyMessageRes) {
@@ -450,7 +535,7 @@ public class RateFragment extends Fragment {
         if (videoItems.isEmpty()) {
             showStatus(emptyMessageRes);
         } else {
-            binding.rateStatus.setVisibility(View.GONE);
+            hideStatus();
         }
     }
 
@@ -509,11 +594,17 @@ public class RateFragment extends Fragment {
     }
 
     private void showStatus(int messageRes) {
+        showStatus(messageRes, false);
+    }
+
+    private void showStatus(int messageRes, boolean showConnectButton) {
         if (binding == null) {
             return;
         }
         binding.rateStatus.setText(messageRes);
-        binding.rateStatus.setVisibility(View.VISIBLE);
+        binding.rateConnectButton.setEnabled(!connectInProgress);
+        binding.rateConnectButton.setVisibility(showConnectButton ? View.VISIBLE : View.GONE);
+        binding.rateStatusContainer.setVisibility(View.VISIBLE);
     }
 
     private void showStatus(@NonNull CharSequence message) {
@@ -521,12 +612,22 @@ public class RateFragment extends Fragment {
             return;
         }
         binding.rateStatus.setText(message);
-        binding.rateStatus.setVisibility(View.VISIBLE);
+        binding.rateConnectButton.setVisibility(View.GONE);
+        binding.rateStatusContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void hideStatus() {
+        if (binding == null) {
+            return;
+        }
+        binding.rateStatusContainer.setVisibility(View.GONE);
+        binding.rateConnectButton.setVisibility(View.GONE);
     }
 
     @Override
     public void onDestroyView() {
         requestNumber++;
+        connectInProgress = false;
         if (binding != null) {
             binding.rateVideoList.setAdapter(null);
         }

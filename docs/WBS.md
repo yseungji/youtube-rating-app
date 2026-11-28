@@ -91,10 +91,10 @@
 
 | 중분류 | 소분류 | 담당 | 진행도 | 비고 |
 |---|---|---|---|---|
-| 5.1 평가하기 탭 | 앱에서 본 영상 (앱 안 시청 기록) | 유승지 | 75% | 2026-11-24: `WatchHistoryRepository`·`VideoPlayerView` 재생 시작 시 `users/{uid}/watchHistory/{videoId}` 저장 및 Figma 04 평가하기 탭(`fragment_rate.xml`·`RateVideoAdapter`·`RateFragment`) 3개 필터 칩 공통 구조/리스너 로컬 구현 완료, 기기 동작 검증 대기 |
+| 5.1 평가하기 탭 | 앱에서 본 영상 (앱 안 시청 기록) | 유승지 | 100% | 2026-11-24: `WatchHistoryRepository`·`VideoPlayerView` 재생 시작 시 `users/{uid}/watchHistory/{videoId}` 저장 및 Figma 04 평가하기 탭(`fragment_rate.xml`·`RateVideoAdapter`·`RateFragment`) 3개 필터 칩 공통 구조/리스너 구현. 2026-11-28: 실기기에서 시청 기록 조회·당겨서 새로고침·상세 화면 이동 및 평가 동작 검증 완료 |
 | 5.1 평가하기 탭 | 공개 평가 목록 페이징 조회 (사용자 요청으로 화면 변경) | 유승지 | 25% | 2026-11-16: #31 사용자 로그로 상세 저장 후 Launcher 결과 수신·목록 갱신 호출 확인. 2026-11-24: 평가하기 탭을 Figma 04(앱에서 본·좋아요·구독 채널) 구조로 전환 |
-| 5.1 평가하기 탭 | 공유받은 영상 (유튜브 앱에서 공유 → 우리 앱으로 바로 열기) | 유승지 | 0% | |
-| 5.1 평가하기 탭 | 좋아요 영상, 구독 채널 영상 (OAuth 토큰은 6.3과 연계) | 유승지 | 75% | 2026-11-24: 좋아요·구독 채널 칩 UI·공통 어댑터 구현. 2026-11-25: 6.3 `YouTubeAccountRepository` (`loadLikedVideos`·`loadSubscriptionVideos`, 당겨서 새로고침 `forceRefresh`, `AUTH_REQUIRED`/`YouTubeErrorMessage` 처리) `RateFragment` 연결 및 컴파일 완료, 기기 동작 검증 대기 |
+| 5.1 평가하기 탭 | 공유받은 영상 (유튜브 앱에서 공유 → 우리 앱으로 바로 열기) | 유승지 | 100% | 2026-11-28: `AndroidManifest.xml`(`MainActivity` `ACTION_SEND` `text/plain` + `singleTask`)·`YouTubeLinks.extractVideoId`(`youtu.be`·`watch?v=`·`shorts/`·`live/`·`embed/`·제목 혼합 텍스트 파싱)·`MainActivity.handleShareIntent`(`onCreate`/`onNewIntent` → `VideoDetailActivity` 바로 열기, 뒤로가기 시 `MainActivity` 복귀) 구현 및 실기기 검증 완료 |
+| 5.1 평가하기 탭 | 좋아요 영상, 구독 채널 영상 (OAuth 토큰은 6.3과 연계) | 유승지 | 100% |해제 후 재연동 시 6.3 기기 토큰 캐시(`AUTH_REQUIRED`) 이슈 확인됨 |
 | 5.2 평가 작성 | 별점 1~5점, 한줄평(선택) 저장 | 유승지 | 100% | 2026-11-16: #31 저장 성공·결과 반환·피드 갱신 로그 및 회전 후 입력 유지 사용자 확인 |
 | 5.2 평가 작성 | 수정·삭제, 한 영상에 한 사람당 평가 1개 | 유승지 | 100% | 2026-11-16: #22·#24 삭제·확인창 구현. 사용자 로그로 삭제 성공·결과 반환·피드 갱신 확인 |
 | 5.2 평가 작성 | 평균·평가 수·분포를 집계 쿼리로 조회·갱신 | 유승지 | 100% | 2026-11-18: 집계 쿼리 검증 완료. 2026-11-21: 카테고리 평점순용 `videos` 집계 필드(`ratingAverage`·`publicRatingCount`·`ratingSum`·`ratingDistribution`·`statsUpdatedAt`) 저장·수정·비공개 전환·삭제 시 트랜잭션 갱신 및 미초기화 문서 보정 기기 로그 검증 완료 |

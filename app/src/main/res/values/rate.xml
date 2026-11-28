@@ -21,8 +21,11 @@
     <string name="rate_watched_empty">아직 앱에서 본 영상이 없어요.\n피드나 카테고리에서 영상을 재생하면 여기에 쌓여요.</string>
     <string name="rate_liked_empty">YouTube에서 좋아요한 영상이 없어요.</string>
     <string name="rate_subscribed_empty">구독 채널의 최근 영상이 없어요.</string>
-    <string name="rate_liked_connect_required">설정에서 YouTube 계정을 연동하면\n좋아요한 영상을 바로 평가할 수 있어요.</string>
-    <string name="rate_subscribed_connect_required">설정에서 YouTube 계정을 연동하면\n구독 채널의 최신 영상을 바로 평가할 수 있어요.</string>
+    <string name="rate_liked_connect_required">YouTube 계정을 연동하면\n좋아요한 영상을 바로 평가할 수 있어요.</string>
+    <string name="rate_subscribed_connect_required">YouTube 계정을 연동하면\n구독 채널의 최신 영상을 바로 평가할 수 있어요.</string>
+    <string name="rate_connect_youtube">YouTube 계정 연동하기</string>
+    <string name="share_receive_invalid_url">유효한 YouTube 영상 링크가 아니에요.</string>
+    <string name="share_receive_login_required">로그인 후 공유받은 영상을 평가할 수 있어요.</string>
     <string name="rate_oauth_connected_preparing">YouTube 연동이 확인되었어요.\nOAuth 영상 목록 조회 연결을 준비 중이에요.</string>
     <string name="rate_history_load_error">영상을 불러오지 못했어요.\n아래로 당겨서 다시 시도해 주세요.</string>
 

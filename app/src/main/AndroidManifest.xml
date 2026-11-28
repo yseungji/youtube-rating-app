@@ -20,15 +20,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Viewit">
 
-        <!-- 앱 시작 화면: 로그인 상태를 확인한 뒤 하단 5탭 표시 -->
+        <!-- 앱 시작 화면: 로그인 상태를 확인한 뒤 하단 5탭 표시.
+             외부 앱(YouTube 등)에서 공유받은 영상 링크를 수신해 영상 상세 화면으로 바로 연다 (5.1). -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 

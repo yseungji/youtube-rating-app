@@ -250,7 +250,7 @@ public class SettingsActivity extends AppCompatActivity {
         bindRow(binding.settingsAppVersion, R.drawable.ic_info_outline,
             R.string.settings_app_version, 0, BuildConfig.VERSION_NAME, false);
 
-        // 아직 만들지 않은 기능 (내 활동·약관은 6.3 후속)
+        // 아직 만들지 않은 기능 (내 활동)
         View.OnClickListener comingSoon = v ->
             Toast.makeText(this, R.string.profile_coming_soon, Toast.LENGTH_SHORT).show();
         // 프로필 편집 화면 열기
@@ -270,8 +270,17 @@ public class SettingsActivity extends AppCompatActivity {
             Intent intent = new Intent(this, BlockedUsersActivity.class);
             startActivity(intent);
         });
-        binding.settingsTerms.getRoot().setOnClickListener(comingSoon);
-        binding.settingsPrivacyPolicy.getRoot().setOnClickListener(comingSoon);
+        binding.settingsTerms.getRoot().setOnClickListener(v -> {
+            Intent intent = new Intent(this, PolicyActivity.class);
+            intent.putExtra(PolicyActivity.EXTRA_TYPE, PolicyActivity.TYPE_TERMS);
+            startActivity(intent);
+        });
+        binding.settingsPrivacyPolicy.getRoot().setOnClickListener(v -> {
+                Intent intent = new Intent(this, PolicyActivity.class);
+                intent.putExtra(PolicyActivity.EXTRA_TYPE, PolicyActivity.TYPE_PRIVACY);
+                startActivity(intent);
+            }
+        );
         binding.settingsAppVersion.getRoot().setClickable(false);   // 버전은 보기만
     }
 

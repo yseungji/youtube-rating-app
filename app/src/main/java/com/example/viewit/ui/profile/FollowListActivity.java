@@ -241,12 +241,7 @@ public class FollowListActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
             .setTitle(getString(R.string.remove_follower_dialog_title, item.getDisplayName()))
             .setMessage(R.string.remove_follower_dialog_message)
-            .setPositiveButton(R.string.remove_follower_confirm, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    removeFollower(item);
-                }
-            })
+            .setPositiveButton(R.string.remove_follower_confirm, (dialog, which) -> removeFollower(item))
             .setNegativeButton(R.string.dialog_cancel, null)
             .create()
             .show();
@@ -257,12 +252,7 @@ public class FollowListActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
             .setTitle(getString(R.string.block_dialog_title, item.getDisplayName()))
             .setMessage(R.string.block_dialog_message)
-            .setPositiveButton(R.string.block_dialog_confirm, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    blockUser(item);
-                }
-            })
+            .setPositiveButton(R.string.block_dialog_confirm, (dialog, which) -> blockUser(item))
             .setNegativeButton(R.string.dialog_cancel, null)
             .create()
             .show();

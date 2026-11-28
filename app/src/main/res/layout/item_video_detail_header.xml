@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ConcatAdapter의 첫 항목: 영상 정보·내 평가·전체 통계를 함께 스크롤한다. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -137,7 +138,9 @@
         android:orientation="horizontal"
         android:padding="@dimen/screen_padding">
 
+        <!-- 전체/팔로잉 칩에 따라 "전체 사람의 평가" / "팔로우한 사람의 평가"로 바뀐다 (4.2 장주원) -->
         <TextView
+            android:id="@+id/public_rating_heading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/video_detail_public_heading"
@@ -152,5 +155,33 @@
             android:textAppearance="@style/TextAppearance.Viewit.Section"
             tools:text="2" />
     </LinearLayout>
+
+    <!-- 평가 목록 필터 (4.2 장주원): 전체 공개 평가 / 내가 팔로우한 사람의 공개 평가 -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/public_rating_filter_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-8dp"
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingBottom="@dimen/space_s"
+        app:checkedChip="@id/public_rating_filter_all"
+        app:selectionRequired="true"
+        app:singleLine="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/public_rating_filter_all"
+            style="@style/Widget.Viewit.Chip.Segment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/video_detail_filter_all" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/public_rating_filter_following"
+            style="@style/Widget.Viewit.Chip.Segment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/video_detail_filter_following" />
+    </com.google.android.material.chip.ChipGroup>
 
 </LinearLayout>
